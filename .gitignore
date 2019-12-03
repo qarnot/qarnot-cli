@@ -1,0 +1,8 @@
+*/obj
+*/bin
+*.swp
+.vscode
+*/*.log
+**/man/
+*/TestResults/
+**/.Qarnot

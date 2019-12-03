@@ -1,0 +1,5 @@
+CreateDoc/**/*.md
+DocfxDoccumentation/docfx/
+DocfxDoccumentation/docfx_project/*.tar.xz
+DocfxDoccumentation/docfx_project/templates/
+images/

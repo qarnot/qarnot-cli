@@ -1,0 +1,17 @@
+- name: All The Commands
+  href: ManIndex.md
+- name: Command
+  href: Commands.md
+  items:
+    - name: Account
+      href: Account.md
+    - name: Config
+      href: Config.md
+    - name: Task
+      href: Task.md
+    - name: Job
+      href: Job.md
+    - name: Pool
+      href: Pool.md
+    - name: Bucket
+      href: Bucket.md

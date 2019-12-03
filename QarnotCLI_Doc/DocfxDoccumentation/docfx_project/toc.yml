@@ -1,0 +1,9 @@
+- name: Tutorial
+  href: tutorial/
+  homepage: tutorial/tutorial.md
+- name: Api Documentation
+  href: api/
+  homepage: api/index.md
+- name: Usage
+  href: man/
+  homepage: man/Commands.md
