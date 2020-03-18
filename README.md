@@ -1,4 +1,5 @@
-# QarnotCli
+# QarnotCli [![Build status](https://ci.appveyor.com/api/projects/status/skqorbvi8m7m9qs8?svg=true)](https://ci.appveyor.com/project/qarnot/qarnot-cli) [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/qarnot/qarnot-cli?sort=semver)](https://github.com/qarnot/qarnot-cli/releases)
+
 
 QarnotCLI is the Command Line Interface to interact with the Qarnot Computing platform
 
