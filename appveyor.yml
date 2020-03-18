@@ -30,8 +30,8 @@ build_script:
   - dotnet build -c Release
 
 after_build:
-  - sh: dotnet publish qarnot -c Release -r ubuntu-x64 /p:PublishSingleFile=true -o ./artifacts
-  - cmd: dotnet publish qarnot -c Release -r win10-x64 /p:PublishSingleFile=true -o ./artifacts
+  - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r ubuntu-x64 /p:PublishSingleFile=true -o ./artifacts
+  - cmd: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win10-x64 /p:PublishSingleFile=true -o ./artifacts
   - ls artifacts
   - rm artifacts/*.pdb
 
