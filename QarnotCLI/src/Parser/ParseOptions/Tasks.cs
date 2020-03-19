@@ -114,6 +114,34 @@ namespace QarnotCLI
             public override string Id { get; set; }
         }
 
+        [Verb("task update-resources", HelpText = "Update resources for a running task.")]
+        public class UpdateTaskResourcesOptions : AGetOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example(
+                        "Classic usage",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new UpdateTaskResourcesOptions { Id = "TaskID" });
+                }
+            }
+
+            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
+            public bool All { get; set; }
+
+            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
+            public override string Name { get; set; }
+
+            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
+            public override IEnumerable<string> Tags { get; set; }
+
+            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
+            public override string Id { get; set; }
+        }
+
         [Verb("task wait", HelpText = "Wait for the end of the task selected.")]
         public class WaitTaskOptions : AGetOptions
         {

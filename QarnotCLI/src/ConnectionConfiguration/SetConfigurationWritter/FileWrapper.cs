@@ -1,5 +1,6 @@
 namespace QarnotCLI
 {
+    using System;
     using System.IO;
 
     public interface IFileWrapper

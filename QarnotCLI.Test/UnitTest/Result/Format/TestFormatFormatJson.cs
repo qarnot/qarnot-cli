@@ -31,7 +31,7 @@ namespace QarnotCLI.Test
         public void CheckBasicJsonFormatReturnTheGoodSring()
         {
             var format = FormatterFactory.CreateFormat("JSON");
-            string retString = "{\n  \"Var1\": \"test\",\n  \"Var2\": \"test\"\n}";
+            string retString = "{" + Environment.NewLine + "  \"Var1\": \"test\"," + Environment.NewLine + "  \"Var2\": \"test\"" + Environment.NewLine + "}";
             TestJson test = new TestJson();
 
             Assert.AreEqual(retString, format.Format<TestJson>(test));
@@ -41,7 +41,7 @@ namespace QarnotCLI.Test
         public void CheckBasicJsonFormatListReturnTheGoodSring()
         {
             var format = FormatterFactory.CreateFormat("TABLE");
-            string retString = "[\n  {\n    \"Var1\": \"test\",\n    \"Var2\": \"test\"\n  }\n]";
+            string retString = "[" + Environment.NewLine + "  {" + Environment.NewLine + "    \"Var1\": \"test\"," + Environment.NewLine + "    \"Var2\": \"test\"" + Environment.NewLine + "  }" + Environment.NewLine + "]";
             List<TestJson> test = new List<TestJson>() { new TestJson() };
 
             Assert.AreEqual(retString, format.FormatCollection<TestJson>(test));

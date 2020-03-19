@@ -44,4 +44,18 @@ namespace QarnotCLI
             };
         }
     }
+
+    public class UpdateTaskResourcesCommand : ICommand<QTask, CommandValues.GenericInfoCommandValue>
+    {
+        public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QTask task, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
+        {
+            CLILogs.Debug("Command Task : Update Storage");
+            await task.UpdateResourcesAsync(cancellationToken: ct);
+            return new CommandValues.GenericInfoCommandValue()
+            {
+                Uuid = task.Uuid.ToString(),
+                Message = "Task resources updated",
+            };
+        }
+    }
 }

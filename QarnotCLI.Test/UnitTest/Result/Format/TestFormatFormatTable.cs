@@ -52,7 +52,7 @@ namespace QarnotCLI.Test
         public void CheckBasicTableFormatMustBeJson()
         {
             var format = FormatterFactory.CreateFormat("TABLE");
-            string retString = "{\n  \"Var1\": \"test\",\n  \"Var2\": \"test\"\n}";
+            string retString = "{" + Environment.NewLine + "  \"Var1\": \"test\"," + Environment.NewLine + "  \"Var2\": \"test\"" + Environment.NewLine + "}";
             TestTable test = new TestTable();
 
             Assert.AreEqual(retString, format.Format<TestTable>(test));
@@ -62,7 +62,7 @@ namespace QarnotCLI.Test
         public void CheckBasicTableFormatListMustBeJson()
         {
             var format = FormatterFactory.CreateFormat("TABLE");
-            string retString = "[\n  {\n    \"Var1\": \"test\",\n    \"Var2\": \"test\"\n  }\n]";
+            string retString = "[" + Environment.NewLine + "  {" + Environment.NewLine + "    \"Var1\": \"test\"," + Environment.NewLine + "    \"Var2\": \"test\"" + Environment.NewLine + "  }" + Environment.NewLine + "]";
             List<TestTable> test = new List<TestTable>() { new TestTable() };
 
             Assert.AreEqual(retString, format.FormatCollection<TestTable>(test));
@@ -72,7 +72,7 @@ namespace QarnotCLI.Test
         public void CheckICommandValueTableFormatSimpleReturnTheGoodSring()
         {
             var format = FormatterFactory.CreateFormat("TABLE");
-            string retString = "Var1 : test\nVar2 : test\n";
+            string retString = "Var1 : test" + Environment.NewLine + "Var2 : test" + Environment.NewLine;
             TestTableCommandValues test = new TestTableCommandValues();
 
             Assert.AreEqual(retString, format.Format<TestTableCommandValues>(test));
@@ -82,7 +82,7 @@ namespace QarnotCLI.Test
         public void CheckICommandValueTableListFormatReturnTheGoodSring()
         {
             var format = FormatterFactory.CreateFormat("TABLE");
-            string retString = "Var1 : test\nVar2 : \n    * test1\n    * test2\n";
+            string retString = "Var1 : test" + Environment.NewLine + "Var2 : " + Environment.NewLine + "    * test1" + Environment.NewLine + "    * test2" + Environment.NewLine;
             TestTableCommandValuesList test = new TestTableCommandValuesList();
 
             Assert.AreEqual(retString, format.Format<TestTableCommandValuesList>(test));
@@ -92,7 +92,7 @@ namespace QarnotCLI.Test
         public void CheckICommandValueTableDictionaryFormatReturnTheGoodSring()
         {
             var format = FormatterFactory.CreateFormat("TABLE");
-            string retString = "Var1 : test\nVar2 : \n    key1 : value1\n    key2 : value2\n";
+            string retString = "Var1 : test" + Environment.NewLine + "Var2 : " + Environment.NewLine + "    key1 : value1" + Environment.NewLine + "    key2 : value2" + Environment.NewLine;
             TestTableCommandValuesDictionary test = new TestTableCommandValuesDictionary();
 
             Assert.AreEqual(retString, format.Format<TestTableCommandValuesDictionary>(test));
@@ -102,7 +102,7 @@ namespace QarnotCLI.Test
         public void CheckICommandValueTableFormatListReturnTheGoodSring()
         {
             var format = FormatterFactory.CreateFormat("TABLE");
-            string retString = " --------------- \n | Var1 | Var2 |\n --------------- \n | test | test |\n --------------- \n | test | test |\n --------------- \n\n Count: 2";
+            string retString = " --------------- " + Environment.NewLine + " | Var1 | Var2 |" + Environment.NewLine + " --------------- " + Environment.NewLine + " | test | test |" + Environment.NewLine + " --------------- " + Environment.NewLine + " | test | test |" + Environment.NewLine + " --------------- " + Environment.NewLine + Environment.NewLine + " Count: 2";
             List<TestTableCommandValues> test = new List<TestTableCommandValues>() { new TestTableCommandValues(), new TestTableCommandValues() };
 
             Assert.AreEqual(retString, format.FormatCollection<TestTableCommandValues>(test));

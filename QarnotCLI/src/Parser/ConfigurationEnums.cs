@@ -105,5 +105,10 @@ namespace QarnotCLI
         /// Type Download an element to the Api
         /// </summary>
         Download,
+
+        /// <summary>
+        /// Synchronize the storage of an Api element
+        /// </summary>
+        UpdateResources,
     }
 }

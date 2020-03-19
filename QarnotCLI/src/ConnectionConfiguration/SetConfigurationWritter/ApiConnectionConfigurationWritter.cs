@@ -1,5 +1,6 @@
 namespace QarnotCLI
 {
+    using System;
     using System.IO;
 
     public interface IApiConnectionConfigurationWritter
@@ -77,7 +78,7 @@ namespace QarnotCLI
 
         private void PrintInformationFiles(string path, string token, string uri, string bucketUri)
         {
-            string lines = $"Configuration set on the file '{path}'\ntoken:{token}\nuri:{uri}\nstorage:{bucketUri}";
+            string lines = $"Configuration set on the file '{path}'" + Environment.NewLine + "token:{token}" + Environment.NewLine + "uri:{uri}" + Environment.NewLine + "storage:{bucketUri}";
             CLILogs.Info(lines);
         }
 

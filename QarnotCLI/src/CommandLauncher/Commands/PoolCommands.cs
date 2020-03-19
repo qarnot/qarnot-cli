@@ -9,11 +9,25 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("Command pool : delete");
-            await pool.DeleteAsync();
+            await pool.DeleteAsync(ct);
             return new CommandValues.GenericInfoCommandValue()
             {
                 Uuid = pool.Uuid.ToString(),
                 Message = "Pool delete ",
+            };
+        }
+    }
+
+    public class UpdatePoolResourcesCommand : ICommand<QPool, CommandValues.GenericInfoCommandValue>
+    {
+        public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
+        {
+            CLILogs.Debug("Command pool : Update Storage");
+            await pool.UpdateResourcesAsync(ct);
+            return new CommandValues.GenericInfoCommandValue()
+            {
+                Uuid = pool.Uuid.ToString(),
+                Message = "Pool resources updated",
             };
         }
     }

@@ -154,6 +154,46 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void UpdatePoolResourcesCheckTestParsArg()
+        {
+            string poolUuid = "PoolUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string[] argv = null;
+            using var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+
+            argv = new string[] { "pool", "update-resources", "--name", name, "--id", poolUuid, "--tags", tags };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is DefaultRunConfiguration))
+            {
+                throw new Exception("return value is not DefaultRunConfiguration ");
+            }
+
+            DefaultRunConfiguration confset = (DefaultRunConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Pool);
+            Assert.AreEqual(confset.Command, CommandApi.UpdateResources);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, poolUuid);
+
+            argv = new string[] { "pool", "update-resources", "-n", name, "-i", poolUuid, "-t", tags };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is DefaultRunConfiguration))
+            {
+                throw new Exception("return value is not DefaultRunConfiguration ");
+            }
+
+            confset = (DefaultRunConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Pool);
+            Assert.AreEqual(confset.Command, CommandApi.UpdateResources);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, poolUuid);
+        }
+
+        [Test]
         public void SetPoolCheckTestParsArg()
         {
             string poolUuid = "PoolUUID";

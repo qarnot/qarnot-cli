@@ -171,6 +171,46 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void UploadTaskResourcesCheckTestParsArg()
+        {
+            string taskUuid = "TaskUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string[] argv = null;
+            using var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+
+            argv = new string[] { "task", "update-resources", "--name", name, "--id", taskUuid, "--tags", tags };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is DefaultRunConfiguration))
+            {
+                throw new Exception("return value is not DefaultRunConfiguration ");
+            }
+
+            DefaultRunConfiguration confset = (DefaultRunConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Task);
+            Assert.AreEqual(confset.Command, CommandApi.UpdateResources);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, taskUuid);
+
+            argv = new string[] { "task", "update-resources", "-n", name, "-i", taskUuid, "-t", tags };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is DefaultRunConfiguration))
+            {
+                throw new Exception("return value is not DefaultRunConfiguration ");
+            }
+
+            confset = (DefaultRunConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Task);
+            Assert.AreEqual(confset.Command, CommandApi.UpdateResources);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, taskUuid);
+        }
+
+        [Test]
         public void WaitTaskCheckTestParsArg()
         {
             string taskUuid = "TaskUUID";

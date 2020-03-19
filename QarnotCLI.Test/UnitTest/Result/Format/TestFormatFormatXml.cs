@@ -31,7 +31,7 @@ namespace QarnotCLI.Test
         public void CheckBasicXmlFormatReturnTheGoodSring()
         {
             var format = FormatterFactory.CreateFormat("XML");
-            string retString = "<Information>\n  <Var1>test</Var1>\n  <Var2>test</Var2>\n</Information>";
+            string retString = "<Information>" + Environment.NewLine + "  <Var1>test</Var1>" + Environment.NewLine + "  <Var2>test</Var2>" + Environment.NewLine + "</Information>";
             TestXML test = new TestXML();
 
             Assert.AreEqual(retString, format.Format<TestXML>(test));

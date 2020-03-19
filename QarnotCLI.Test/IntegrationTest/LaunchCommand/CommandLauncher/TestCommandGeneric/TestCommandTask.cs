@@ -138,5 +138,22 @@ namespace QarnotCLI.Test
             StringAssert.Contains(expected2, returnString);
             StringAssert.Contains(expected3, returnString);
         }
+
+        [Test]
+        public async Task UpdateTaskResourcesFromFakeHandlerReturnTheGoodUuid()
+        {
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            ConfigType type = ConfigType.Task;
+            CommandApi command = CommandApi.UpdateResources;
+
+            var commandLauncher = LaunchFactory.CreateLauncher(type, command);
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new DefaultRunConfiguration(type, command),
+                FalsePrinter);
+
+            string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
+            StringAssert.Contains(expected1, returnString);
+        }
     }
 }

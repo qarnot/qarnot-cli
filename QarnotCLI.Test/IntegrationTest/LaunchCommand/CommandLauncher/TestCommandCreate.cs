@@ -46,7 +46,7 @@ namespace QarnotCLI.Test
             var createPool = new ApiObjectCreator.CreateNewPool(Tool);
             var commandLauncher = new CreateCommandLauncher(createPool, FormatTable, FakeApi);
             string ret = await commandLauncher.RunAndPrintCommandAsync(config, FalsePrinter);
-            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece\nMessage : New pool created, state : Success\n";
+            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece" + Environment.NewLine + "Message : New pool created, state : Success" + Environment.NewLine;
             Assert.AreEqual(ret, expected);
         }
 
@@ -58,7 +58,7 @@ namespace QarnotCLI.Test
             var createJob = new ApiObjectCreator.CreateNewJob(Tool);
             var commandLauncher = new CreateCommandLauncher(createJob, FormatTable, FakeApi);
             string ret = await commandLauncher.RunAndPrintCommandAsync(config, FalsePrinter);
-            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece\nMessage : New job created, state : Success\n";
+            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece" + Environment.NewLine + "Message : New job created, state : Success" + Environment.NewLine;
             Assert.AreEqual(ret, expected);
         }
 
@@ -71,7 +71,7 @@ namespace QarnotCLI.Test
             var createJob = new ApiObjectCreator.CreateNewJob(Tool);
             var commandLauncher = new CreateCommandLauncher(createJob, FormatTable, FakeApi);
             string ret = await commandLauncher.RunAndPrintCommandAsync(config, FalsePrinter);
-            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece\nMessage : New job created, state : Success\n";
+            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece" + Environment.NewLine + "Message : New job created, state : Success" + Environment.NewLine;
             Assert.AreEqual(ret, expected);
         }
 
@@ -154,7 +154,7 @@ namespace QarnotCLI.Test
             var createTask = new ApiObjectCreator.CreateNewTask(Tool);
             var commandLauncher = new CreateCommandLauncher(createTask, FormatTable, FakeApi);
             string ret = await commandLauncher.RunAndPrintCommandAsync(config, FalsePrinter);
-            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece\nMessage : New task created, state : Success\n";
+            string expected = "Uuid : f78fdff8-7081-46e1-bb2f-d9cd4e185ece" + Environment.NewLine + "Message : New task created, state : Success" + Environment.NewLine;
             Assert.AreEqual(ret, expected);
         }
     }

@@ -118,6 +118,34 @@ namespace QarnotCLI
             public override string Id { get; set; }
         }
 
+        [Verb("pool update-resources", HelpText = "Update resources for a running pool")]
+        public class UpdatePoolResourcesOptions : AGetOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example(
+                        "Classic usage",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new UpdatePoolResourcesOptions { Id = "Pool Uuid", Tags = new string[] { "TAG1", "TAG2" } });
+                }
+            }
+
+            [Option('a', "all", Group = "Select", HelpText = "All the pools.")]
+            public bool All { get; set; }
+
+            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the pool.")]
+            public override string Name { get; set; }
+
+            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the pool.")]
+            public override IEnumerable<string> Tags { get; set; }
+
+            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the pool you want.")]
+            public override string Id { get; set; }
+        }
+
         [Verb("pool delete", HelpText = "Delete the pool selected.")]
         public class DeletePoolOptions : AGetOptions
         {
