@@ -216,7 +216,11 @@ namespace QarnotCLI.Test
         [Test]
         public void CheckIfYouCAnGetInfoFromFile()
         {
-            Set.SetConfigInformation("path", null, null, null);
+            LocalSetUpConfiguration config = new LocalSetUpConfiguration()
+            {
+                ApiConnection = new APIConnectionInformation()
+            };
+            Set.SetConfigInformation("path", config);
             Assert.AreEqual(Writer.Checker["token"], FakeFileInformationGetter.Token);
             Assert.AreEqual(Writer.Checker["uri"], FakeFileInformationGetter.ApiUri);
             Assert.AreEqual(Writer.Checker["storage"], FakeFileInformationGetter.StorageUri);
@@ -225,7 +229,15 @@ namespace QarnotCLI.Test
         [Test]
         public void CheckInfoWellSendToTheWriter()
         {
-            Set.SetConfigInformation("path123", "token123", "uri123", "bucket123");
+            LocalSetUpConfiguration config = new LocalSetUpConfiguration();
+            APIConnectionInformation connectionInformation = new APIConnectionInformation();
+            connectionInformation.Token = "token123";
+            connectionInformation.ApiUri = "uri123";
+            connectionInformation.StorageUri = "bucket123";
+            config.ApiConnection = connectionInformation;
+
+            Set.SetConfigInformation("path123", config);
+
             Assert.AreEqual(FileWrap.PathFind, "path123");
             Assert.AreEqual(Writer.Checker["token"], "token123");
             Assert.AreEqual(Writer.Checker["uri"], "uri123");

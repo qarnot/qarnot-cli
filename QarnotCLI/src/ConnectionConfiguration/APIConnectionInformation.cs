@@ -49,5 +49,12 @@ namespace QarnotCLI
                 string.IsNullOrWhiteSpace(apiUri) ||
                 string.IsNullOrWhiteSpace(storageUri));
         }
+
+        public void Update(APIConnectionInformation connectionInformation)
+        {
+            SetToken = connectionInformation.Token;
+            SetApiUri = connectionInformation.ApiUri;
+            SetStorageUri = connectionInformation.StorageUri;
+        }
     }
 }

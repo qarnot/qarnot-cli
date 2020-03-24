@@ -63,6 +63,8 @@ namespace QarnotCLI
         public string ResultFormat { get; set; }
 
         public bool HumanReadable { get; set; }
+
+        public bool ShowConnectionInfo { get; set; }
     }
 
     /// <summary>

@@ -2,6 +2,7 @@ namespace QarnotCLI
 {
     using System;
     using System.IO;
+    using System.Text;
 
     public interface IApiConnectionConfigurationWritter
     {
@@ -19,16 +20,20 @@ namespace QarnotCLI
 
         private readonly IFileWrapper FileWrap;
 
+        private readonly EnvironmentVariableReader GetEnvironmentVariable;
+
         public ApiConnectionConfigurationWritter(
             IConfigurationFileGetter getEnvPath = null,
             IConfigurationFileReader getFileInformation = null,
             IFileStreamWriter writer = null,
-            IFileWrapper fileWrapper = null)
+            IFileWrapper fileWrapper = null,
+            EnvironmentVariableReader envVariablesReader = null)
         {
             FileWriter = writer ?? new FileStreamWriter();
             EnvironmentPathGetter = getEnvPath ?? new ConfigurationFileGetter();
             FileInformationGetter = getFileInformation ?? new ConfigurationFileReader();
             FileWrap = fileWrapper ?? new FileWrapper();
+            GetEnvironmentVariable = envVariablesReader ?? new EnvironmentVariableReader();
         }
 
         public IConfigurationFileReader FileInformationGetter { get; }
@@ -69,17 +74,15 @@ namespace QarnotCLI
             CLILogs.Debug("Set the config value");
 
             string path = this.GetPath((LocalSetUpConfiguration)iconfig);
-            string token = iconfig.ApiConnection.Token ?? default(string);
-            string uri = iconfig.ApiConnection.ApiUri ?? default(string);
-            string bucketUri = iconfig.ApiConnection.StorageUri ?? default(string);
-
-            this.SetConfigInformation(path, token, uri, bucketUri);
+            this.SetConfigInformation(path, iconfig);
         }
 
-        private void PrintInformationFiles(string path, string token, string uri, string bucketUri)
+        private void PrintInformationFiles(string path, APIConnectionInformation connectionInformation)
         {
-            string lines = $"Configuration set on the file '{path}'" + Environment.NewLine + "token:{token}" + Environment.NewLine + "uri:{uri}" + Environment.NewLine + "storage:{bucketUri}";
+            string lines = $"Configuration on the file '{path}'";
+            string information = $"token:{connectionInformation.Token}" + Environment.NewLine + "uri:{connectionInformation.ApiUri}" + Environment.NewLine + "storage:{connectionInformation.StorageUri}";
             CLILogs.Info(lines);
+            CLILogs.Info(information);
         }
 
         public void CheckDirectory(string path)
@@ -93,41 +96,51 @@ namespace QarnotCLI
             }
         }
 
-        public void SetConfigInformation(string path, string token, string uri, string bucketUri)
+        public void SetConfigInformation(string path, IConfiguration config)
         {
+            APIConnectionInformation info = new APIConnectionInformation();
+
             if (FileWrap.DoesFileExist(path))
             {
-                APIConnectionInformation info = this.FileInformationGetter.ReadFile(path);
-
-                token = token ?? info.Token;
-                uri = uri ?? info.ApiUri;
-                bucketUri = bucketUri ?? info.StorageUri;
+                info = this.FileInformationGetter.ReadFile(path);
             }
             else
             {
                 this.CheckDirectory(path);
             }
 
-            this.CheckUriValuesAndSetConfigFile(path, token, uri, bucketUri);
+            var apiConfig = config as LocalSetUpConfiguration;
+            if (apiConfig.ShowConnectionInfo)
+            {
+                this.ShowConfiguration(path, config, info);
+            }
+            else
+            {
+                config.ApiConnection.Update(info);
+                this.SetConfigFile(path, config.ApiConnection);
+            }
         }
 
-        public void CheckUriValuesAndSetConfigFile(string path, string token, string uri, string bucketUri)
+        private void ShowConfiguration(string path, IConfiguration config, APIConnectionInformation fileConnectionInfo)
         {
-            uri = string.IsNullOrWhiteSpace(uri) ? null : uri;
+            APIConnectionInformation info = new APIConnectionInformation();
+            info.Update(config.ApiConnection);
+            GetEnvironmentVariable.RetrieveEnvironmentInformation(info);
+            info.Update(fileConnectionInfo);
 
-            bucketUri = string.IsNullOrWhiteSpace(bucketUri) ? null : bucketUri;
-
-            this.SetConfigFile(path, token, uri, bucketUri);
+            string information = "connection information:\n";
+            information += $"token:{info.Token}\nuri:{info.ApiUri}\nstorage:{info.StorageUri}";
+            CLILogs.Info(information);
         }
 
-        private void SetConfigFile(string path, string token, string uri, string bucketUri)
+        private void SetConfigFile(string path, APIConnectionInformation connectionInformation)
         {
-            PrintInformationFiles(path, token, uri, bucketUri);
+            PrintInformationFiles(path, connectionInformation);
             using (FileStream fs = FileWrap.CreateFile(path))
             {
-                FileWriter.Write("token", token, fs);
-                FileWriter.Write("uri", uri, fs);
-                FileWriter.Write("storage", bucketUri, fs);
+                FileWriter.Write("token", connectionInformation.Token, fs);
+                FileWriter.Write("uri", connectionInformation.ApiUri, fs);
+                FileWriter.Write("storage", connectionInformation.StorageUri, fs);
             }
         }
     }

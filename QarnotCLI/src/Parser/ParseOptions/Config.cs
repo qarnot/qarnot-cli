@@ -28,13 +28,16 @@ namespace QarnotCLI
             [Option('g', "global", Required = false, HelpText = "Set the configuration in the global default file ($HOME/.Qarnot/) to use it outside the binary path.")]
             public bool Global { get; set; }
 
-            [Option('t', "token", Group = "Set Configuration Values",  HelpText = "The API Token to be use.")]
+            [Option('w', "show", HelpText = "Display the connection information that will be used in the connection (check also the environment variables).")]
+            public bool ShowConnectionInfo { get; set; }
+
+            [Option('t', "token", HelpText = "The API Token to be use.")]
             public override string Token { get; set; }
 
-            [Option('u', "apiUri", Group = "Set Configuration Values", Required = false, HelpText = "The api uri to be use.")]
+            [Option('u', "apiUri",Required = false, HelpText = "The api uri to be use.")]
             public string Uri { get; set; }
 
-            [Option('s', "storageUri", Group = "Set Configuration Values", Required = false, HelpText = "The bucket api uri to be use.")]
+            [Option('s', "storageUri",Required = false, HelpText = "The bucket api uri to be use.")]
             public string Storage { get; set; }
         }
     }

@@ -215,6 +215,7 @@ namespace QarnotCLI
             config.ApiConnection.Token = option.Token;
             config.ApiConnection.ApiUri = option.Uri;
             config.ApiConnection.StorageUri = option.Storage;
+            config.ShowConnectionInfo = option.ShowConnectionInfo;
             return config;
         }
 
