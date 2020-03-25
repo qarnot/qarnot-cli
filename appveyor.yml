@@ -55,7 +55,7 @@ deploy:
     artifact: qarnot
     description: "Cli to use Qarnot's computing service"
     draft: false
-    prerelease: true
+    prerelease: false
     auth_token: $(github_token)
     on:
       branch: master
