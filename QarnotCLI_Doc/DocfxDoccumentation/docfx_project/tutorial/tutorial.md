@@ -9,7 +9,7 @@
 
 * Go to [the CLI releases](https://github.com/qarnot/qarnot-cli/releases)
 * download your OS release binary 
-* place your release in your binary folder
+* you can rename your release binary to `qarnot` on mac and linux, and move it in your binary file to use it as in the examples below
 
 #### Rebuild from the source code
 

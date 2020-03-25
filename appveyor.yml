@@ -30,10 +30,12 @@ build_script:
   - dotnet build -c Release
 
 after_build:
-  - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r ubuntu-x64 /p:PublishSingleFile=true -o ./artifacts
-  - cmd: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win10-x64 /p:PublishSingleFile=true -o ./artifacts
-  - ls artifacts
-  - rm artifacts/*.pdb
+  - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r osx-x64 /p:PublishSingleFile=true -o ./artifacts/osx
+  - sh: mv ./artifacts/osx/qarnot ./artifacts/osx/qarnot-osx-x64
+  - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r linux-x64 /p:PublishSingleFile=true -o ./artifacts/linux
+  - sh: mv ./artifacts/linux/qarnot ./artifacts/linux/qarnot-linux-x64
+  - cmd: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win10-x64 /p:PublishSingleFile=true -o ./artifacts/windows
+  - rm artifacts/*/*.pdb
 
 test_script:
   - sh: dotnet test ./*.Test
@@ -44,7 +46,7 @@ test_script:
 #---------------------------------#
 
 artifacts:
-  - path: artifacts\*
+  - path: artifacts/*/*
     name: qarnot
 
 deploy:

@@ -32,7 +32,7 @@ namespace QarnotCLI.Test
             IConfiguration iConfSet = null;
             LocalSetUpConfiguration confset = null;
 
-            argv = new string[] { "config", "--global", "--token", token, "--apiUri", uri, "--storageUri", storage };
+            argv = new string[] { "config", "--global", "--token", token, "--api-uri", uri, "--storage-uri", storage };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is LocalSetUpConfiguration))

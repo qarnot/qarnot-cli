@@ -39,7 +39,7 @@ namespace QarnotCLI
             [Option('p', "profile", Required = false, HelpText = "Name of the profile used for the task.")]
             public override string Profile { get; set; }
 
-            [Option('r', "range", Required = false, HelpText = "Range of the task.")]
+            [Option("range", Required = false, HelpText = "Range of the task.")]
             public override string Range { get; set; }
 
             [Option('i', "instance", HelpText = "Instance count of the task.")]

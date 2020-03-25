@@ -9,6 +9,9 @@ It allows users to launch, manage and monitor payloads running on distributed co
 Qarnot CLI commands are covered in the accompanying user guide, including descriptions, syntax, and usage examples.
 
 
+## Download the last binary
+[Download](https://github.com/qarnot/qarnot-cli/releases)
+
 ## Getting Started:
 [Quick start tutorial](tutorial/tutorial.md)
 
