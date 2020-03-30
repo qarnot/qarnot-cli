@@ -1,5 +1,6 @@
 namespace QarnotCLI
 {
+    using System;
     using System.Collections.Generic;
 
     /// <summary>
@@ -292,5 +293,7 @@ namespace QarnotCLI
         public float ElasticResizeFactor { get; set; }
 
         public uint ElasticMinimumIdlingTime { get; set; }
+
+        public TimeSpan? MaximumWallTime { get; set; }
     }
 }

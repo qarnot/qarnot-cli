@@ -42,9 +42,7 @@ namespace QarnotCLI
             {
                 string configFilePath = this.GetConfigFilePath();
                 APIConnectionInformation fileInfo = this.FileInformationGetter.ReadFile(configFilePath);
-                apiInfo.SetToken = fileInfo.Token;
-                apiInfo.SetApiUri = fileInfo.ApiUri;
-                apiInfo.SetStorageUri = fileInfo.StorageUri;
+                apiInfo.Update(fileInfo);
             }
             catch (FileNotFoundException)
             {
@@ -64,7 +62,7 @@ namespace QarnotCLI
                 return this.GetFilePath.ConfigurationFilePath;
             }
 
-            throw new FileNotFoundException("No configuration file find. Launch 'qarnot config -g -t [token]' to create a new configuration file or use the qarnot environment variable QARNOT_CLIENT_TOKEN");
+            throw new FileNotFoundException("No configuration file find. Launch 'qarnot config -g -t [token]' to create a new configuration file or use the qarnot environment variable QARNOT_CLIENT_TOKEN, or precise the configuration file path in the env variable: QARNOT_LOCAL_PATH");
         }
     }
 }

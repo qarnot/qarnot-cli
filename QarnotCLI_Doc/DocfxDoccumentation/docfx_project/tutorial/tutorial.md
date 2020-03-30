@@ -29,8 +29,19 @@ qarnot config -t 0123456789__myAPIToken__9876543210
 
 If you need to set a specific custom storage or compute uri : 
 ```bash
-qarnot config -t 0123456789__myAPIToken__9876543210 -u https://api.qarnot.com -s https://storage.qarnot.com
+qarnot config -t 0123456789__myAPIToken__9876543210 -u https://api.qarnot.com -s https://storage.qarnot.com -f true
 ```
+
+#### Environment variable used to change the configuration
+
+| Name | usage |
+| - | - |
+| QARNOT_LOCAL_PATH | Specify a custom configuration file path | 
+| QARNOT_DEFAULT_PATH | Specify a global configuration file path check if the QARNOT_LOCAL_PATH is not found | 
+| QARNOT_CLIENT_TOKEN | Use your api connection token without storing it | 
+| QARNOT_CLUSTER_URL | Use a custom qarnot api url | 
+| QARNOT_STORAGE_URL | Use a custom qarnot storage url | 
+| QARNOT_USE_STORAGE_PATH_STYLE | force the storage path style, it must be "true" or "false" | 
 
 ## Create a Qarnot Resource
 

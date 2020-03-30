@@ -29,6 +29,9 @@ namespace QarnotCLI
                 case "storage":
                     connectionVariables.StorageUri = splitline[1];
                     break;
+                case "force-path":
+                    connectionVariables.SetForcePathStyleString(splitline[1]);
+                    break;
             }
         }
 

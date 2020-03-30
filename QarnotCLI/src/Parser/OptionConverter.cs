@@ -2,6 +2,7 @@ namespace QarnotCLI
 {
     using System;
     using System.Linq;
+    using System.Text.RegularExpressions;
 
     // TODO: what is the best way to split that
     public interface IOptionToConfigConverter
@@ -215,6 +216,8 @@ namespace QarnotCLI
             config.ApiConnection.Token = option.Token;
             config.ApiConnection.ApiUri = option.Uri;
             config.ApiConnection.StorageUri = option.Storage;
+            config.ApiConnection.SetForcePathStyleString(option.ForcePathStyle);
+
             config.ShowConnectionInfo = option.ShowConnectionInfo;
             return config;
         }
@@ -238,6 +241,45 @@ namespace QarnotCLI
             config.ElasticResizeFactor = option.ElasticResizeFactor;
             config.ElasticMinimumIdlingTime = option.ElasticMinimumIdlingTime;
             return config;
+        }
+
+        private TimeSpan ConvertStringToTimeSpan(string stringToParse)
+        {
+            DateTime dateValue;
+            Regex regex_day = new Regex(@"^([0-9]+)((\.)([0-9]*)((\:)([0-9]*))?((\:)([0-9]*))?)?$", RegexOptions.Compiled);
+            Regex regex_hour = new Regex(@"([0-9]*)(\:([0-9]*))(\:([0-9]*))?$", RegexOptions.Compiled);
+
+            if (DateTime.TryParseExact(stringToParse, "yyyy/MM/dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.NoCurrentDateDefault, out dateValue))
+            {
+                return TimeSpan.FromTicks(dateValue.Ticks - DateTime.Now.Ticks);
+            }
+            else if (DateTime.TryParseExact(stringToParse, "yyyy/MM/dd", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.NoCurrentDateDefault, out dateValue))
+            {
+                return TimeSpan.FromTicks(dateValue.Ticks - DateTime.Now.Ticks);
+            }
+
+            Match match_day = regex_day.Match(stringToParse);
+            if (match_day.Success)
+            {
+                GroupCollection groups = match_day.Groups;
+                string day = groups[1].Value == string.Empty ? "0" : groups[1].Value;
+                string hour = groups[4].Value == string.Empty ? "0" : groups[4].Value;
+                string minute = groups[7].Value == string.Empty ? "0" : groups[7].Value;
+                string second = groups[10].Value == string.Empty ? "0" : groups[10].Value;
+                return new TimeSpan(int.Parse(day), int.Parse(hour), int.Parse(minute), int.Parse(second));
+            }
+
+            Match match_hour = regex_hour.Match(stringToParse);
+            if (match_hour.Success)
+            {
+                GroupCollection groups = match_hour.Groups;
+                string hour = groups[1].Value == string.Empty ? "0" : groups[1].Value;
+                string minute = groups[3].Value == string.Empty ? "0" : groups[3].Value;
+                string second = groups[5].Value == string.Empty ? "0" : groups[5].Value;
+                return new TimeSpan(0, int.Parse(hour), int.Parse(minute), int.Parse(second));
+            }
+
+            throw new ParseException("Max wall time wrong format fond.");
         }
 
         public CreateConfiguration ConvertGenericCreationOption(ConfigType type, Options.ICreateOptions option)
@@ -274,6 +316,8 @@ namespace QarnotCLI
             config.Result = option.Result ?? config.Result;
             config.Dependents = option.Dependents?.ToList().Count > 0 ? option.Dependents?.ToList() : config.Dependents;
             Options.IElasticityOptions elasticOption = option as Options.IElasticityOptions;
+            var MaximumWallTime = string.IsNullOrEmpty(option.MaximumWallTime) ? config.MaximumWallTime : (TimeSpan?)ConvertStringToTimeSpan(option.MaximumWallTime);
+            config.MaximumWallTime = MaximumWallTime == default(TimeSpan) ? null : MaximumWallTime;
             if (elasticOption != null)
             {
                 config.ElasticMinimumTotalNodes = elasticOption.ElasticMinimumTotalNodes;

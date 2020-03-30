@@ -19,11 +19,14 @@ namespace QarnotCLI.Test
 
             public bool EnvStorage { get; set; }
 
-            public FakeGetEnvConnectionInformation(bool envToken, bool envApi, bool envStorage)
+            public bool EnvForce { get; set; }
+
+            public FakeGetEnvConnectionInformation(bool envToken, bool envApi, bool envStorage, bool envForce = false)
             {
                 EnvToken = envToken;
                 EnvApi = envApi;
                 EnvStorage = envStorage;
+                EnvForce = envForce;
             }
 
             public bool GetEnvironmentVariableBoolOrElse(string envName, bool elseValue = false)
@@ -46,6 +49,11 @@ namespace QarnotCLI.Test
                 if (EnvStorage)
                 {
                     api.SetStorageUri = "storage_env";
+                }
+
+                if (EnvStorage)
+                {
+                    api.SetForcePathStyle = true;
                 }
             }
         }
@@ -111,11 +119,14 @@ namespace QarnotCLI.Test
                 Token = "token0",
                 ApiUri = null,
                 StorageUri = null,
+                SetForcePathStyle = null,
             };
             ret.RetrieveConfigurationInformation(api);
             Assert.AreEqual(api.Token, "token0");
             Assert.AreEqual(api.ApiUri, "api_file");
             Assert.AreEqual(api.StorageUri, "storage_file");
+            Assert.AreEqual(api.ForcePathStyle, false);
+            Assert.AreEqual(api.GetForcePathStyle, null);
         }
 
         [Test]
@@ -130,11 +141,13 @@ namespace QarnotCLI.Test
                 Token = null,
                 ApiUri = null,
                 StorageUri = null,
+                SetForcePathStyle = null,
             };
             ret.RetrieveConfigurationInformation(api);
             Assert.AreEqual(api.Token, "token_env");
             Assert.AreEqual(api.ApiUri, "api_env");
             Assert.AreEqual(api.StorageUri, "storage_env");
+            Assert.AreEqual(api.ForcePathStyle, true);
         }
 
         [Test]
@@ -149,11 +162,14 @@ namespace QarnotCLI.Test
                 Token = null,
                 ApiUri = null,
                 StorageUri = null,
+                ForcePathStyle = false,
             };
             ret.RetrieveConfigurationInformation(api);
             Assert.AreEqual(api.Token, "token_file");
             Assert.AreEqual(api.ApiUri, "api_env");
             Assert.AreEqual(api.StorageUri, "storage_file");
+            Assert.AreEqual(api.ForcePathStyle, false);
+            Assert.AreEqual(api.GetForcePathStyle, false);
         }
 
         [Test]

@@ -56,13 +56,20 @@ namespace QarnotCLI
         /// <param name="errs">Error list.</param>
         /// <typeparam name="T">The generic type parameter: Object to parser to get the usage.</typeparam>
         /// <returns>String usage.</returns>
-        public string PrintHelp<T>(CommandLine.ParserResult<T> parser, System.Collections.Generic.IEnumerable<CommandLine.Error> errs)
+        public string PrintHelp<T>(CommandLine.ParserResult<T> parser, System.Collections.Generic.IEnumerable<CommandLine.Error> errs, string[] argv)
         {
             // create logs if not already created
             CLILogs.CreateLoggers();
 
             string helpText = PrintHelpErrorUsage(parser);
             ParseException ex = new ParseException();
+
+            // check if a "help" flag is used
+            if (argv.Length > 1 && argv[1] == "help")
+            {
+                CLILogs.Usage(PrintHelpUsage(parser));
+                throw new ParseHelpException();
+            }
 
             if (errs == null)
             {

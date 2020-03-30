@@ -69,6 +69,8 @@ namespace QarnotCLI
             string Job { get; set; }
 
             string Pool { get; set; }
+
+            string MaximumWallTime { get; set; }
         }
 
         public interface IElasticityOptions

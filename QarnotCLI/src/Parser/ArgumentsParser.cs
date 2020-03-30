@@ -63,6 +63,15 @@ namespace QarnotCLI
             }
         }
 
+        private void checkHelpFlag<T>(string[] argv, CommandLine.ParserResult<T> parser)
+        {
+            // check if a "help" or a "-h" flag is used
+            if (argv.Length > 1 && argv[1] == "help")
+            {
+                this.Usage.PrintHelp(parser, null, argv);
+            }
+        }
+
         /// <summary>
         /// The General parser verb, it's used if there are not sous verbs.
         /// </summary>
@@ -82,11 +91,13 @@ namespace QarnotCLI
                                             Options.AccountOptions
                                             >(argv);
 
+            checkHelpFlag(argv, parser);
+
             parser.MapResult(
                 (Options.AllObjectsOptions o) => result = this.CreateConfig.ConvertAllGetterOption(ConfigType.All, o),
                 (Options.ConfigOptions o) => result = this.CreateConfig.ConvertGenericSetterOption(ConfigType.Config, o),
                 (Options.AccountOptions o) => result = this.CreateConfig.ConvertAccountOption(ConfigType.Account, o),
-                err => throw new ParseException(this.Usage.PrintHelp(parser, err)));
+                err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
             return result;
         }
@@ -129,6 +140,8 @@ namespace QarnotCLI
                                                     Options.UpdateTaskResourcesOptions
                                                     >(argv);
 
+            checkHelpFlag(argv, parser);
+
             parser.MapResult(
                 (Options.CreateTaskOptions o) => result = this.CreateConfig.ConvertGenericCreationOption(ConfigType.Task, o),
                 (Options.ListTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.List, o),
@@ -137,11 +150,11 @@ namespace QarnotCLI
                 (Options.AbortTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Abort, o),
                 (Options.DeleteTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Delete, o),
                 (Options.UpdateTaskResourcesOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.UpdateResources, o),
-                err => throw new ParseException(this.Usage.PrintHelp(parser, err)));
+                err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
             if (!CheckTask(result))
             {
-                this.Usage.PrintHelp(parser, null);
+                this.Usage.PrintHelp(parser, null, argv);
             }
 
             return result;
@@ -181,6 +194,8 @@ namespace QarnotCLI
                                                     Options.DeletePoolOptions,
                                                     Options.UpdatePoolResourcesOptions>(argv);
 
+            checkHelpFlag(argv, parser);
+
             parser.MapResult(
                 (Options.CreatePoolOptions o) => result = this.CreateConfig.ConvertGenericCreationOption(ConfigType.Pool, o),
                 (Options.ListPoolOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.List, o),
@@ -188,11 +203,11 @@ namespace QarnotCLI
                 (Options.DeletePoolOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.Delete, o),
                 (Options.SetPoolOptions o) => result = this.CreateConfig.ConvertElasticPoolSetterOption(ConfigType.Pool, CommandApi.Set, o),
                 (Options.UpdatePoolResourcesOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.UpdateResources, o),
-                err => throw new ParseException(this.Usage.PrintHelp(parser, err)));
+                err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
             if (!CheckPool(result))
             {
-                this.Usage.PrintHelp(parser, null);
+                this.Usage.PrintHelp(parser, null, argv);
             }
 
             return result;
@@ -231,6 +246,8 @@ namespace QarnotCLI
                                                     Options.DeleteJobOptions
                                                     >(argv);
 
+            checkHelpFlag(argv, parser);
+
             parser.MapResult(
                 (Options.CreateJobOptions o) => result = this.CreateConfig.ConvertGenericCreationOption(ConfigType.Job, o),
                 (Options.ListJobOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Job, CommandApi.List, o),
@@ -238,11 +255,11 @@ namespace QarnotCLI
                 (Options.WaitJobOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Job, CommandApi.Wait, o),
                 (Options.AbortJobOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Job, CommandApi.Abort, o),
                 (Options.DeleteJobOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Job, CommandApi.Delete, o),
-                err => throw new ParseException(this.Usage.PrintHelp(parser, err)));
+                err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
             if (!CheckJob(result))
             {
-                this.Usage.PrintHelp(parser, null);
+                this.Usage.PrintHelp(parser, null, argv);
             }
 
             return result;
@@ -267,6 +284,8 @@ namespace QarnotCLI
                                                     Options.SyncToBucketOptions,
                                                     Options.TerminateBucketOptions>(argv);
 
+            checkHelpFlag(argv, parser);
+
             parser.MapResult(
                 (Options.CreateBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Create, o),
                 (Options.GetBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Download, o),
@@ -275,7 +294,7 @@ namespace QarnotCLI
                 (Options.SyncToBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.SyncTo, o),
                 (Options.ListBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.List, o),
                 (Options.TerminateBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Delete, o),
-                err => throw new ParseException(this.Usage.PrintHelp(parser, err)));
+                err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
             return result;
         }

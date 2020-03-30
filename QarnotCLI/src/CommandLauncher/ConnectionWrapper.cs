@@ -12,7 +12,7 @@ namespace QarnotCLI
         public Connection CreateConnection(IConfiguration config)
         {
             string apiUri = config.ApiConnection.ApiUri == null ? "https://api.qarnot.com" : config.ApiConnection.ApiUri;
-            return new Connection(apiUri, config.ApiConnection.StorageUri, config.ApiConnection.Token);
+            return new Connection(apiUri, config.ApiConnection.StorageUri, config.ApiConnection.Token, forceStoragePathStyle: config.ApiConnection.ForcePathStyle);
         }
     }
 }

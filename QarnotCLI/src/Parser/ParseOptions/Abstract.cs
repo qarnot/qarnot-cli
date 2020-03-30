@@ -53,6 +53,8 @@ namespace QarnotCLI
             public virtual string Job { get; set; }
 
             public virtual string Pool { get; set; }
+
+            public virtual string MaximumWallTime { get; set; }
         }
 
         public abstract class AGetOptions : AOptions, IGetOptions

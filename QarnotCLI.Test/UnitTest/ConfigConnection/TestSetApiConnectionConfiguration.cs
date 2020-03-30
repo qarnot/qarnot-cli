@@ -100,12 +100,15 @@ namespace QarnotCLI.Test
 
             public static string StorageUri { get; set; } = "StorageUri";
 
+            public static bool? ForcePath { get; set; } = true;
+
             public APIConnectionInformation ReadFile(string filePath)
             {
                 var api = new APIConnectionInformation();
                 api.Token = Token;
                 api.ApiUri = ApiUri;
                 api.StorageUri = StorageUri;
+                api.ForcePathStyle = ForcePath.Value;
                 return api;
             }
         }
@@ -224,6 +227,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(Writer.Checker["token"], FakeFileInformationGetter.Token);
             Assert.AreEqual(Writer.Checker["uri"], FakeFileInformationGetter.ApiUri);
             Assert.AreEqual(Writer.Checker["storage"], FakeFileInformationGetter.StorageUri);
+            Assert.AreEqual(Writer.Checker["force-path"], FakeFileInformationGetter.ForcePath.ToString());
         }
 
         [Test]
@@ -234,6 +238,7 @@ namespace QarnotCLI.Test
             connectionInformation.Token = "token123";
             connectionInformation.ApiUri = "uri123";
             connectionInformation.StorageUri = "bucket123";
+            connectionInformation.ForcePathStyle = false;
             config.ApiConnection = connectionInformation;
 
             Set.SetConfigInformation("path123", config);
@@ -241,7 +246,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(FileWrap.PathFind, "path123");
             Assert.AreEqual(Writer.Checker["token"], "token123");
             Assert.AreEqual(Writer.Checker["uri"], "uri123");
-            Assert.AreEqual(Writer.Checker["storage"], "bucket123");
+            Assert.AreEqual(Writer.Checker["force-path"], "False");
         }
     }
 }

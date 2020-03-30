@@ -34,7 +34,7 @@ namespace QarnotCLI.Test
             CommandLine.Error err = new CommandLineWrapError(CommandLine.ErrorType.BadVerbSelectedError);
             errs.Add(err);
 
-            ParseException ex = Assert.Throws<ParseException>(() => helpUsage.PrintHelp(parser, errs));
+            ParseException ex = Assert.Throws<ParseException>(() => helpUsage.PrintHelp(parser, errs, new string[] {}));
             Assert.IsNotNull(ex);
             commandLineParser.Dispose();
         }

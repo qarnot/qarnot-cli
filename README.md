@@ -28,7 +28,7 @@ firefox QarnotCLI_Doc/DocfxDoccumentation/docfx_project/_site/index.html
 ### Set the connection
 When you use the CLI for the first time you need to set the configuration :
 ```bash
-./qarnot config -t [token] -u [qarnot.api] -s [storage.api]
+./qarnot config -t [token] -u [qarnot.api] -s [storage.api] -f
 ./qarnot config -t abcd -u "https://api.qarnot.com" -s "https://storage.qarnot.com"
 ```
 

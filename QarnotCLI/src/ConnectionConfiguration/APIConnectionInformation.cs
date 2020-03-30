@@ -1,5 +1,7 @@
 namespace QarnotCLI
 {
+    using System;
+
     /// <summary>
     /// Api connection information objects
     /// Have a TOken, An Api url and au storage Url.
@@ -9,6 +11,7 @@ namespace QarnotCLI
         private string token;
         private string apiUri;
         private string storageUri;
+        private bool? forcePathStyle;
 
         public string Token
         {
@@ -28,6 +31,12 @@ namespace QarnotCLI
             set { storageUri = value; }
         }
 
+        public bool ForcePathStyle
+        {
+            get { return forcePathStyle == null ? false : forcePathStyle.Value; }
+            set { forcePathStyle = value; }
+        }
+
         public string SetToken
         {
             set { token = string.IsNullOrWhiteSpace(token) ? value : token; }
@@ -43,6 +52,24 @@ namespace QarnotCLI
             set { storageUri = string.IsNullOrWhiteSpace(storageUri) ? value : storageUri; }
         }
 
+        public bool? SetForcePathStyle
+        {
+            set { forcePathStyle = forcePathStyle.HasValue ? forcePathStyle : value; }
+        }
+
+        public bool? GetForcePathStyle
+        {
+            get { return forcePathStyle; }
+        }
+
+        public void SetForcePathStyleString(string force)
+        {
+            if (!string.IsNullOrEmpty(force))
+            {
+                forcePathStyle = Convert.ToBoolean(force);
+            }
+        }
+
         public bool IsComplete()
         {
             return !(string.IsNullOrWhiteSpace(token) ||
@@ -55,6 +82,15 @@ namespace QarnotCLI
             SetToken = connectionInformation.Token;
             SetApiUri = connectionInformation.ApiUri;
             SetStorageUri = connectionInformation.StorageUri;
+            SetForcePathStyle = connectionInformation.GetForcePathStyle;
+        }
+
+        public string ToString()
+        {
+            return "Token:" + Token + Environment.NewLine +
+                "Api:" + ApiUri + Environment.NewLine +
+                "Storage:" + StorageUri + Environment.NewLine +
+                "ForceStoragePathStyle:" + ForcePathStyle.ToString();
         }
     }
 }

@@ -39,6 +39,9 @@ namespace QarnotCLI
 
             [Option('s', "storage-uri",Required = false, HelpText = "The bucket api uri to be use.")]
             public string Storage { get; set; }
+
+            [Option('f', "force-storage-path-style", Required = false, HelpText = "Force the storage path style.")]
+            public string ForcePathStyle { get; set; }
         }
     }
 }

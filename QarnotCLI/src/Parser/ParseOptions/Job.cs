@@ -23,6 +23,9 @@ namespace QarnotCLI
                 }
             }
 
+            [Option("max-wall-time", Required = false, HelpText = "Wall time limit for the job execution. Once this time duration exceeded, the whole job will terminate. The wall time format can be a date in the 'yyyy/MM/dd HH:mm:ss', 'yyyy/MM/dd' date format or a TimeStamp format 'd', 'd.hh', 'd.hh:mm', 'd.hh:mm:ss', 'hh:mm', 'hh:mm:ss'")]
+            public override string MaximumWallTime { get; set; }
+
             [Option("pool", Required = false, HelpText = "Uuid of the pool attached to the job.")]
             public override string Pool { get; set; }
 

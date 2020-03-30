@@ -38,6 +38,7 @@ namespace QarnotCLI
             api.SetToken = GentEnvVariable("QARNOT_CLIENT_TOKEN");
             api.SetApiUri = GentEnvVariable("QARNOT_CLUSTER_URL");
             api.SetStorageUri = GentEnvVariable("QARNOT_STORAGE_URL");
+            api.SetForcePathStyleString(GentEnvVariable("QARNOT_USE_STORAGE_PATH_STYLE"));
         }
     }
 }

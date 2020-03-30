@@ -199,6 +199,11 @@ namespace QarnotCLI
 
                 QJob job = new QJob(connect, config.Name, pool, config.Shortname, config.IsDependents);
 
+                if (config.MaximumWallTime.HasValue && config.MaximumWallTime.Value != default(TimeSpan))
+                {
+                    job.MaximumWallTime = config.MaximumWallTime.Value;
+                }
+
                 return job;
             }
 

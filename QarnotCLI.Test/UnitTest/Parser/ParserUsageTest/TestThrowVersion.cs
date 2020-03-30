@@ -37,7 +37,7 @@ namespace QarnotCLI.Test
             CommandLine.Error err = new CommandLineWrapError(CommandLine.ErrorType.VersionRequestedError);
             errs.Add(err);
 
-            ex = Assert.Throws<ParseVersionException>(() => helpUsage.PrintHelp(parser, errs));
+            ex = Assert.Throws<ParseVersionException>(() => helpUsage.PrintHelp(parser, errs, argv));
             Assert.IsNotNull(ex);
             commandLineParser.Dispose();
         }

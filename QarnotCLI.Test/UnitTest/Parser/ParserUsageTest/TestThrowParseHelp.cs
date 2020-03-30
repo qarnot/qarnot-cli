@@ -43,7 +43,20 @@ namespace QarnotCLI.Test
                 // https://github.com/commandlineparser/commandline/blob/master/src/CommandLine/Error.cs
                 new CommandLineWrapError(CommandLine.ErrorType.HelpRequestedError),
             };
-            ParseHelpException ex = Assert.Throws<ParseHelpException>(() => helpUsage.PrintHelp(Parser, errs));
+            ParseHelpException ex = Assert.Throws<ParseHelpException>(() => helpUsage.PrintHelp(Parser, errs, new string[] {}));
+            Assert.IsNotNull(ex);
+        }
+
+        [Test]
+        public void UsageThrowHelpRequestExceptionWhenVerbHelpAsk()
+        {
+            ParserUsage helpUsage = new ParserUsage();
+            List<CommandLine.Error> errs = new List<CommandLine.Error>()
+            {
+                // https://github.com/commandlineparser/commandline/blob/master/src/CommandLine/Error.cs
+                new CommandLineWrapError(CommandLine.ErrorType.BadVerbSelectedError),
+            };
+            ParseHelpException ex = Assert.Throws<ParseHelpException>(() => helpUsage.PrintHelp(Parser, errs, new string[] {"pool", "help" }));
             Assert.IsNotNull(ex);
         }
 
@@ -55,7 +68,7 @@ namespace QarnotCLI.Test
             {
                 new CommandLineWrapError(CommandLine.ErrorType.HelpVerbRequestedError),
             };
-            ParseHelpException ex = Assert.Throws<ParseHelpException>(() => helpUsage.PrintHelp(Parser, errs));
+            ParseHelpException ex = Assert.Throws<ParseHelpException>(() => helpUsage.PrintHelp(Parser, errs, new string[] {}));
             Assert.IsNotNull(ex);
         }
     }

@@ -135,9 +135,8 @@ namespace QarnotCLI
                         [CallerMemberName] string member = "",
                         [CallerLineNumber] int line = 0)
         {
-            #if DEBUG
-            logMessage = $"{Path.GetFileName(file)}_{member}({line}): {logMessage}";
-            #endif
+            string logTime = string.Format("{0:yyyy-MM-ddTHH:mm:ss.fffZ}", DateTime.UtcNow);
+            logMessage = $"[{logTime}] {Path.GetFileName(file)}_l.{line}({member}): {logMessage}";
 
             Log(logMessage, LogsLevel.Debug);
         }

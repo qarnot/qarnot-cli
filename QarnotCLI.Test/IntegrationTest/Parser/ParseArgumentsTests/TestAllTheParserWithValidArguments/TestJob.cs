@@ -39,6 +39,123 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        [TestCase("12", 12, 0, 0, 0)]
+        [TestCase("12.18", 12, 18, 0, 0)]
+        [TestCase("12.00:46", 12, 0, 46, 0)]
+        [TestCase("12.02:03:10", 12, 2, 3, 10)]
+        [TestCase("12.00:00:10", 12, 0, 0, 10)]
+        [TestCase("1:2:3", 0, 1, 2, 3)]
+        [TestCase("01:00:10", 0, 1, 0, 10)]
+        [TestCase("0:10", 0, 0, 10, 0)]
+        [TestCase(".::10", 0, 0, 0, 10)]
+        [TestCase(":10", 0, 0, 10, 0)]
+        public void CreatejobCheckWallTime(string walltime, int day, int hour, int minute, int second)
+        {
+            TimeSpan waitValue = new TimeSpan(day, hour, minute, second);
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
+
+            string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
+            CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
+
+            Assert.AreEqual(confset.MaximumWallTime, waitValue);
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        [TestCase(45620)]
+        [TestCase(24968746)]
+        public void CreatejobCheckWallTimeWithFullDate(int secondToAdd)
+        {
+            string walltime = DateTime.Now.AddSeconds(secondToAdd).ToString("yyyy/MM/dd HH:mm:ss");
+            TimeSpan waitValue = new TimeSpan(0, 0, 0, secondToAdd);
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
+
+            string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
+            CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
+
+            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalSeconds), Math.Ceiling(waitValue.TotalSeconds));
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        public void CreatejobCheckWallTimeWithPartMDate(int dayToAdd)
+        {
+            string walltime = DateTime.Now.AddDays(dayToAdd).ToString("yyyy/MM/dd");
+            TimeSpan waitValue = new TimeSpan(dayToAdd, 0, 0, 0);
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
+
+            Console.WriteLine(walltime);
+            Console.WriteLine(waitValue.TotalDays);
+            string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
+            CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
+            Console.WriteLine(confset.MaximumWallTime.Value.TotalDays);
+            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalDays), Math.Ceiling(waitValue.TotalDays));
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        public void CreatejobCheckWallTimeWithOnlyDay(int dayToAdd)
+        {
+            string walltime = dayToAdd.ToString();
+            TimeSpan waitValue = new TimeSpan(dayToAdd, 0, 0, 0);
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
+
+            Console.WriteLine(walltime);
+            Console.WriteLine(waitValue.TotalHours);
+            string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
+            CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
+            Console.WriteLine(confset.MaximumWallTime.Value.TotalHours);
+            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalHours), Math.Ceiling(waitValue.TotalHours));
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        public void CreatejobCheckWallTimeWithOnlyHours(int hourToAdd)
+        {
+            string walltime = "0." + hourToAdd.ToString();
+            TimeSpan waitValue = new TimeSpan(0, hourToAdd, 0, 0);
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
+
+            Console.WriteLine(walltime);
+            Console.WriteLine(waitValue.TotalHours);
+            string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
+            CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
+            Console.WriteLine(confset.MaximumWallTime.Value.TotalHours);
+            Assert.AreEqual(confset.MaximumWallTime.Value.TotalHours, waitValue.TotalHours);
+        }
+
+        [Test]
+        [TestCase(1)]
+        [TestCase(10)]
+        [TestCase(100)]
+        [TestCase(1000)]
+        public void CreatejobCheckWallTimeWithOnlyMinutes(int minuteToAdd)
+        {
+            string walltime = "0.0:" + minuteToAdd.ToString();
+            TimeSpan waitValue = new TimeSpan(0, 0, minuteToAdd, 0);
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
+
+            Console.WriteLine(walltime);
+            Console.WriteLine(waitValue.TotalMinutes);
+            string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
+            CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
+            Console.WriteLine(confset.MaximumWallTime.Value.TotalMinutes);
+            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalMinutes), Math.Ceiling(waitValue.TotalMinutes));
+        }
+
+        [Test]
         public void CreatejobCheckTestParsArg()
         {
             string poolUuid = "PoolUUID";
@@ -49,7 +166,7 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "job", "create", "--name", name, "--pool", poolUuid, "--shortname", shortname,  };
+            argv = new string[] { "job", "create", "--name", name, "--pool", poolUuid, "--shortname", shortname};
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))

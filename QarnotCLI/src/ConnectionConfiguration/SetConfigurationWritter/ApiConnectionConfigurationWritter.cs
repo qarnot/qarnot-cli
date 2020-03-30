@@ -80,9 +80,8 @@ namespace QarnotCLI
         private void PrintInformationFiles(string path, APIConnectionInformation connectionInformation)
         {
             string lines = $"Configuration on the file '{path}'";
-            string information = $"token:{connectionInformation.Token}" + Environment.NewLine + "uri:{connectionInformation.ApiUri}" + Environment.NewLine + "storage:{connectionInformation.StorageUri}";
             CLILogs.Info(lines);
-            CLILogs.Info(information);
+            CLILogs.Info(connectionInformation.ToString());
         }
 
         public void CheckDirectory(string path)
@@ -141,6 +140,10 @@ namespace QarnotCLI
                 FileWriter.Write("token", connectionInformation.Token, fs);
                 FileWriter.Write("uri", connectionInformation.ApiUri, fs);
                 FileWriter.Write("storage", connectionInformation.StorageUri, fs);
+                if (connectionInformation.GetForcePathStyle.HasValue)
+                {
+                    FileWriter.Write("force-path", connectionInformation.ForcePathStyle.ToString(), fs);
+                }
             }
         }
     }
