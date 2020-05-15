@@ -6,10 +6,10 @@ QarnotCLI is the Command Line Interface to interact with the Qarnot Computing pl
 ### Build the CLI Binaries
 
 ```
-dotnet publish -c Release -r ubuntu-x64 /p:PublishSingleFile=true -o ./dest/bin
+dotnet publish -c Release -r ubuntu-x64 --self-contained true /p:PublishSingleFile=true -o ./dest/bin
 ```
 ```
-dotnet publish -c Release -r win10-x64 /p:PublishSingleFile=true -o ./dest/bin
+dotnet publish -c Release -r win10-x64 --self-contained true /p:PublishSingleFile=true -o ./dest/bin
 ```
 
 ### Build the documentation
@@ -55,7 +55,7 @@ When you use the CLI for the first time you need to set the configuration :
 |job|list|`./qarnot job list`|
 |job|abort|`./qarnot job abort --all`|
 |job|delete|`./qarnot job delete --tags TAG1`|
-|bucket|create|`./qarnot bucket create  --name "Job name"`|
+|bucket|create|`./qarnot bucket create --name "mybucket"`|
 |bucket|list|`./qarnot bucket list`|
 |bucket|get|`./qarnot bucket get`|
 |bucket|set|`./qarnot bucket set`|
