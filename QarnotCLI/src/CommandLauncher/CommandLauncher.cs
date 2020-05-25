@@ -168,9 +168,8 @@ namespace QarnotCLI
             List<T2> listToPrint = null;
             List<T1> listOfT = await this.QCollectionRetriever.RetrieveAsync(config, connect, ct);
 
-            List<Task<T2>> taskList = listOfT.Select(elem => this.OneElementLauncher.ExecuteAsync(elem, config, ct)).ToList();
+            var waitTaskResult = listOfT.ParallelForEachAsync(this.OneElementLauncher.ExecuteAsync, config, maxDoP: 10, ct: ct);
 
-            var waitTaskResult = Task.WhenAll(taskList);
             waitTaskResult.Wait();
             listToPrint = waitTaskResult.Result.Where(result => result != null).ToList();
 

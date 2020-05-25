@@ -45,4 +45,47 @@ namespace QarnotCLI.Test
             return Task.CompletedTask;
         }
     }
+
+    public static class CLILogsCheckValues
+    {
+        public static Dictionary<QarnotCLI.CLILogs.LogsLevel, string> Messages = new Dictionary<QarnotCLI.CLILogs.LogsLevel, string>();
+
+        public static string AllMessages;
+
+        public static void SurchargeLogs()
+        {
+            foreach (QarnotCLI.CLILogs.LogsLevel key in Enum.GetValues(typeof(QarnotCLI.CLILogs.LogsLevel)))
+            {
+                CLILogs.Logs[key] = new PrintSurchargeGetMessages(key);
+                CLILogsCheckValues.Messages[key] = string.Empty;
+            }
+            CLILogsCheckValues.AllMessages = string.Empty;
+
+            CLILogs.LogSet = true;
+        }
+
+        public static void DeleteLogs()
+        {
+            CLILogs.Logs.Clear();
+            CLILogs.LogSet = false;
+            CLILogs.Verbose = CLILogs.LogsLevel.Info;
+        }
+    }
+
+    public class PrintSurchargeGetMessages : Printer.APrint
+    {
+        QarnotCLI.CLILogs.LogsLevel Key;
+
+        public PrintSurchargeGetMessages(QarnotCLI.CLILogs.LogsLevel key)
+        : base(false, new PrintVoid())
+        {
+            Key = key;
+        }
+
+        public override void Print(string text)
+        {
+            CLILogsCheckValues.AllMessages += text;
+            CLILogsCheckValues.Messages[Key] += text;
+        }
+    }
 }

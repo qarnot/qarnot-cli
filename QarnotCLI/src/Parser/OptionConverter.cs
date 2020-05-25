@@ -146,13 +146,22 @@ namespace QarnotCLI
             }
 
             BucketConfiguration config = new BucketConfiguration(type, command);
+
             GetDefaultOptions(config, option);
 
             ConfigGetGlobalOptions(option);
             ConfigPrintInformation(option, type, Enum.GetName(typeof(CommandApi), command));
             config.Name = option.Name;
 
-            if (option is Options.CreateBucketOptions bucketCreate)
+            if (option is Options.TerminateBucketOptions bucketDelete)
+            {
+                if (bucketDelete.BucketPath.Count() > 0)
+                {
+                    config.Command = CommandApi.Remove;
+                    config.RemoteRelativePaths = bucketDelete.BucketPath.ToList();
+                }
+            }
+            else if (option is Options.CreateBucketOptions bucketCreate)
             {
                 config.LocalPathFolders = bucketCreate.FolderList.ToList();
                 config.LocalPathFiles = bucketCreate.FileList.ToList();
@@ -243,20 +252,10 @@ namespace QarnotCLI
             return config;
         }
 
-        private TimeSpan ConvertStringToTimeSpan(string stringToParse)
+        private TimeSpan? ConvertStringToTimeSpan(string stringToParse)
         {
-            DateTime dateValue;
             Regex regex_day = new Regex(@"^([0-9]+)((\.)([0-9]*)((\:)([0-9]*))?((\:)([0-9]*))?)?$", RegexOptions.Compiled);
             Regex regex_hour = new Regex(@"([0-9]*)(\:([0-9]*))(\:([0-9]*))?$", RegexOptions.Compiled);
-
-            if (DateTime.TryParseExact(stringToParse, "yyyy/MM/dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.NoCurrentDateDefault, out dateValue))
-            {
-                return TimeSpan.FromTicks(dateValue.Ticks - DateTime.Now.Ticks);
-            }
-            else if (DateTime.TryParseExact(stringToParse, "yyyy/MM/dd", System.Globalization.CultureInfo.InvariantCulture,System.Globalization.DateTimeStyles.NoCurrentDateDefault, out dateValue))
-            {
-                return TimeSpan.FromTicks(dateValue.Ticks - DateTime.Now.Ticks);
-            }
 
             Match match_day = regex_day.Match(stringToParse);
             if (match_day.Success)
@@ -277,6 +276,38 @@ namespace QarnotCLI
                 string minute = groups[3].Value == string.Empty ? "0" : groups[3].Value;
                 string second = groups[5].Value == string.Empty ? "0" : groups[5].Value;
                 return new TimeSpan(0, int.Parse(hour), int.Parse(minute), int.Parse(second));
+            }
+
+            return null;
+        }
+
+        private TimeSpan? ConvertDateStringToTimeSpan(string stringToParse)
+        {
+            DateTime dateValue;
+
+            if (DateTime.TryParseExact(stringToParse, "yyyy/MM/dd HH:mm:ss", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.NoCurrentDateDefault, out dateValue))
+            {
+                return TimeSpan.FromTicks(dateValue.Ticks - DateTime.Now.Ticks);
+            }
+            else if (DateTime.TryParseExact(stringToParse, "yyyy/MM/dd", System.Globalization.CultureInfo.InvariantCulture, System.Globalization.DateTimeStyles.NoCurrentDateDefault, out dateValue))
+            {
+                return TimeSpan.FromTicks(dateValue.Ticks - DateTime.Now.Ticks);
+            }
+
+            return null;
+        }
+
+        private TimeSpan ParseTimeSpanString(string stringToParse)
+        {
+            TimeSpan? maxWallTime = ConvertDateStringToTimeSpan(stringToParse);
+            if (!maxWallTime.HasValue)
+            {
+                maxWallTime = ConvertStringToTimeSpan(stringToParse);
+            }
+
+            if (maxWallTime.HasValue)
+            {
+                return maxWallTime.Value;
             }
 
             throw new ParseException("Max wall time wrong format fond.");
@@ -316,7 +347,7 @@ namespace QarnotCLI
             config.Result = option.Result ?? config.Result;
             config.Dependents = option.Dependents?.ToList().Count > 0 ? option.Dependents?.ToList() : config.Dependents;
             Options.IElasticityOptions elasticOption = option as Options.IElasticityOptions;
-            var MaximumWallTime = string.IsNullOrEmpty(option.MaximumWallTime) ? config.MaximumWallTime : (TimeSpan?)ConvertStringToTimeSpan(option.MaximumWallTime);
+            var MaximumWallTime = string.IsNullOrEmpty(option.MaximumWallTime) ? config.MaximumWallTime : (TimeSpan?)ParseTimeSpanString(option.MaximumWallTime);
             config.MaximumWallTime = MaximumWallTime == default(TimeSpan) ? null : MaximumWallTime;
             if (elasticOption != null)
             {

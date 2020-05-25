@@ -75,6 +75,11 @@ namespace QarnotCLI.Test
             {
                 return "string";
             }
+
+            public override async Task DeleteEntryAsync(string remoteFile, CancellationToken cancellationToken = default(CancellationToken))
+            {
+                return ;
+            }
         }
 
         [Test]
@@ -297,6 +302,24 @@ namespace QarnotCLI.Test
                 RemoteRelativePathFolders = new List<string>(),
                 LocalPathGet = "a",
                 RemoteRelativePath = "b",
+                DeleteFiles = true,
+            };
+            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+
+            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
+            Assert.AreEqual(ret.Uuid, "Shortname1");
+        }
+
+        [Test]
+        public async Task TestCommandRemoveBucketEntity()
+        {
+            var bucket = Builder<FakeBucket>.CreateNew().Build();
+            CancellationToken ct = default(CancellationToken);
+            var command = new RemoveEntityBucketCommand();
+            var config = new BucketConfiguration()
+            {
+                LocalPathGet = "a",
+                RemoteRelativePaths = new List<string>{"b"},
                 DeleteFiles = true,
             };
             CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);

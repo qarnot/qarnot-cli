@@ -110,5 +110,10 @@ namespace QarnotCLI
         /// Synchronize the storage of an Api element
         /// </summary>
         UpdateResources,
+
+        /// <summary>
+        /// Type Remove a part of element
+        /// </summary>
+        Remove,
     }
 }

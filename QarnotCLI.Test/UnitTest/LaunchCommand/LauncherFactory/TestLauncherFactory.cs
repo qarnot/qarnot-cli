@@ -167,6 +167,12 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void BucketRemove()
+        {
+            Assert.IsTrue(this.Factory.CreateLauncher(ConfigType.Bucket, CommandApi.Remove) is CommandGeneric<QBucket, GenericInfoCommandValue>);
+        }
+
+        [Test]
         public void BucketSyncFrom()
         {
             Assert.IsTrue(this.Factory.CreateLauncher(ConfigType.Bucket, CommandApi.SyncFrom) is CommandGeneric<QBucket, GenericInfoCommandValue>);

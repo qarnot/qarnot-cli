@@ -200,4 +200,23 @@ namespace QarnotCLI
             };
         }
     }
+
+    public class RemoveEntityBucketCommand : ICommand<QBucket, CommandValues.GenericInfoCommandValue>
+    {
+        public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QBucket bucket, IConfiguration iconfig, CancellationToken ct = default(CancellationToken))
+        {
+            BucketConfiguration config = iconfig as BucketConfiguration;
+            CLILogs.Debug("Command Bucket : Remove entities " + string.Join(", ", config.RemoteRelativePaths));
+            string returnString = "Bucket delete paths : " + string.Join(", ", config.RemoteRelativePaths);
+
+            await config.RemoteRelativePaths.ParallelForEachAsync(bucket.DeleteEntryAsync, 10, ct:ct);
+
+            return new CommandValues.GenericInfoCommandValue()
+            {
+                Uuid = bucket.Shortname,
+                Message = returnString,
+            };
+        }
+    }
+
 }

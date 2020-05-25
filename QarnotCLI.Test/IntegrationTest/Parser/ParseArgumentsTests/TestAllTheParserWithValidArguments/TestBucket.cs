@@ -342,5 +342,46 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Name, name);
             commandLineParser.Dispose();
         }
+
+        [Test]
+        public void RemoveBucketFileOptionsCheckTestParsArg()
+        {
+            string name = "NAME";
+            string path = "path";
+            string[] argv = null;
+            var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+            BucketConfiguration confset = null;
+
+            argv = new string[] { "bucket", "delete", "--name", name, path };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is BucketConfiguration))
+            {
+                throw new Exception("return value is not ConfigurationBucket ");
+            }
+
+            confset = iConfSet as BucketConfiguration;
+            Assert.AreEqual(confset.Type, ConfigType.Bucket);
+            Assert.AreEqual(confset.Command, CommandApi.Remove);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.RemoteRelativePaths[0], path);
+
+            argv = new string[] { "bucket", "delete", "-n", name, path };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is BucketConfiguration))
+            {
+                throw new Exception("return value is not ConfigurationBucket ");
+            }
+
+            confset = (BucketConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Bucket);
+            Assert.AreEqual(confset.Command, CommandApi.Remove);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.RemoteRelativePaths[0], path);
+            commandLineParser.Dispose();
+        }
     }
 }

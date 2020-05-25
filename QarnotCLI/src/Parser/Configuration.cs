@@ -143,6 +143,8 @@ namespace QarnotCLI
 
         public virtual string RemoteRelativePath { get; set; }
 
+        public virtual List<string> RemoteRelativePaths { get; set; }
+
         public virtual List<string> RemoteRelativePathFiles { get; set; }
 
         public virtual List<string> RemoteRelativePathFolders { get; set; }

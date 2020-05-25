@@ -128,6 +128,8 @@ namespace QarnotCLI
                     return new CommandGeneric<QBucket, GenericInfoCommandValue>(new QBucketsRetriever(), new UploadBucketCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Download:
                     return new CommandGeneric<QBucket, GenericInfoCommandValue>(new QBucketsRetriever(), new DownloadBucketCommand(), this.Formatter, this.ConnectionWrapper);
+                case CommandApi.Remove:
+                    return new CommandGeneric<QBucket, GenericInfoCommandValue>(new QBucketsRetriever(), new RemoveEntityBucketCommand(), this.Formatter, this.ConnectionWrapper);
                 default:
                     throw new NotImplementedException("Not implemented command for Bucket");
             }

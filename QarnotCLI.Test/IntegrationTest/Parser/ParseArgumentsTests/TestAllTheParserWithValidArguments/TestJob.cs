@@ -70,13 +70,13 @@ namespace QarnotCLI.Test
         public void CreatejobCheckWallTimeWithFullDate(int secondToAdd)
         {
             string walltime = DateTime.Now.AddSeconds(secondToAdd).ToString("yyyy/MM/dd HH:mm:ss");
-            TimeSpan waitValue = new TimeSpan(0, 0, 0, secondToAdd);
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
 
             string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
             CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
+            TimeSpan waitValue = new TimeSpan(0, 0, 0, secondToAdd);
 
-            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalSeconds), Math.Ceiling(waitValue.TotalSeconds));
+            Assert.That(confset.MaximumWallTime.Value, Is.EqualTo(waitValue).Within(TimeSpan.FromSeconds(1)));
         }
 
         [Test]
@@ -87,7 +87,7 @@ namespace QarnotCLI.Test
         public void CreatejobCheckWallTimeWithPartMDate(int dayToAdd)
         {
             string walltime = DateTime.Now.AddDays(dayToAdd).ToString("yyyy/MM/dd");
-            TimeSpan waitValue = new TimeSpan(dayToAdd, 0, 0, 0);
+            TimeSpan waitValue = new TimeSpan(dayToAdd, 0, 0, 0) - DateTime.Now.TimeOfDay;
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), new CommandLine.Parser(), new ParserUsage(), new VerbFormater());
 
             Console.WriteLine(walltime);
@@ -95,7 +95,7 @@ namespace QarnotCLI.Test
             string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
             CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
             Console.WriteLine(confset.MaximumWallTime.Value.TotalDays);
-            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalDays), Math.Ceiling(waitValue.TotalDays));
+            Assert.That(confset.MaximumWallTime.Value, Is.EqualTo(waitValue).Within(TimeSpan.FromSeconds(1)));
         }
 
         [Test]
@@ -114,7 +114,7 @@ namespace QarnotCLI.Test
             string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
             CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
             Console.WriteLine(confset.MaximumWallTime.Value.TotalHours);
-            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalHours), Math.Ceiling(waitValue.TotalHours));
+            Assert.AreEqual(confset.MaximumWallTime.Value.TotalHours, waitValue.TotalHours);
         }
 
         [Test]
@@ -152,7 +152,7 @@ namespace QarnotCLI.Test
             string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
             CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
             Console.WriteLine(confset.MaximumWallTime.Value.TotalMinutes);
-            Assert.AreEqual(Math.Ceiling(confset.MaximumWallTime.Value.TotalMinutes), Math.Ceiling(waitValue.TotalMinutes));
+            Assert.AreEqual(confset.MaximumWallTime.Value.TotalMinutes, waitValue.TotalMinutes);
         }
 
         [Test]

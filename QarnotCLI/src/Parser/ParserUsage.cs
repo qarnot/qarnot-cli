@@ -1,6 +1,8 @@
 namespace QarnotCLI
 {
+    using System;
     using System.Linq;
+    using System.Reflection;
 
     public class ParserUsage
     {
@@ -9,6 +11,12 @@ namespace QarnotCLI
 #else
         private const int maxSize = 120;
 #endif
+        public ParserUsage(IPackageDetails assemblyAttributes = null)
+        {
+            AssemblyAttributes = assemblyAttributes == null ? new PackageDetails() : assemblyAttributes;
+        }
+
+        private IPackageDetails AssemblyAttributes { get; }
 
         private string PrintHelpErrorUsage<T>(CommandLine.ParserResult<T> parser)
         {
@@ -46,7 +54,15 @@ namespace QarnotCLI
 
         private string PrintHelpVersion<T>(CommandLine.ParserResult<T> parser)
         {
-            return CommandLine.Text.HelpText.AutoBuild(parser, ParserUsage.maxSize);
+            string assemblyName = AssemblyAttributes.AssemblyName;
+            string assemblyVersion = AssemblyAttributes.AssemblyVersion;
+            string gitHash = AssemblyAttributes.CommitHash;
+            string frameWorkBuilder = AssemblyAttributes.FrameworkName.Replace(" ", String.Empty);
+            string date = AssemblyAttributes.BuildDate;
+            // Remove milliseconds from the timestamp
+            date = date.Substring(0, date.Length - 5) + "Z";
+
+            return String.Format("{0}-{1}-{2}-{3}-{4}", assemblyName, assemblyVersion, gitHash, date, frameWorkBuilder);
         }
 
         /// <summary>

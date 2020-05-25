@@ -46,10 +46,10 @@ namespace QarnotCLI
                 }
             }
 
-            [Option('l', "local-folder", Group="send", Required = false, HelpText = "List of files to send.")]
+            [Option('l', "local-folder", Group="send", Required = false, HelpText = "List of folders to send.")]
             public IEnumerable<string> LocalFoldersPath { get; set; }
 
-            [Option('f', "local-file", Group="send", Required = false, HelpText = "List of folders to send.")]
+            [Option('f', "local-file", Group="send", Required = false, HelpText = "List of files to send.")]
             public IEnumerable<string> LocalFilesPath { get; set; }
 
             [Option('b', "bucket-path", Required = false, HelpText = "Bucket path must be set for a string.(default:root path)(need to be a file if string set, else, need to be a folder)")]
@@ -156,10 +156,13 @@ namespace QarnotCLI
             {
                 get
                 {
+                    yield return new Example("Delete bucket api files and folders.", UnParserSettings.WithGroupSwitchesOnly(), new TerminateBucketOptions { Name = "Bucket-name", BucketPath = new string[]{ "path/folder", "path/file"} });
                     yield return new Example("Terminate and delete the bucket to the api", UnParserSettings.WithGroupSwitchesOnly(), new TerminateBucketOptions { Name = "Bucket-name" });
-                    yield return new Example("Logging errors (missing name)", new TerminateBucketOptions { });
                 }
             }
+
+            [Value(0, HelpText = "Bucket list of files or folders to delete")]
+            public IEnumerable<string> BucketPath { get; set; }
         }
     }
 }
