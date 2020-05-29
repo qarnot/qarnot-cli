@@ -3,6 +3,8 @@
 namespace QarnotCLI
 {
     using System;
+    using System.Threading;
+    using System.Threading.Tasks;
 
     /// <summary>
     /// Program Start.
@@ -14,13 +16,13 @@ namespace QarnotCLI
         /// </summary>
         /// <param name="args">Command-line arguments passed to the program.</param>
         /// <returns>0 if success or exit if fail.</returns>
-        public static int Main(string[] args)
+        public static async Task<int> Main(string[] args)
         {
             int returnValue = 0;
 
             try
             {
-                CLI.StartCli(args);
+                await CLI.StartCliAsync(args);
             }
             catch (NotImplementedException ex)
             {
@@ -60,13 +62,13 @@ namespace QarnotCLI
         /// and launch the command.
         /// </summary>
         /// <param name="argv">Command-line arguments passed to the program.</param>
-        private static void StartCli(string[] argv)
+        private static async Task StartCliAsync(string[] argv)
         {
             var deprecationDisclaimer = new DeprecationDisclaimer(
                 new ReleasesHandler(),
                 Printer.PrinterFactory.Factory(CLILogs.LogsLevel.Warning, true),
                 new EnvironmentVariableReader());
-            deprecationDisclaimer.CheckReleaseDeprecations().Wait();
+            await deprecationDisclaimer.CheckReleaseDeprecationsAsync();
 
             var parser = CreateCommandLineParser();
             IConfiguration configAndcommandValues = parser.Parse(argv);
@@ -77,15 +79,16 @@ namespace QarnotCLI
             if (apiDataManager.Start(configAndcommandValues))
             {
                 ICommandManager commandManager = CreateCommandManager(configAndcommandValues.ResultFormat);
-                commandManager.Start(configAndcommandValues);
+                await commandManager.StartAsync(configAndcommandValues);
             }
         }
 
         private static ICommandManager CreateCommandManager(string format)
         {
+            IPrinter printer = Printer.PrinterFactory.Factory(CLILogs.LogsLevel.Result, false);
             return new CommandManager(
                 new LauncherFactory(FormatterFactory.CreateFormat(format), new ConnectionWrapper()),
-                Printer.PrinterFactory.Factory(CLILogs.LogsLevel.Result, false));
+                printer);
         }
 
         private static IApiDataManager CreateApiDataManager()

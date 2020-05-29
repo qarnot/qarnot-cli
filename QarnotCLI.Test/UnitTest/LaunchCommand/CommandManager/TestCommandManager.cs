@@ -61,7 +61,7 @@ namespace QarnotCLI.Test
         {
             var fakeFactory = new LauncherFactoryHandler(null);
             var manager = new CommandManager(fakeFactory, null);
-            manager.Start(new CreateConfiguration(ConfigType.Pool, CommandApi.Create));
+            manager.StartAsync(new CreateConfiguration(ConfigType.Pool, CommandApi.Create));
         }
 
         [Test]
@@ -69,7 +69,7 @@ namespace QarnotCLI.Test
         {
             var fakeFactory = new LauncherFactoryHandler(new Exception());
             var manager = new CommandManager(fakeFactory, null);
-            var ex = Assert.Throws<CommandManager.ErrorPrintException>(() => manager.Start(new CreateConfiguration(ConfigType.Pool, CommandApi.Create)));
+            var ex = Assert.ThrowsAsync<CommandManager.ErrorPrintException>(async () => await manager.StartAsync(new CreateConfiguration(ConfigType.Pool, CommandApi.Create)));
             Assert.IsNotNull(ex);
         }
 
@@ -78,7 +78,7 @@ namespace QarnotCLI.Test
         {
             var fakeFactory = new LauncherFactoryHandler(new AggregateException(new Exception[2] { new AggregateException(), new FileNotFoundException() }));
             var manager = new CommandManager(fakeFactory, null);
-            var ex = Assert.Throws<CommandManager.ErrorPrintException>(() => manager.Start(new CreateConfiguration(ConfigType.Pool, CommandApi.Create)));
+            var ex = Assert.ThrowsAsync<CommandManager.ErrorPrintException>(async () => await manager.StartAsync(new CreateConfiguration(ConfigType.Pool, CommandApi.Create)));
             Assert.IsNotNull(ex);
         }
     }

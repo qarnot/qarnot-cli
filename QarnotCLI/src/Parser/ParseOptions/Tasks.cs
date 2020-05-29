@@ -114,6 +114,75 @@ namespace QarnotCLI
             public override string Id { get; set; }
         }
 
+        public abstract class AStdOptions: AGetOptions
+        {
+            public virtual bool Fresh { get; set; } = false;
+            public virtual bool Stdout { get; set; } = false;
+            public virtual bool Stderr { get; set; } = false;
+        }
+
+        [Verb("task stdout", HelpText = "Get the stdout of the task selected.")]
+        public class StdoutTaskOptions : AStdOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example("Task stdout", new[] { UnParserSettings.WithGroupSwitchesOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new StdoutTaskOptions { Name = "Task name" });
+                    yield return new Example("Task stderr", new[] { UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new StdoutTaskOptions { Name = "Task name", Fresh = true });
+                }
+            }
+
+            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
+            public bool All { get; set; }
+
+            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
+            public override string Name { get; set; }
+
+            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
+            public override IEnumerable<string> Tags { get; set; }
+
+            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
+            public override string Id { get; set; }
+
+            [Option('f', "fresh", Required = false, HelpText = "get the last stdout dump.")]
+            public override bool Fresh { get; set; }
+        }
+
+        [Verb("task stderr", HelpText = "Get the stderr of the task selected.")]
+        public class StderrTaskOptions : AStdOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example("Task stderr", new[] { UnParserSettings.WithGroupSwitchesOnly() },
+                        new StderrTaskOptions { Name = "Task name" });
+                    yield return new Example("Task stderr", new[] { UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new StderrTaskOptions { Name = "Task name", Fresh = true });
+                }
+            }
+
+            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
+            public bool All { get; set; }
+
+            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
+            public override string Name { get; set; }
+
+            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
+            public override IEnumerable<string> Tags { get; set; }
+
+            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
+            public override string Id { get; set; }
+
+            [Option('f', "fresh", Required = false, HelpText = "get the last stderr dump.")]
+            public override bool Fresh { get; set; }
+        }
+
         [Verb("task update-resources", HelpText = "Update resources for a running task.")]
         public class UpdateTaskResourcesOptions : AGetOptions
         {
@@ -143,7 +212,7 @@ namespace QarnotCLI
         }
 
         [Verb("task wait", HelpText = "Wait for the end of the task selected.")]
-        public class WaitTaskOptions : AGetOptions
+        public class WaitTaskOptions : AStdOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -154,6 +223,10 @@ namespace QarnotCLI
                         "Classic usage",
                         new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
                         new WaitTaskOptions { Name = "Task name", Tags = new string[] { "TAG1", "TAG2" } });
+                    yield return new Example(
+                        "Print stdout and stderr durring the wait",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new WaitTaskOptions { Name = "Task name", Tags = new string[] { "TAG1", "TAG2" }, Stdout = true, Stderr = true });
                 }
             }
 
@@ -168,6 +241,12 @@ namespace QarnotCLI
 
             [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
             public override string Id { get; set; }
+
+            [Option('o', "stdout", Required = false, HelpText = "Print the Stdout events durring the waiting.")]
+            public override bool Stdout { get; set; }
+
+            [Option('e', "stderr", Required = false, HelpText = "Print the Stderr events durring the waiting.")]
+            public override bool Stderr { get; set; }
         }
 
         [Verb("task abort", HelpText = "Terminate the task selected.")]

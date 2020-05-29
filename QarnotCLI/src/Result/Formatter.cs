@@ -94,6 +94,15 @@
                     var table = ConsoleTable.From<T>(obj);
                     return table.ToString();
                 }
+                else if (typeof(string).IsAssignableFrom(typeof(T)))
+                {
+                    var message = "";
+                    foreach (var item in obj)
+                    {
+                        message = string.Join(Environment.NewLine, obj);
+                    }
+                    return message;
+                }
 
                 return CreateJson(obj);
             }
@@ -155,6 +164,10 @@
                 if (typeof(ICommandValue).IsAssignableFrom(typeof(T)))
                 {
                     return FormatObjectCommandValues<T>(obj);
+                }
+                else if (typeof(string).IsAssignableFrom(typeof(T)))
+                {
+                    return obj as string;
                 }
 
                 return CreateJson(obj);

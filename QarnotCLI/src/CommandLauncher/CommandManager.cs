@@ -10,7 +10,7 @@ namespace QarnotCLI
     /// </summary>
     public interface ICommandManager
     {
-        void Start(IConfiguration config);
+        Task StartAsync(IConfiguration config, CancellationToken ct = default);
     }
 
     public class CommandManager : ICommandManager
@@ -25,25 +25,13 @@ namespace QarnotCLI
             this.PrintResult = printResult;
         }
 
-        public void Start(IConfiguration config)
-        {
-            try
-            {
-                this.StartAsync(config).Wait();
-            }
-            catch (AggregateException)
-            {
-                throw new ErrorPrintException();
-            }
-        }
-
         private async Task StartAsyncThrowError(IConfiguration config, CancellationToken ct = default(CancellationToken))
         {
             var commandToLaunch = this.Factory.CreateLauncher(config.Type, config.Command);
             await commandToLaunch.RunAndPrintCommandAsync(config, this.PrintResult, ct);
         }
 
-        private async Task StartAsync(IConfiguration config, CancellationToken ct = default(CancellationToken))
+        public async Task StartAsync(IConfiguration config, CancellationToken ct = default(CancellationToken))
         {
             try
             {

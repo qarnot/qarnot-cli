@@ -115,7 +115,7 @@ namespace QarnotCLI
         {
             if (Verbose <= level)
             {
-                Logs[level].Print(message);
+                Logs[level].PrintAsync(message);
             }
         }
 

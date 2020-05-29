@@ -31,7 +31,7 @@ namespace QarnotCLI
         /// Check if the actual cli is deprecated or if a new version has been released.
         /// </summary>
         /// <returns>A <see cref="Task"/> representing the result of the asynchronous operation.</returns>
-        public async Task CheckReleaseDeprecations()
+        public async Task CheckReleaseDeprecationsAsync()
         {
             try
             {
@@ -41,13 +41,13 @@ namespace QarnotCLI
                     var isDeprecated = await Handler.IsActualReleaseDeprecated();
                     if (isDeprecated)
                     {
-                        releaseLogger.Print("This release version has been deprecated! Please update as soon as possible as we don't support this version anymore.");
+                        await releaseLogger.PrintAsync("This release version has been deprecated! Please update as soon as possible as we don't support this version anymore.");
                     }
 
                     var newReleaseExists = await Handler.DoesANewReleaseExists();
                     if (newReleaseExists)
                     {
-                        releaseLogger.Print("A release version exists! please upgrade the qarnot CLI to its last version to enjoy the last features.");
+                        await releaseLogger.PrintAsync("A release version exists! please upgrade the qarnot CLI to its last version to enjoy the last features.");
                     }
                 }
             }

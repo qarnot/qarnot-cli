@@ -7,7 +7,7 @@
 
     public interface IPrinter
     {
-        void Print(string message);
+        Task PrintAsync(string message);
     }
 
     public class Printer
@@ -88,20 +88,20 @@
 
             protected virtual ConsoleColor BackgroundColorSuffix { get; } = Console.BackgroundColor;
 
-            protected void PrintInColor(string message, ConsoleColor colorForground, ConsoleColor colorBackground)
+            protected async Task PrintInColorAsync(string message, ConsoleColor colorForground, ConsoleColor colorBackground)
             {
                 Console.ForegroundColor = colorForground;
                 Console.BackgroundColor = colorBackground;
-                this.Printer.PrintMessageAsync(message).Wait();
+                await Printer.PrintMessageAsync(message);
                 Console.ResetColor();
             }
 
-            private void PrintMessageWithColor(string message)
+            private async Task PrintMessageWithColorAsync(string message)
             {
-                this.PrintInColor(this.PrefixStdColor, this.TextColorPrefix, this.BackgroundColorPrefix);
-                this.PrintInColor(message, this.TextColorMessage, this.BackgroundColorMessage);
-                this.PrintInColor(this.SuffixStdColor, this.TextColorSuffix, this.BackgroundColorSuffix);
-                this.Printer.PrintMessageAsync(Environment.NewLine).Wait();
+                await PrintInColorAsync(this.PrefixStdColor, this.TextColorPrefix, this.BackgroundColorPrefix);
+                await PrintInColorAsync(message, this.TextColorMessage, this.BackgroundColorMessage);
+                await PrintInColorAsync(this.SuffixStdColor, this.TextColorSuffix, this.BackgroundColorSuffix);
+                await Printer.PrintMessageAsync(Environment.NewLine);
             }
 
             protected virtual string ConcatText(string prefix, string text, string suffix)
@@ -114,15 +114,15 @@
                 return this.ConcatText(this.PrefixStdNoColor, text, this.SuffixStdNoColor);
             }
 
-            public virtual void Print(string message)
+            public virtual async Task PrintAsync(string message)
             {
                 if (this.Color)
                 {
-                    this.PrintMessageWithColor(message);
+                    await PrintMessageWithColorAsync(message);
                 }
                 else
                 {
-                    this.Printer.PrintMessageAsync(this.ConcatStdNoColorText(message)).Wait();
+                    await Printer.PrintMessageAsync(ConcatStdNoColorText(message));
                 }
             }
         }

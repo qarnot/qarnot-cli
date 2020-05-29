@@ -1,6 +1,7 @@
 namespace QarnotCLI.Test
 {
     using System.Net;
+    using System.Collections.Generic;
     using System.Net.Http;
     using System.Text;
     using System.Threading;
@@ -15,10 +16,25 @@ namespace QarnotCLI.Test
 
         public string ReturnMessage { get; set; } = "{\"Your\":\"response\"}";
 
+        public List<string> ReturnMessageList { get; set; } = null;
+
+        private int ReturnMessageListIndex = 0;
+
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var response = await Task.FromResult(new HttpResponseMessage(HttpStatusCode.Accepted)).ConfigureAwait(false);
-            response.Content = new StringContent(ReturnMessage, Encoding.UTF8, "application/json");
+            var message = "";
+            if (ReturnMessageList != null)
+            {
+                message = ReturnMessageList[ReturnMessageListIndex % ReturnMessageList.Count];
+                ReturnMessageListIndex += 1;
+            }
+            else
+            {
+                message = ReturnMessage;
+            }
+
+            response.Content = new StringContent(message, Encoding.UTF8, "application/json");
             return response;
         }
     }

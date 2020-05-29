@@ -1,5 +1,6 @@
 namespace QarnotCLI
 {
+    using System;
     using CommandLine;
 
     public interface IArgumentsParser
@@ -137,7 +138,9 @@ namespace QarnotCLI
                                                     Options.WaitTaskOptions,
                                                     Options.AbortTaskOptions,
                                                     Options.DeleteTaskOptions,
-                                                    Options.UpdateTaskResourcesOptions
+                                                    Options.UpdateTaskResourcesOptions,
+                                                    Options.StdoutTaskOptions,
+                                                    Options.StderrTaskOptions
                                                     >(argv);
 
             checkHelpFlag(argv, parser);
@@ -146,10 +149,12 @@ namespace QarnotCLI
                 (Options.CreateTaskOptions o) => result = this.CreateConfig.ConvertGenericCreationOption(ConfigType.Task, o),
                 (Options.ListTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.List, o),
                 (Options.InfoTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Info, o),
-                (Options.WaitTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Wait, o),
+                (Options.WaitTaskOptions o) => result = this.CreateConfig.ConvertStdOption(ConfigType.Task, CommandApi.Wait, o),
                 (Options.AbortTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Abort, o),
                 (Options.DeleteTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Delete, o),
                 (Options.UpdateTaskResourcesOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.UpdateResources, o),
+                (Options.StdoutTaskOptions o) => result = this.CreateConfig.ConvertStdOption(ConfigType.Task, CommandApi.GetStdout, o),
+                (Options.StderrTaskOptions o) => result = this.CreateConfig.ConvertStdOption(ConfigType.Task, CommandApi.GetStderr, o),
                 err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
             if (!CheckTask(result))

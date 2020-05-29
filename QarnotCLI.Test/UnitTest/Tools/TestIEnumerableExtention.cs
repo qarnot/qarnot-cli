@@ -34,10 +34,7 @@ namespace QarnotCLI.Test
             }
             IEnumerable<string> lstCheck = lst.Select(x => x.ToString());
 
-            var ret = lst.ParallelForEachAsync(TestParallelFunctionIntToString, new TestParallelObject());
-
-            ret.Wait();
-            var lstResult = ret.Result;
+            var lstResult = await lst.ParallelForEachAsync(TestParallelFunctionIntToString, new TestParallelObject());
 
             CollectionAssert.AreEqual(lstResult.OrderBy(p => p), lstCheck.OrderBy(p => p));
         }
@@ -63,8 +60,7 @@ namespace QarnotCLI.Test
             }
             IEnumerable<string> lstTest = lst.Select(x => x.ToString());
             var date1 = DateTime.Now;
-            var ret = lst.ParallelForEachAsync(TestParallelFunctionWait, resources, maxDoP:maxRepeat);
-            ret.Wait();
+            var ret = await lst.ParallelForEachAsync(TestParallelFunctionWait, resources, maxDoP:maxRepeat);
             var date2 = DateTime.Now;
             TimeSpan diffDate = date2 - date1;
             int minTime = resources * (count / maxRepeat);

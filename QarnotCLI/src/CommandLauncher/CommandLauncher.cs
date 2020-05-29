@@ -52,7 +52,7 @@ namespace QarnotCLI
 
             if (printer != null)
             {
-                printer.Print(returnString);
+                await printer.PrintAsync(returnString);
             }
 
             return returnString;
@@ -83,7 +83,7 @@ namespace QarnotCLI
 
             if (printer != null)
             {
-                printer.Print(returnString);
+                await printer.PrintAsync(returnString);
             }
 
             return returnString;
@@ -128,7 +128,7 @@ namespace QarnotCLI
                 returnString += launchString;
                 if (printer != null)
                 {
-                    printer.Print(launchString);
+                    await printer.PrintAsync(launchString);
                 }
             }
 
@@ -168,16 +168,14 @@ namespace QarnotCLI
             List<T2> listToPrint = null;
             List<T1> listOfT = await this.QCollectionRetriever.RetrieveAsync(config, connect, ct);
 
-            var waitTaskResult = listOfT.ParallelForEachAsync(this.OneElementLauncher.ExecuteAsync, config, maxDoP: 10, ct: ct);
-
-            waitTaskResult.Wait();
-            listToPrint = waitTaskResult.Result.Where(result => result != null).ToList();
+            var waitTaskResult = await listOfT.ParallelForEachAsync(this.OneElementLauncher.ExecuteAsync, config, maxDoP: 10, ct: ct);
+            listToPrint = waitTaskResult.Where(result => result != null).ToList();
 
             string returnString = this.FormatToString.FormatCollection(listToPrint);
 
             if (printer != null)
             {
-                printer.Print(returnString);
+                await printer.PrintAsync(returnString);
             }
 
             return returnString;

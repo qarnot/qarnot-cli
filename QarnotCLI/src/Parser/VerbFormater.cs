@@ -34,6 +34,8 @@ namespace QarnotCLI
                 "delete",
                 "set",
                 "get",
+                "stdout",
+                "stderr",
                 "sync-from",
                 "sync-to",
                 "update-resources",

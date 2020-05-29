@@ -67,13 +67,53 @@ namespace QarnotCLI.Test
             var commandLauncher = LaunchFactory.CreateLauncher(type, command);
 
             string returnString = await commandLauncher.RunAndPrintCommandAsync(
-                new DefaultRunConfiguration(type, command) { Tags = new List<string>() { "hello", "world" } },
+                new StdConfiguration(type, command) { Tags = new List<string>() { "hello", "world" } },
                 FalsePrinter);
 
             string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
             string expected2 = "Task Wait end status : Success";
             StringAssert.Contains(expected1, returnString);
             StringAssert.Contains(expected2, returnString);
+        }
+
+        [Test]
+        public async Task StdoutTaskFromFakeHandlerReturnTheGoodUuid()
+        {
+            FakeHTTP.ReturnMessageList = new List<string>() {
+                HttpTaskObject.TasksListBodies,
+                "hello stdout"
+                };
+            ConfigType type = ConfigType.Task;
+            CommandApi command = CommandApi.GetStdout;
+
+            var commandLauncher = LaunchFactory.CreateLauncher(type, command);
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new StdConfiguration(type, command) { Tags = new List<string>() { "hello", "world" } },
+                FalsePrinter);
+
+            string expected = "hello stdout";
+            StringAssert.Contains(expected, returnString);
+        }
+
+        [Test]
+        public async Task StderrTaskFromFakeHandlerReturnTheGoodUuid()
+        {
+            FakeHTTP.ReturnMessageList = new List<string>() {
+                HttpTaskObject.TasksListBodies,
+                "hello stderr"
+                };
+            ConfigType type = ConfigType.Task;
+            CommandApi command = CommandApi.GetStderr;
+
+            var commandLauncher = LaunchFactory.CreateLauncher(type, command);
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new StdConfiguration(type, command) { Tags = new List<string>() { "hello", "world" } },
+                FalsePrinter);
+
+            string expected = "hello stderr";
+            StringAssert.Contains(expected, returnString);
         }
 
         [Test]

@@ -17,6 +17,8 @@ namespace QarnotCLI
 
         DefaultRunConfiguration ConvertGenericGetterOption(ConfigType type, CommandApi command, Options.IGetOptions option);
 
+        StdConfiguration ConvertStdOption(ConfigType type, CommandApi command, Options.AStdOptions option);
+
         LocalSetUpConfiguration ConvertGenericSetterOption(ConfigType type, Options.ConfigOptions option);
 
         CreateConfiguration ConvertGenericCreationOption(ConfigType type, Options.ICreateOptions option);
@@ -202,6 +204,12 @@ namespace QarnotCLI
         public DefaultRunConfiguration ConvertGenericGetterOption(ConfigType type, CommandApi command, Options.IGetOptions option)
         {
             DefaultRunConfiguration config = new DefaultRunConfiguration(type, command);
+            config = SetDefaultRunConfigurationOption(config, type, command, option);
+            return config;
+        }
+
+        private DefaultRunConfiguration SetDefaultRunConfigurationOption(DefaultRunConfiguration config, ConfigType type, CommandApi command, Options.IGetOptions option)
+        {
             GetDefaultOptions(config, option);
 
             ConfigGetGlobalOptions(option);
@@ -210,6 +218,26 @@ namespace QarnotCLI
             config.Id = option.Id;
             config.Summaries = false;
             config.Tags = option.Tags?.ToList();
+
+            return config;
+        }
+
+        /// <summary>
+        /// upgrade of the ConvertGenericGetterOption
+        /// to have the stdout and error options
+        /// </summary>
+        /// <param name="type">object type</param>
+        /// <param name="command">object command to launch</param>
+        /// <param name="option">object options and values</param>
+        /// <returns>a new object command to be launch</returns>
+        public StdConfiguration ConvertStdOption(ConfigType type, CommandApi command, Options.AStdOptions option)
+        {
+            StdConfiguration config = new StdConfiguration(type, command);
+
+            SetDefaultRunConfigurationOption(config, type, command, option);
+            config.Stdout = option.Stdout;
+            config.Stderr = option.Stderr;
+            config.Fresh = option.Fresh;
 
             return config;
         }

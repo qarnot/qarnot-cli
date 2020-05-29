@@ -115,5 +115,15 @@ namespace QarnotCLI
         /// Type Remove a part of element
         /// </summary>
         Remove,
+
+        /// <summary>
+        /// Type Show the Stdout
+        /// </summary>
+        GetStdout,
+
+        /// <summary>
+        /// Type Show the Stderr
+        /// </summary>
+        GetStderr,
     }
 }

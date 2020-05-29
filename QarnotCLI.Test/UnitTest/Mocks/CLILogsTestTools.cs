@@ -33,9 +33,7 @@ namespace QarnotCLI.Test
         {
         }
 
-        public override void Print(string text)
-        {
-        }
+        public override Task PrintAsync(string text) => Task.CompletedTask;
     }
 
     public class PrintVoid : Printer.IMessagePrinter
@@ -82,10 +80,11 @@ namespace QarnotCLI.Test
             Key = key;
         }
 
-        public override void Print(string text)
+        public override Task PrintAsync(string text)
         {
             CLILogsCheckValues.AllMessages += text;
             CLILogsCheckValues.Messages[Key] += text;
+            return Task.CompletedTask;
         }
     }
 }

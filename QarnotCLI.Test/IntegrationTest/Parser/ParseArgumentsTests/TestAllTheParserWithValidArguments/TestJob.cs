@@ -76,7 +76,7 @@ namespace QarnotCLI.Test
             CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
             TimeSpan waitValue = new TimeSpan(0, 0, 0, secondToAdd);
 
-            Assert.That(confset.MaximumWallTime.Value, Is.EqualTo(waitValue).Within(TimeSpan.FromSeconds(1)));
+            Assert.That(confset.MaximumWallTime.Value, Is.EqualTo(waitValue).Within(TimeSpan.FromSeconds(10)));
         }
 
         [Test]
@@ -95,7 +95,7 @@ namespace QarnotCLI.Test
             string[] argv = new string[] { "job", "create", "--name", "name", "--pool", "poolUuid", "--shortname", "shortname", "--max-wall-time", walltime };
             CreateConfiguration confset = parser.Parse(argv) as CreateConfiguration;
             Console.WriteLine(confset.MaximumWallTime.Value.TotalDays);
-            Assert.That(confset.MaximumWallTime.Value, Is.EqualTo(waitValue).Within(TimeSpan.FromSeconds(1)));
+            Assert.That(confset.MaximumWallTime.Value, Is.EqualTo(waitValue).Within(TimeSpan.FromSeconds(10)));
         }
 
         [Test]

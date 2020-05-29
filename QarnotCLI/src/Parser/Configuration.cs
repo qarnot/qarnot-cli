@@ -194,6 +194,22 @@ namespace QarnotCLI
         public virtual List<string> Tags { get; set; }
     }
 
+
+    /// <summary>
+    /// Configuration for the QObjects info.
+    /// </summary>
+    public class StdConfiguration : DefaultRunConfiguration
+    {
+        public StdConfiguration(ConfigType type, CommandApi command):base(type, command)
+        {
+        }
+
+        public virtual bool Stdout { get; set; }
+        public virtual bool Stderr { get; set; }
+        public virtual bool Fresh { get; set; }
+
+    }
+
     /// <summary>
     /// Configuration for the QPool Elastic info.
     /// </summary>

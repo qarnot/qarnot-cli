@@ -171,6 +171,90 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void StdoutTaskCheckTestParsArg()
+        {
+            string taskUuid = "TaskUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string[] argv = null;
+            using var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+
+            argv = new string[] { "task", "stdout", "--name", name, "--id", taskUuid, "--tags", tags, "--fresh" };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is StdConfiguration))
+            {
+                throw new Exception("return value is not StdConfiguration ");
+            }
+
+            StdConfiguration confset = (StdConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Task);
+            Assert.AreEqual(confset.Command, CommandApi.GetStdout);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, taskUuid);
+            Assert.IsTrue(confset.Fresh);
+
+            argv = new string[] { "task", "stdout", "-n", name, "-i", taskUuid, "-t", tags, "-f" };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is StdConfiguration))
+            {
+                throw new Exception("return value is not StdConfiguration ");
+            }
+
+            confset = (StdConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Task);
+            Assert.AreEqual(confset.Command, CommandApi.GetStdout);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, taskUuid);
+            Assert.IsTrue(confset.Fresh);
+        }
+
+        [Test]
+        public void StderrTaskCheckTestParsArg()
+        {
+            string taskUuid = "TaskUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string[] argv = null;
+            using var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+
+            argv = new string[] { "task", "stderr", "--name", name, "--id", taskUuid, "--tags", tags, "--fresh" };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is StdConfiguration))
+            {
+                throw new Exception("return value is not StdConfiguration ");
+            }
+
+            StdConfiguration confset = (StdConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Task);
+            Assert.AreEqual(confset.Command, CommandApi.GetStderr);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, taskUuid);
+            Assert.IsTrue(confset.Fresh);
+
+            argv = new string[] { "task", "stderr", "-n", name, "-i", taskUuid, "-t", tags, "-f" };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is StdConfiguration))
+            {
+                throw new Exception("return value is not StdConfiguration ");
+            }
+
+            confset = (StdConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Task);
+            Assert.AreEqual(confset.Command, CommandApi.GetStderr);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, taskUuid);
+            Assert.IsTrue(confset.Fresh);
+        }
+
+        [Test]
         public void UploadTaskResourcesCheckTestParsArg()
         {
             string taskUuid = "TaskUUID";
@@ -217,38 +301,41 @@ namespace QarnotCLI.Test
             string name = "NAME";
             string tags = "TAG1,TAG2";
             string[] argv = null;
-            var commandLineParser = new CommandLine.Parser();
+            using var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "task", "wait", "--name", name, "--id", taskUuid, "--tags", tags };
+            argv = new string[] { "task", "wait", "--name", name, "--id", taskUuid, "--tags", tags, "--stdout", "--stderr" };
             iConfSet = parser.Parse(argv);
 
-            if (!(iConfSet is DefaultRunConfiguration))
+            if (!(iConfSet is StdConfiguration))
             {
-                throw new Exception("return value is not DefaultRunConfiguration ");
+                throw new Exception("return value is not StdConfiguration ");
             }
 
-            DefaultRunConfiguration confset = (DefaultRunConfiguration)iConfSet;
+            StdConfiguration confset = (StdConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Task);
             Assert.AreEqual(confset.Command, CommandApi.Wait);
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, taskUuid);
+            Assert.IsTrue(confset.Stdout);
+            Assert.IsTrue(confset.Stderr);
 
-            argv = new string[] { "task", "wait", "-n", name, "-i", taskUuid, "-t", tags };
+            argv = new string[] { "task", "wait", "-n", name, "-i", taskUuid, "-t", tags, "-e", "-o" };
             iConfSet = parser.Parse(argv);
 
-            if (!(iConfSet is DefaultRunConfiguration))
+            if (!(iConfSet is StdConfiguration))
             {
-                throw new Exception("return value is not DefaultRunConfiguration ");
+                throw new Exception("return value is not StdConfiguration ");
             }
 
-            confset = (DefaultRunConfiguration)iConfSet;
+            confset = (StdConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Task);
             Assert.AreEqual(confset.Command, CommandApi.Wait);
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, taskUuid);
-            commandLineParser.Dispose();
+            Assert.IsTrue(confset.Stdout);
+            Assert.IsTrue(confset.Stderr);
         }
 
         [Test]

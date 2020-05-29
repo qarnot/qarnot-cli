@@ -38,7 +38,7 @@ namespace QarnotCLI.Test
         public LauncherFactory LaunchFactory { get; set; }
 
         [Test]
-        public void TestForCommandAll()
+        public async Task TestForCommandAll()
         {
             FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
             ConfigType type = ConfigType.All;
@@ -52,7 +52,7 @@ namespace QarnotCLI.Test
 
             var allConfig = new DefaultRunConfiguration(type, command);
             var all = new CommandAll(dict);
-            var ret = all.RunAndPrintCommandAsync(allConfig, FalsePrinter);
+            await all.RunAndPrintCommandAsync(allConfig, FalsePrinter);
         }
     }
 }

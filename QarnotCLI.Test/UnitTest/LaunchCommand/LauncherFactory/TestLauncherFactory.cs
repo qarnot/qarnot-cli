@@ -75,6 +75,18 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void TaskStdout()
+        {
+            Assert.IsTrue(this.Factory.CreateLauncher(ConfigType.Task, CommandApi.GetStdout) is CommandGeneric<QTask, string>);
+        }
+
+        [Test]
+        public void TaskStderr()
+        {
+            Assert.IsTrue(this.Factory.CreateLauncher(ConfigType.Task, CommandApi.GetStderr) is CommandGeneric<QTask, string>);
+        }
+
+        [Test]
         public void TaskList()
         {
             Assert.IsTrue(this.Factory.CreateLauncher(ConfigType.Task, CommandApi.List) is CommandGeneric<QTask, TaskCommandValue>);

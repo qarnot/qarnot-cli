@@ -32,32 +32,32 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public void TestSendAnInfoStringNoColor()
+        public async Task TestSendAnInfoStringNoColor()
         {
             var stockMessage = new StockPrint();
             Printer.APrint printer = new Printer.Info(false, stockMessage);
             string message = "test";
-            printer.Print(message);
+            await printer.PrintAsync(message);
             Assert.AreEqual(stockMessage.StockPrintMessage, message + Environment.NewLine);
         }
 
         [Test]
-        public void TestSendAnErrorStringNoColor()
+        public async Task TestSendAnErrorStringNoColor()
         {
             var stockMessage = new StockPrint();
             Printer.APrint printer = new Printer.Error(false, stockMessage);
             string message = "test";
-            printer.Print(message);
+            await printer.PrintAsync(message);
             Assert.AreEqual(stockMessage.StockPrintMessage, "[Error]: " + message + Environment.NewLine);
         }
 
         [Test]
-        public void TestSendAnErrorStringColor()
+        public async Task TestSendAnErrorStringColor()
         {
             var stockMessage = new StockPrint();
             Printer.APrint printer = new Printer.Error(true, stockMessage);
             string message = "test";
-            printer.Print(message);
+            await printer.PrintAsync(message);
             Assert.AreEqual(stockMessage.StockPrintMessage, "[Error]: " + message + Environment.NewLine);
         }
     }
