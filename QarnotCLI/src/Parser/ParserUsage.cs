@@ -40,14 +40,24 @@ namespace QarnotCLI
 
         private string PrintHelpUsage<T>(CommandLine.ParserResult<T> parser)
         {
-            string help = CommandLine.Text.HelpText.AutoBuild(parser, h => h, e => e, false, ParserUsage.maxSize);
+            string help = CommandLine.Text.HelpText.AutoBuild(parser, h =>
+                {
+                    h.Heading = PrintHelpVersion(parser);
+                    return CommandLine.Text.HelpText.DefaultParsingErrorsHandler(parser, h);
+                },
+                e => e, false, ParserUsage.maxSize);
 
             return help;
         }
 
         private string PrintHelpVerbUsage<T>(CommandLine.ParserResult<T> parser)
         {
-            string help = CommandLine.Text.HelpText.AutoBuild(parser, h => h, e => e, true, ParserUsage.maxSize);
+            string help = CommandLine.Text.HelpText.AutoBuild(parser, h =>
+                {
+                    h.Heading = PrintHelpVersion(parser);
+                    return CommandLine.Text.HelpText.DefaultParsingErrorsHandler(parser, h);
+                },
+                e => e, true, ParserUsage.maxSize);
 
             return help;
         }

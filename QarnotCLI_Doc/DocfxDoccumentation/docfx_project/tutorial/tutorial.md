@@ -41,6 +41,7 @@ qarnot config -t 0123456789__myAPIToken__9876543210 -u https://api.qarnot.com -s
 | QARNOT_CLIENT_TOKEN | Use your api connection token without storing it | 
 | QARNOT_CLUSTER_URL | Use a custom qarnot api url | 
 | QARNOT_STORAGE_URL | Use a custom qarnot storage url | 
+| QARNOT_ACCOUNT_EMAIL | Specify your qarnot email account | 
 | QARNOT_USE_STORAGE_PATH_STYLE | force the storage path style, it must be "true" or "false" | 
 
 ## Create a Qarnot Resource

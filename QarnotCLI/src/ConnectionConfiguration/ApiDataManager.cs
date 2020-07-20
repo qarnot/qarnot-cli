@@ -36,7 +36,20 @@ namespace QarnotCLI
             }
 
             this.AddConnectionInformation(config);
+
+            if (config.Type == ConfigType.Config && config.Command == CommandApi.Info)
+            {
+                this.ShowConfiguration(config.ApiConnection);
+                return false;
+            }
+
             return true;
+        }
+
+        private void ShowConfiguration(APIConnectionInformation info)
+        {
+            string information = "connection information:\n";
+            CLILogs.Info(information + info.ToString());
         }
 
         private void AddConnectionInformation(IConfiguration config)

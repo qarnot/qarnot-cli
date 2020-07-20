@@ -11,6 +11,7 @@ namespace QarnotCLI
         private string token;
         private string apiUri;
         private string storageUri;
+        private string accountEmail;
         private bool? forcePathStyle;
 
         public string Token
@@ -29,6 +30,12 @@ namespace QarnotCLI
         {
             get { return string.IsNullOrWhiteSpace(storageUri) ? null : storageUri; }
             set { storageUri = value; }
+        }
+
+        public string AccountEmail
+        {
+            get { return string.IsNullOrWhiteSpace(accountEmail) ? null : accountEmail; }
+            set { accountEmail = value; }
         }
 
         public bool ForcePathStyle
@@ -50,6 +57,11 @@ namespace QarnotCLI
         public string SetStorageUri
         {
             set { storageUri = string.IsNullOrWhiteSpace(storageUri) ? value : storageUri; }
+        }
+
+        public string SetAccountEmail
+        {
+            set { accountEmail = string.IsNullOrWhiteSpace(accountEmail) ? value : accountEmail; }
         }
 
         public bool? SetForcePathStyle
@@ -83,6 +95,7 @@ namespace QarnotCLI
             SetApiUri = connectionInformation.ApiUri;
             SetStorageUri = connectionInformation.StorageUri;
             SetForcePathStyle = connectionInformation.GetForcePathStyle;
+            SetAccountEmail = connectionInformation.AccountEmail;
         }
 
         public string ToString()
@@ -90,6 +103,7 @@ namespace QarnotCLI
             return "Token:" + Token + Environment.NewLine +
                 "Api:" + ApiUri + Environment.NewLine +
                 "Storage:" + StorageUri + Environment.NewLine +
+                "AccountEmail:" + AccountEmail + Environment.NewLine +
                 "ForceStoragePathStyle:" + ForcePathStyle.ToString();
         }
     }

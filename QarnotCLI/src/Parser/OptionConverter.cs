@@ -253,9 +253,15 @@ namespace QarnotCLI
             config.ApiConnection.Token = option.Token;
             config.ApiConnection.ApiUri = option.Uri;
             config.ApiConnection.StorageUri = option.Storage;
+            config.ApiConnection.AccountEmail = option.AccountEmail;
             config.ApiConnection.SetForcePathStyleString(option.ForcePathStyle);
 
             config.ShowConnectionInfo = option.ShowConnectionInfo;
+            if (option.ShowConnectionInfo)
+            {
+                config.Command = CommandApi.Info;
+            }
+
             return config;
         }
 
@@ -366,6 +372,7 @@ namespace QarnotCLI
             config.Profile = option.Profile ?? config.Profile;
             config.Tags = option.Tags?.ToList().Count > 0 ? option.Tags?.ToList() : config.Tags ;
             config.Constants = option.Constants?.ToList().Count > 0 ? option.Constants?.ToList() : config.Constants;
+            config.Constraints = option.Constraints?.ToList().Count > 0 ? option.Constraints?.ToList() : config.Constraints;
             config.Resources = option.Resources?.ToList().Count > 0 ? option.Resources?.ToList() : config.Resources;
             config.InstanceCount = option.InstanceCount > 0 ? option.InstanceCount : config.InstanceCount;
             config.JobUuid = option.Job ?? config.JobUuid;

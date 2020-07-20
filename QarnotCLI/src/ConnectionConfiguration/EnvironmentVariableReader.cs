@@ -36,6 +36,7 @@ namespace QarnotCLI
         public void RetrieveEnvironmentInformation(APIConnectionInformation api)
         {
             api.SetToken = GentEnvVariable("QARNOT_CLIENT_TOKEN");
+            api.SetAccountEmail = GentEnvVariable("QARNOT_ACCOUNT_EMAIL");
             api.SetApiUri = GentEnvVariable("QARNOT_CLUSTER_URL");
             api.SetStorageUri = GentEnvVariable("QARNOT_STORAGE_URL");
             api.SetForcePathStyleString(GentEnvVariable("QARNOT_USE_STORAGE_PATH_STYLE"));

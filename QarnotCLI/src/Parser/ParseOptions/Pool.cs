@@ -49,6 +49,9 @@ namespace QarnotCLI
             [Option('c', "constants", Required = false, HelpText = "Constants of the pool.")]
             public override IEnumerable<string> Constants { get; set; }
 
+            [Option("constraints", Required = false, HelpText = "Constraints of the pool.")]
+            public override IEnumerable<string> Constraints { get; set; }
+
             [Option('r', "resources", Required = false, HelpText = "Name of the buckets of the pool.")]
             public override IEnumerable<string> Resources { get; set; }
 

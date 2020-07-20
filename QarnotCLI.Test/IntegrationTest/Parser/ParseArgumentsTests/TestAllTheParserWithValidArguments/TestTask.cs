@@ -30,12 +30,13 @@ namespace QarnotCLI.Test
             string profile = "PROFILE";
             string[] tags = new[] { "TAG1", "TAG2", "TAG3" };
             string[] constants = new[] { "CONSTANT" };
+            string[] constraints = new[] { "CONSTRAINTS" };
             string[] argv = null;
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--instance", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0] };
+            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--instance", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0] };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -50,6 +51,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Profile, profile);
             CollectionAssert.AreEqual(confset.Tags, tags);
             CollectionAssert.AreEqual(confset.Constants, constants);
+            CollectionAssert.AreEqual(confset.Constraints, constraints);
             Assert.AreEqual(confset.InstanceCount, int.Parse(instance));
 
             argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--range", range, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0] };

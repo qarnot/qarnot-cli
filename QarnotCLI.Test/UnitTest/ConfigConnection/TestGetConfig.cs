@@ -19,6 +19,8 @@ namespace QarnotCLI.Test
 
             public bool EnvStorage { get; set; }
 
+            public bool EnvEmail { get; set; }
+
             public bool EnvForce { get; set; }
 
             public FakeGetEnvConnectionInformation(bool envToken, bool envApi, bool envStorage, bool envForce = false)
@@ -49,6 +51,11 @@ namespace QarnotCLI.Test
                 if (EnvStorage)
                 {
                     api.SetStorageUri = "storage_env";
+                }
+
+                if (EnvEmail)
+                {
+                    api.SetAccountEmail = "email_env";
                 }
 
                 if (EnvStorage)
@@ -96,6 +103,7 @@ namespace QarnotCLI.Test
                     Token = "token_file",
                     ApiUri = "api_file",
                     StorageUri = "storage_file",
+                    AccountEmail = "email_file",
                 };
                 return api;
             }
@@ -162,12 +170,14 @@ namespace QarnotCLI.Test
                 Token = null,
                 ApiUri = null,
                 StorageUri = null,
+                AccountEmail = null,
                 ForcePathStyle = false,
             };
             ret.RetrieveConfigurationInformation(api);
             Assert.AreEqual(api.Token, "token_file");
             Assert.AreEqual(api.ApiUri, "api_env");
             Assert.AreEqual(api.StorageUri, "storage_file");
+            Assert.AreEqual(api.AccountEmail, "email_file");
             Assert.AreEqual(api.ForcePathStyle, false);
             Assert.AreEqual(api.GetForcePathStyle, false);
         }

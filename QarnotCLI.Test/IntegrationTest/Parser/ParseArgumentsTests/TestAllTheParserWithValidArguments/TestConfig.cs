@@ -26,13 +26,14 @@ namespace QarnotCLI.Test
             string token = "TOKEN";
             string uri = "URI";
             string storage = "STORAGE";
+            string email = "EMAIL";
             string[] argv = null;
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
             LocalSetUpConfiguration confset = null;
 
-            argv = new string[] { "config", "--global", "--token", token, "--api-uri", uri, "--storage-uri", storage };
+            argv = new string[] { "config", "--global", "--token", token, "--api-uri", uri, "--storage-uri", storage, "--account-email", email };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is LocalSetUpConfiguration))
@@ -45,8 +46,9 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.ApiConnection.Token, token);
             Assert.AreEqual(confset.ApiConnection.ApiUri, uri);
             Assert.AreEqual(confset.ApiConnection.StorageUri, storage);
+            Assert.AreEqual(confset.ApiConnection.AccountEmail, email);
 
-            argv = new string[] { "config", "-g", "-t", token, "-u", uri, "-s", storage };
+            argv = new string[] { "config", "-g", "-t", token, "-u", uri, "-s", storage, "-e", email };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is LocalSetUpConfiguration))
@@ -59,6 +61,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.ApiConnection.Token, token);
             Assert.AreEqual(confset.ApiConnection.ApiUri, uri);
             Assert.AreEqual(confset.ApiConnection.StorageUri, storage);
+            Assert.AreEqual(confset.ApiConnection.AccountEmail, email);
             commandLineParser.Dispose();
         }
     }

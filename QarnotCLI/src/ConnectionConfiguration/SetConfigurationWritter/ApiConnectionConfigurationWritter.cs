@@ -38,14 +38,6 @@ namespace QarnotCLI
 
         public IConfigurationFileReader FileInformationGetter { get; }
 
-        private void PrintTraceOfTheValueFinds(string path, string token, string uri, string bucketUri)
-        {
-            CLILogs.Debug("Path " + path);
-            CLILogs.Debug("Set the token " + token);
-            CLILogs.Debug("Set the api uri " + uri);
-            CLILogs.Debug("Set the storage uri " + bucketUri);
-        }
-
         public string GetPath(LocalSetUpConfiguration config)
         {
             if (config.Path != null)
@@ -109,27 +101,8 @@ namespace QarnotCLI
             }
 
             var apiConfig = config as LocalSetUpConfiguration;
-            if (apiConfig.ShowConnectionInfo)
-            {
-                this.ShowConfiguration(path, config, info);
-            }
-            else
-            {
-                config.ApiConnection.Update(info);
-                this.SetConfigFile(path, config.ApiConnection);
-            }
-        }
-
-        private void ShowConfiguration(string path, IConfiguration config, APIConnectionInformation fileConnectionInfo)
-        {
-            APIConnectionInformation info = new APIConnectionInformation();
-            info.Update(config.ApiConnection);
-            GetEnvironmentVariable.RetrieveEnvironmentInformation(info);
-            info.Update(fileConnectionInfo);
-
-            string information = "connection information:\n";
-            information += $"token:{info.Token}\nuri:{info.ApiUri}\nstorage:{info.StorageUri}";
-            CLILogs.Info(information);
+            config.ApiConnection.Update(info);
+            this.SetConfigFile(path, config.ApiConnection);
         }
 
         private void SetConfigFile(string path, APIConnectionInformation connectionInformation)
@@ -140,6 +113,7 @@ namespace QarnotCLI
                 FileWriter.Write("token", connectionInformation.Token, fs);
                 FileWriter.Write("uri", connectionInformation.ApiUri, fs);
                 FileWriter.Write("storage", connectionInformation.StorageUri, fs);
+                FileWriter.Write("account-email", connectionInformation.AccountEmail, fs);
                 if (connectionInformation.GetForcePathStyle.HasValue)
                 {
                     FileWriter.Write("force-path", connectionInformation.ForcePathStyle.ToString(), fs);

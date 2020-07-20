@@ -45,6 +45,28 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void GetValueTestForcePathStyle()
+        {
+            APIConnectionInformation apiInformation = new APIConnectionInformation();
+            string line = "force-path=true";
+
+            var fileinfo = new ConfigurationFileReader();
+            fileinfo.GetValue(line, apiInformation);
+            Assert.AreEqual(apiInformation.ForcePathStyle, true);
+        }
+
+        [Test]
+        public void GetValueAccountEmail()
+        {
+            APIConnectionInformation apiInformation = new APIConnectionInformation();
+            string line = "account-email=email123@test.com";
+
+            var fileinfo = new ConfigurationFileReader();
+            fileinfo.GetValue(line, apiInformation);
+            Assert.AreEqual(apiInformation.AccountEmail, "email123@test.com");
+        }
+
+        [Test]
         public void ParseLinesTestMoreThanRequiredVariablesSendNoError()
         {
             var fileinfo = new ConfigurationFileReader();
@@ -126,11 +148,15 @@ namespace QarnotCLI.Test
                 "token=TOKEN",
                 "uri=URI",
                 "storage=BUCKET",
+                "account-email=EMAIL",
+                "force-path=true",
             };
             QarnotCLI.APIConnectionInformation apiInformation = fileinfo.ParseLines(lines);
             Assert.AreEqual(apiInformation.Token, "TOKEN");
             Assert.AreEqual(apiInformation.ApiUri, "URI");
             Assert.AreEqual(apiInformation.StorageUri, "BUCKET");
+            Assert.AreEqual(apiInformation.AccountEmail, "EMAIL");
+            Assert.AreEqual(apiInformation.ForcePathStyle, true);
         }
     }
 }

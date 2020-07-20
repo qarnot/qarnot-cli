@@ -6,3 +6,8 @@
 **/man/
 */TestResults/
 **/.Qarnot
+*/coverage*
+.sonarqube/
+dest
+*/dest
+artifacts

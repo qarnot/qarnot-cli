@@ -9,7 +9,7 @@ pushd ..  # go back to repo toplevel
 
 pushd QarnotCLI
 mkdir -p ubuntu/debug
-dotnet build;
+dotnet build -c Debug;
 dotnet publish -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o ./bin/ubuntu/debug;
 popd  # back to toplevel
 
@@ -25,6 +25,7 @@ if [ ! -d docfx ]; then
     nuget install docfx.console -OutputDirectory docfx -Version 2.49.0
 fi
 chmod 755 docfx/docfx.console.2.49.0/tools/docfx.exe
+mono docfx/docfx.console.2.49.0/tools/docfx.exe metadata docfx_project/docfx.json
 mono docfx/docfx.console.2.49.0/tools/docfx.exe build docfx_project/docfx.json
 pushd docfx_project/_site
 cp images/Q\ -\ white.svg logo.svg && cp images/Q\ -\ black.png favicon.ico
