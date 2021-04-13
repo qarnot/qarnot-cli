@@ -21,6 +21,7 @@ branches:
   # whitelist
   only:
     - master
+    - /v\d+\.\d+\.\d+/
 
 # set clone depth
 clone_depth: 1
