@@ -59,5 +59,4 @@ deploy:
     prerelease: false
     auth_token: $(github_token)
     on:
-      branch: master
       APPVEYOR_REPO_TAG: true
