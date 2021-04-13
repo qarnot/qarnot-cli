@@ -47,7 +47,7 @@ test_script:
 #---------------------------------#
 
 artifacts:
-  - path: artifacts/*/*
+  - path: artifacts/**/*
     name: qarnot
 
 deploy:
