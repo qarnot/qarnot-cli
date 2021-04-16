@@ -32,9 +32,9 @@ build_script:
 
 after_build:
   - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/osx
-  - sh: mv ./artifacts/osx/qarnot ./artifacts/osx/qarnot-osx-x64
+  - sh: mv ./artifacts/osx/qarnot ./artifacts/qarnot-osx-x64
   - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/linux
-  - sh: mv ./artifacts/linux/qarnot ./artifacts/linux/qarnot-linux-x64
+  - sh: mv ./artifacts/linux/qarnot ./artifacts/qarnot-linux-x64
   - cmd: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win10-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/windows
   - rm artifacts/*/*.pdb
 
