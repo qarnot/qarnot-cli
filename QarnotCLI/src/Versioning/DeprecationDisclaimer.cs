@@ -7,7 +7,7 @@ namespace QarnotCLI
     {
         private const string DeprecationEnvironmentVariableName = "QARNOT_IGNORE_DEPRECATION";
         private readonly ReleasesHandler Handler;
-        private readonly IPrinter printer;
+        private readonly IPrinter DisclamerPrinter;
         private readonly IEnvironmentVariableReader EnvironmentReader;
 
         /// <summary>
@@ -19,6 +19,7 @@ namespace QarnotCLI
         public DeprecationDisclaimer(ReleasesHandler handler, IPrinter printer, IEnvironmentVariableReader envReader)
         {
             Handler = handler;
+            DisclamerPrinter = printer;
             EnvironmentReader = envReader;
         }
 

@@ -51,6 +51,7 @@ namespace QarnotCLI.Test
                 Assert.AreEqual(input, versionWaitted);
                 return;
             }
+
             throw new Exception("A version must be throw");
         }
 
@@ -83,6 +84,7 @@ namespace QarnotCLI.Test
                 Assert.IsTrue(Regex.Match(input, pattern, RegexOptions.IgnoreCase).Success);
                 return;
             }
+
             throw new Exception("A version must be throw");
         }
     }

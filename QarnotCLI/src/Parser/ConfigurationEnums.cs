@@ -125,5 +125,10 @@ namespace QarnotCLI
         /// Type Show the Stderr
         /// </summary>
         GetStderr,
+
+        /// <summary>
+        /// Type Snapshot the task results
+        /// </summary>
+        Snapshot,
     }
 }

@@ -42,10 +42,10 @@ namespace QarnotCLI.Test
         {
             var format = FormatterFactory.CreateFormat("XML");
             string retString = "<Information>" + Environment.NewLine +
-            "  <Values>"  + Environment.NewLine +
-            "    <Var1>test</Var1>"  + Environment.NewLine +
-            "    <Var2>test</Var2>"  + Environment.NewLine +
-            "  </Values>"  + Environment.NewLine +
+            "  <Values>" + Environment.NewLine +
+            "    <Var1>test</Var1>" + Environment.NewLine +
+            "    <Var2>test</Var2>" + Environment.NewLine +
+            "  </Values>" + Environment.NewLine +
             "</Information>";
             List<TestXML> test = new List<TestXML>() { new TestXML() };
 

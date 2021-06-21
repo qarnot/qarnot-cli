@@ -109,25 +109,5 @@ namespace QarnotCLI.Test
             Dictionary<string, string> ret = tool.CreateConstraints(constraint);
             Assert.AreEqual(ret.Count, 0);
         }
-
-        [Test]
-        public void TestCreateRessources()
-        {
-            // very similar to a direct test to the SDK
-            // Not very usefull to test
-            // throw new Exception("not implement");
-            // var tool = new CreateTools();
-            // tool.CreateRessources();
-        }
-
-        [Test]
-        public void TestCreateResult()
-        {
-            // very similar to a direct test to the SDK
-            // Not very usefull to test
-            // throw new Exception("not implement");
-            // var tool = new CreateTools();
-            // tool.CreateResult();
-        }
     }
 }

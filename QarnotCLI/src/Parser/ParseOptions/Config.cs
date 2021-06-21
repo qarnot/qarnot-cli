@@ -34,13 +34,13 @@ namespace QarnotCLI
             [Option('t', "token", HelpText = "The API Token to be use.")]
             public override string Token { get; set; }
 
-            [Option('u', "api-uri",Required = false, HelpText = "The api uri to be use.")]
+            [Option('u', "api-uri", Required = false, HelpText = "The api uri to be use.")]
             public string Uri { get; set; }
 
-            [Option('s', "storage-uri",Required = false, HelpText = "The bucket api uri to be use.")]
+            [Option('s', "storage-uri", Required = false, HelpText = "The bucket api uri to be use.")]
             public string Storage { get; set; }
 
-            [Option('e', "account-email",Required = false, HelpText = "The user account email address.")]
+            [Option('e', "account-email", Required = false, HelpText = "The user account email address.")]
             public string AccountEmail { get; set; }
 
             [Option('f', "force-storage-path-style", Required = false, HelpText = "Force the storage path style.")]

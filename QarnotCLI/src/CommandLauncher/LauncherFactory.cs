@@ -88,6 +88,8 @@ namespace QarnotCLI
                     return new CommandGeneric<QTask, string>(new QTasksRetriever(), new StdoutTaskCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.GetStderr:
                     return new CommandGeneric<QTask, string>(new QTasksRetriever(), new StderrTaskCommand(), this.Formatter, this.ConnectionWrapper);
+                case CommandApi.Snapshot:
+                    return new CommandGeneric<QTask, GenericInfoCommandValue>(new QTasksRetriever(), new SnapshotTaskCommand(), this.Formatter, this.ConnectionWrapper);
                 default:
                     throw new NotImplementedException("Not implemented command for Task");
             }

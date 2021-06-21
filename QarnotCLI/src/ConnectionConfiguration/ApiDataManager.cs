@@ -1,5 +1,7 @@
 namespace QarnotCLI
 {
+    using System;
+
     public interface IApiDataManager
     {
         bool Start(IConfiguration config);
@@ -48,7 +50,7 @@ namespace QarnotCLI
 
         private void ShowConfiguration(APIConnectionInformation info)
         {
-            string information = "connection information:\n";
+            string information = "connection information:" + Environment.NewLine;
             CLILogs.Info(information + info.ToString());
         }
 

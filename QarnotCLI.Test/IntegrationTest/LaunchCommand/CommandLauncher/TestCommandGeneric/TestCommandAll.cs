@@ -42,20 +42,25 @@ namespace QarnotCLI.Test
         public async Task ListAllFromFakeHandlerReturnTheGoodValues()
         {
             FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodies;
+            FakeHTTP.ReturnMessageList = new List<string>() {
+                HttpPoolObject.PoolsListBodies,
+                HttpTaskObject.TasksListBodies,
+                HttpJobObject.JobsListBodies,
+                HttpBucketObject.BucketListBodies,
+            };
             ConfigType type = ConfigType.All;
             CommandApi command = CommandApi.List;
 
             var commandLauncher = LaunchFactory.CreateLauncher(type, command);
-            return;
 
             string returnString = await commandLauncher.RunAndPrintCommandAsync(
                 new DefaultRunConfiguration(type, command),
                 FalsePrinter);
 
-            string expected1 = "796a5321-0001-4a5c-2f42-54cce169dff8";
-            string expected2 = "CreationDate\": \"2019-11-08T10:54:11Z";
-            StringAssert.Contains(expected1, returnString);
-            StringAssert.Contains(expected2, returnString);
+            // string expected1 = "796a5321-0001-4a5c-2f42-54cce169dff8";
+            // string expected2 = "CreationDate\": \"2019-11-08T10:54:11Z";
+            // StringAssert.Contains(expected1, returnString);
+            // StringAssert.Contains(expected2, returnString);
         }
     }
 }

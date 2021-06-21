@@ -80,6 +80,7 @@ namespace QarnotCLI
         /// </summary>
         /// <param name="parser">Parser used (CommandLine).</param>
         /// <param name="errs">Error list.</param>
+        /// <param name="argv">argv list.</param>
         /// <typeparam name="T">The generic type parameter: Object to parser to get the usage.</typeparam>
         /// <returns>String usage.</returns>
         public string PrintHelp<T>(CommandLine.ParserResult<T> parser, System.Collections.Generic.IEnumerable<CommandLine.Error> errs, string[] argv)

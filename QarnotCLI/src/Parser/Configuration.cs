@@ -32,6 +32,40 @@ namespace QarnotCLI
         /// Print sizes in human readable format.
         /// </summary>
         bool HumanReadable { get; set; }
+
+        /// <summary>
+        /// Don't check the ssl certificate validity of the API connection.
+        /// </summary>
+        bool UnsafeSslCertificate { get; set; }
+
+        /// <summary>
+        /// Give your own self-signed ssl certificate validity to the API connection.
+        /// </summary>
+        string CustomSslCertificate { get; set; }
+    }
+
+    /// <summary>
+    /// The snap Configuration innterface
+    /// </summary>
+    public interface ISnapshotConfiguration
+    {
+        /// <summary>
+        /// Add a snap period
+        /// </summary>
+        /// <value>Time in second of the snap period.</value>
+        uint SnapshotPeriodicSec { get; set; }
+
+        /// <summary>
+        /// Add a snap Whitelist
+        /// </summary>
+        /// <value>The whitelist list of the folders and files to get from the result folder.</value>
+        string Whitelist { get; set; }
+
+        /// <summary>
+        /// Add a snap Blacklist
+        /// </summary>
+        /// <value>The blacklist list of the folders and files to get from the result folder.</value>
+        string Blacklist { get; set; }
     }
 
     /// <summary>
@@ -64,6 +98,10 @@ namespace QarnotCLI
         public string ResultFormat { get; set; }
 
         public bool HumanReadable { get; set; }
+
+        public bool UnsafeSslCertificate { get; set; }
+
+        public string CustomSslCertificate { get; set; }
 
         public bool ShowConnectionInfo { get; set; }
     }
@@ -104,6 +142,11 @@ namespace QarnotCLI
         public string ResultFormat { get; set; }
 
         public bool HumanReadable { get; set; }
+
+        public bool UnsafeSslCertificate { get; set; }
+
+        public string CustomSslCertificate { get; set; }
+
     }
 
     /// <summary>
@@ -128,6 +171,10 @@ namespace QarnotCLI
         public string ResultFormat { get; set; }
 
         public bool HumanReadable { get; set; }
+
+        public bool UnsafeSslCertificate { get; set; }
+
+        public string CustomSslCertificate { get; set; }
 
         public ConfigType Type { get; set; } = ConfigType.Bucket;
 
@@ -181,6 +228,10 @@ namespace QarnotCLI
 
         public bool HumanReadable { get; set; }
 
+        public bool UnsafeSslCertificate { get; set; }
+
+        public string CustomSslCertificate { get; set; }
+
         public virtual ConfigType Type { get; set; }
 
         public virtual CommandApi Command { get; set; }
@@ -192,15 +243,33 @@ namespace QarnotCLI
         public virtual bool Summaries { get; set; }
 
         public virtual List<string> Tags { get; set; }
+
+        public virtual bool TagsIntersect { get; set; }
     }
 
+
+    /// <summary>
+    /// Configuration for the snapshot.
+    /// </summary>
+    public class SnapshotConfiguration : DefaultRunConfiguration, ISnapshotConfiguration
+    {
+        public SnapshotConfiguration(ConfigType type, CommandApi command):base(type, command)
+        {
+        }
+
+        public uint SnapshotPeriodicSec { get; set; }
+
+        public string Whitelist { get; set; }
+
+        public string Blacklist { get; set; }
+    }
 
     /// <summary>
     /// Configuration for the QObjects info.
     /// </summary>
     public class StdConfiguration : DefaultRunConfiguration
     {
-        public StdConfiguration(ConfigType type, CommandApi command):base(type, command)
+        public StdConfiguration(ConfigType type, CommandApi command): base(type, command)
         {
         }
 
@@ -236,7 +305,7 @@ namespace QarnotCLI
     /// <summary>
     /// Configuration for the QObject create info.
     /// </summary>
-    public class CreateConfiguration : IConfiguration
+    public class CreateConfiguration : IConfiguration, ISnapshotConfiguration
     {
         public CreateConfiguration()
         {
@@ -266,6 +335,10 @@ namespace QarnotCLI
 
         public bool HumanReadable { get; set; }
 
+        public bool UnsafeSslCertificate { get; set; }
+
+        public string CustomSslCertificate { get; set; }
+
         public ConfigType Type { get; set; }
 
         public CommandApi Command { get; set; } = CommandApi.Create;
@@ -290,6 +363,12 @@ namespace QarnotCLI
 
         public List<string> Dependents { get; set; }
 
+        public uint SnapshotPeriodicSec { get; set; }
+
+        public string Whitelist { get; set; }
+
+        public string Blacklist { get; set; }
+
         public bool IsDependents { get; set; }
 
         public uint InstanceCount { get; set; }
@@ -313,5 +392,9 @@ namespace QarnotCLI
         public uint ElasticMinimumIdlingTime { get; set; }
 
         public TimeSpan? MaximumWallTime { get; set; }
+
+        public bool TasksDefaultWaitForPoolResourcesSynchronization { get; set; } = false;
+
+        public bool? WaitForPoolResourcesSynchronization { get; set; }
     }
 }

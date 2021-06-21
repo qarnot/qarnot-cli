@@ -66,6 +66,9 @@ namespace QarnotCLI
             public virtual float ElasticResizeFactor { get; set; }
 
             public virtual uint ElasticMinimumIdlingTime { get; set; }
+
+            [Option("tasks-wait-for-synchronization", Required = false, HelpText = "Have all the pool's tasks wait for the resources to be synchronized before running if the pool resources are updated before the task submission. (set to true or false, default: false)")]
+            public override bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
         }
 
         [Verb("pool list", HelpText = "List the running pools.")]
@@ -86,15 +89,18 @@ namespace QarnotCLI
             [Option('n', "name", Required = false, HelpText = "Name of the pool.")]
             public override string Name { get; set; }
 
-            [Option('t', "tags", Required = false, HelpText = "Tags of the pool.")]
+            [Option('t', "tags", SetName = "tags", Required = false, HelpText = "Tags of the pool to retrieve.")]
             public override IEnumerable<string> Tags { get; set; }
+
+            [Option("exclusive-tags", SetName = "exclusive-tags", Required = false, HelpText = "Tags of the pool to retrieve. The pool should have all the tags given")]
+            public override IEnumerable<string> TagsIntersect { get; set; }
 
             [Option('i', "id", Required = false, HelpText = "Shortname or Uuid of the pool you want.")]
             public override string Id { get; set; }
         }
 
         [Verb("pool info", HelpText = "Detail info of the pool selected.")]
-        public class InfoPoolOptions : AGetOptions
+        public class InfoPoolOptions : APoolGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -107,22 +113,10 @@ namespace QarnotCLI
                         new InfoPoolOptions { Id = "Pool Uuid", Tags = new string[] { "TAG1", "TAG2" } });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the pools.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the pool.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the pool.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the pool you want.")]
-            public override string Id { get; set; }
         }
 
         [Verb("pool update-resources", HelpText = "Update resources for a running pool")]
-        public class UpdatePoolResourcesOptions : AGetOptions
+        public class UpdatePoolResourcesOptions : APoolGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -135,22 +129,10 @@ namespace QarnotCLI
                         new UpdatePoolResourcesOptions { Id = "Pool Uuid", Tags = new string[] { "TAG1", "TAG2" } });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the pools.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the pool.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the pool.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the pool you want.")]
-            public override string Id { get; set; }
         }
 
         [Verb("pool delete", HelpText = "Delete the pool selected.")]
-        public class DeletePoolOptions : AGetOptions
+        public class DeletePoolOptions : APoolGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -163,22 +145,10 @@ namespace QarnotCLI
                         new DeletePoolOptions { Id = "Pool Uuid", Tags = new string[] { "TAG1", "TAG2" } });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the pool.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", HelpText = "Name of the pools to delete.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", HelpText = "Tags of the pools to delete.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", HelpText = "Shortname or Uuid of the pool you want.")]
-            public override string Id { get; set; }
         }
 
         [Verb("pool set", HelpText = "Set the pool elastic options.")]
-        public class SetPoolOptions : AGetOptions, IElasticityOptions
+        public class SetPoolOptions : APoolGetOptions, IElasticityOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -191,18 +161,6 @@ namespace QarnotCLI
                         new SetPoolOptions { Id = "Pool Uuid", Tags = new string[] { "TAG1", "TAG2" } });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the pool.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the pool.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the pool.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the pool you want.")]
-            public override string Id { get; set; }
 
             public virtual uint ElasticMinimumTotalNodes { get; set; }
 

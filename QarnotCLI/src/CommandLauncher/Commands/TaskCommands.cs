@@ -19,7 +19,7 @@ namespace QarnotCLI
                     var stdmessage = await task.FreshStdoutAsync(ct);
                     if (!string.IsNullOrEmpty(stdmessage))
                     {
-                        CLILogs.Info("Stdout:" + Environment.NewLine + string.Join("\n", stdmessage.Split(new string[]{"\\n"}, StringSplitOptions.None)));
+                        CLILogs.Info("Stdout:" + Environment.NewLine + stdmessage.Replace("\\n", Environment.NewLine));
                     }
                 }
                 if (config.Stderr)
@@ -27,7 +27,7 @@ namespace QarnotCLI
                     var stdmessage = await task.FreshStderrAsync(ct);
                     if (!string.IsNullOrEmpty(stdmessage))
                     {
-                        CLILogs.Info("Stderr:" + Environment.NewLine + string.Join("\n", stdmessage.Split(new string[]{"\\n"}, StringSplitOptions.None)));
+                        CLILogs.Info("Stderr:" + Environment.NewLine + stdmessage.Replace("\\n", Environment.NewLine));
                     }
                 }
                 end = await task.WaitAsync(taskTimeoutSeconds:2,ct:ct);
@@ -120,6 +120,33 @@ namespace QarnotCLI
             {
                 Uuid = task.Uuid.ToString(),
                 Message = "Task resources updated",
+            };
+        }
+    }
+
+    public class SnapshotTaskCommand : ICommand<QTask, CommandValues.GenericInfoCommandValue>
+    {
+        public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QTask task, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
+        {
+            CLILogs.Debug("Command Task : Snapshot Task");
+            var config = iconfig as SnapshotConfiguration;
+
+            task.SnapshotWhitelist = config.Whitelist;
+            task.SnapshotBlacklist = config.Blacklist;
+
+            if (config.SnapshotPeriodicSec > 0)
+            {
+                await task.TriggerPeriodicSnapshotAsync(config.SnapshotPeriodicSec, config.Whitelist, config.Blacklist, cancellationToken: ct);
+            }
+            else
+            {
+                await task.TriggerSnapshotAsync(config.Whitelist, config.Blacklist, cancellationToken: ct);
+            }
+
+            return new CommandValues.GenericInfoCommandValue()
+            {
+                Uuid = task.Uuid.ToString(),
+                Message = "Task Snapshot",
             };
         }
     }

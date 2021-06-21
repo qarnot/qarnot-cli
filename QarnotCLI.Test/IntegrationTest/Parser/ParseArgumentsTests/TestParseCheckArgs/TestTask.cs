@@ -61,7 +61,6 @@ namespace QarnotCLI.Test
             Assert.IsFalse(CommandLineParser.CheckTask(config));
         }
 
-        // TODO:
         [Test]
         public void CheckTaskCheckNotCreateConfigurationIsAlwayValid()
         {

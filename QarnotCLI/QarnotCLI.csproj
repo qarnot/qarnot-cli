@@ -3,13 +3,14 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>qarnot</AssemblyName>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <TargetFramework>net5.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Qarnot computing</Authors>
     <Description>Qarnot platform CLI.</Description>
     <AddSyntheticProjectReferencesForSolutionDependencies>false</AddSyntheticProjectReferencesForSolutionDependencies>
     <MSBuildGitHashCommand>git describe --long --always --dirty --abbrev=7</MSBuildGitHashCommand>
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,11 +26,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Qarnot.CodeAnalysis" Version="0.*">
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="QarnotSDK" Version="[4.0.0]" />
+    <PackageReference Include="QarnotSDK" Version="[5.1.2]" />
     <PackageReference Include="Timestamp" Version="[1.0.2]" />
   </ItemGroup>
 

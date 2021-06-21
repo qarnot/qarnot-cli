@@ -58,6 +58,46 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        [TestCase(CommandApi.List)]
+        [TestCase(CommandApi.Info)]
+        [TestCase(CommandApi.Abort)]
+        [TestCase(CommandApi.UpdateResources)]
+        [TestCase(CommandApi.Delete)]
+        public async Task TestTaskFromFakeHandlerAndTagsIntersectWithBasicCommandReturnTheGoodUuid(CommandApi command)
+        {
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            ConfigType type = ConfigType.Task;
+
+            var commandLauncher = LaunchFactory.CreateLauncher(type, command);
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new DefaultRunConfiguration(type, command) { Tags=new List<string>(){ "tag1", "tag2"}, TagsIntersect = true },
+                FalsePrinter);
+
+            string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
+            StringAssert.Contains(expected1, returnString);
+        }
+
+        [Test]
+        [TestCase(CommandApi.GetStdout)]
+        [TestCase(CommandApi.GetStderr)]
+        [TestCase(CommandApi.Wait)]
+        public async Task TestTaskFromFakeHandlerAndTagsIntersectWithStdCommandReturnTheGoodUuid(CommandApi command)
+        {
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            ConfigType type = ConfigType.Task;
+
+            var commandLauncher = LaunchFactory.CreateLauncher(type, command);
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new StdConfiguration(type, command) { Tags=new List<string>(){ "tag1", "tag2"}, TagsIntersect = true },
+                FalsePrinter);
+
+            string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
+            StringAssert.Contains(expected1, returnString);
+        }
+
+        [Test]
         public async Task WaitTaskFromFakeHandlerReturnTheGoodUuid()
         {
             FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
@@ -190,6 +230,23 @@ namespace QarnotCLI.Test
 
             string returnString = await commandLauncher.RunAndPrintCommandAsync(
                 new DefaultRunConfiguration(type, command),
+                FalsePrinter);
+
+            string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
+            StringAssert.Contains(expected1, returnString);
+        }
+
+        [Test]
+        public async Task SnapTaskFromFakeHandlerReturnTheGoodReturnTheGoodUuid()
+        {
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            ConfigType type = ConfigType.Task;
+            CommandApi command = CommandApi.Snapshot;
+
+            var commandLauncher = LaunchFactory.CreateLauncher(type, command);
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new SnapshotConfiguration(type, command),
                 FalsePrinter);
 
             string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";

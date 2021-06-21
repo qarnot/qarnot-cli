@@ -35,7 +35,7 @@ namespace QarnotCLI
 
             private QPool CreatePool(CreateConfiguration config, QarnotSDK.Connection connect, CancellationToken ct)
             {
-                QarnotSDK.QPool pool = new QarnotSDK.QPool(connect, config.Name, config.Profile, config.InstanceCount, config.Shortname);
+                QarnotSDK.QPool pool = new QarnotSDK.QPool(connect, config.Name, config.Profile, config.InstanceCount, config.Shortname, config.TasksDefaultWaitForPoolResourcesSynchronization);
 
                 pool.SetTags(config.Tags.ToArray());
 
@@ -104,7 +104,7 @@ namespace QarnotCLI
                 else if (!string.IsNullOrEmpty(config.PoolUuid))
                 {
                     QarnotSDK.QPool pool = new QarnotSDK.QPool(connect, new Guid(config.PoolUuid));
-                    return new QarnotSDK.QTask(connect, config.Name, pool, config.InstanceCount, config.Shortname);
+                    return new QarnotSDK.QTask(connect, config.Name, pool, config.InstanceCount, config.Shortname, config.WaitForPoolResourcesSynchronization);
                 }
 
                 return new QarnotSDK.QTask(connect, config.Name, config.Profile, config.InstanceCount, config.Shortname);
@@ -121,7 +121,7 @@ namespace QarnotCLI
                 else if (!string.IsNullOrEmpty(config.PoolUuid))
                 {
                     QarnotSDK.QPool pool = new QarnotSDK.QPool(connect, new Guid(config.PoolUuid));
-                    return new QarnotSDK.QTask(connect, config.Name, pool, range, config.Shortname);
+                    return new QarnotSDK.QTask(connect, config.Name, pool, range, config.Shortname, config.WaitForPoolResourcesSynchronization);
                 }
 
                 return new QarnotSDK.QTask(connect, config.Name, config.Profile, range, config.Shortname);
@@ -154,6 +154,9 @@ namespace QarnotCLI
 
                 task.SetTaskDependencies(config.Dependents.Select(id => new Guid(id)).ToArray());
 
+                task.ResultsWhitelist = config.Whitelist;
+                task.ResultsBlacklist = config.Blacklist;
+
                 CLILogs.Info("create task");
                 return task;
             }
@@ -161,6 +164,18 @@ namespace QarnotCLI
             private async Task<QTask> LaunchTaskAsync(QTask task, CancellationToken ct)
             {
                 await task.SubmitAsync(cancellationToken: ct);
+                return task;
+            }
+
+            private async Task<QTask> LaunchPostSubmitTaskMethodsAsync(QTask task, CreateConfiguration config, CancellationToken ct)
+            {
+                if (config.SnapshotPeriodicSec > 0)
+                {
+                    task.SnapshotWhitelist = config.Whitelist;
+                    task.SnapshotBlacklist = config.Blacklist;
+                    await task.SnapshotPeriodicAsync(config.SnapshotPeriodicSec, cancellationToken: ct);
+                }
+
                 return task;
             }
 
@@ -177,6 +192,7 @@ namespace QarnotCLI
                 CreateConfiguration config = iconfig as CreateConfiguration;
                 QTask task = await this.CreateTask(config, connect, ct);
                 await this.LaunchTaskAsync(task, ct);
+                await this.LaunchPostSubmitTaskMethodsAsync(task, config, ct);
                 return this.PrintTaskInformation(task);
             }
         }
@@ -207,9 +223,9 @@ namespace QarnotCLI
                 return job;
             }
 
-            private QJob LaunchJob(QJob job, CancellationToken ct)
+            private async Task<QJob> LaunchJobAsync(QJob job, CancellationToken ct)
             {
-                job.Submit(cancellationToken: ct);
+                await job.SubmitAsync(cancellationToken: ct);
                 return job;
             }
 
@@ -225,7 +241,7 @@ namespace QarnotCLI
             {
                 CreateConfiguration config = iconfig as CreateConfiguration;
                 QJob job = await this.CreateJobAsync(config, connect, ct);
-                this.LaunchJob(job, ct);
+                await this.LaunchJobAsync(job, ct);
                 return this.PrintJobInformation(job);
             }
         }

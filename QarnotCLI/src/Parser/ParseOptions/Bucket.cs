@@ -156,7 +156,7 @@ namespace QarnotCLI
             {
                 get
                 {
-                    yield return new Example("Delete bucket api files and folders.", UnParserSettings.WithGroupSwitchesOnly(), new TerminateBucketOptions { Name = "Bucket-name", BucketPath = new string[]{ "path/folder", "path/file"} });
+                    yield return new Example("Delete bucket api files and folders.", UnParserSettings.WithGroupSwitchesOnly(), new TerminateBucketOptions { Name = "Bucket-name", BucketPath = new string[]{ "path/folder", "path/file" } });
                     yield return new Example("Terminate and delete the bucket to the api", UnParserSettings.WithGroupSwitchesOnly(), new TerminateBucketOptions { Name = "Bucket-name" });
                 }
             }

@@ -10,17 +10,17 @@ namespace QarnotCLI
     public partial class Options
     {
         [Verb("task create", HelpText = "Create and launch a new task.")]
-        public class CreateTaskOptions : ACreateOptions
+        public class CreateTaskOptions : ACreateOptions, ISnapshotOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
             {
                 get
                 {
-                    yield return new Example("Classic usage", new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly() }, new CreateTaskOptions { Name = "Task name", Profile = "docker-batch", InstanceCount = 4, Constants = new string[] {"DOCKER_CMD=echo hello world"} });
-                    yield return new Example("Usage with a set of constants", UnParserSettings.WithGroupSwitchesOnly(), new CreateTaskOptions { Name = "Task name", Profile = "docker-batch", InstanceCount = 4, Constants = new string[] {"DOCKER_CMD=echo hello world", "DOCKER_REPO=library/ubuntu", "DOCKER_TAG=latest" } });
+                    yield return new Example("Classic usage", new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly() }, new CreateTaskOptions { Name = "Task name", Profile = "docker-batch", InstanceCount = 4, Constants = new string[] { "DOCKER_CMD=echo hello world" } });
+                    yield return new Example("Usage with a set of constants", UnParserSettings.WithGroupSwitchesOnly(), new CreateTaskOptions { Name = "Task name", Profile = "docker-batch", InstanceCount = 4, Constants = new string[] { "DOCKER_CMD=echo hello world", "DOCKER_REPO=library/ubuntu", "DOCKER_TAG=latest" } });
                     yield return new Example("File config usage (see documentation)", UnParserSettings.WithGroupSwitchesOnly(), new CreateTaskOptions { FileConf = "FileName.json" });
-                    yield return new Example("Logging errors (missing instance)", new CreateTaskOptions { Pool = "POOL-UUID", Name = "Task name", Constants = new string[] {"DOCKER_CMD=echo hello world"} });
+                    yield return new Example("Logging errors (missing instance)", new CreateTaskOptions { Pool = "POOL-UUID", Name = "Task name", Constants = new string[] { "DOCKER_CMD=echo hello world" } });
                 }
             }
 
@@ -63,6 +63,15 @@ namespace QarnotCLI
             [Option("result", Required = false, HelpText = "Name of the bucket result of the task.")]
             public override string Result { get; set; }
 
+            [Option("wait-for-resources-synchronization", Required = false, HelpText = "Wait for the pool resources to synchronized before launching the task (set to true or false, default: null).")]
+            public override bool? WaitForPoolResourcesSynchronization { get; set; }
+
+            public uint SnapshotPeriodicSec { get; set; }
+
+            public string Whitelist { get; set; }
+
+            public string Blacklist { get; set; }
+
             [Option('d', "dependents", Required = false, HelpText = "List of Uuid the task need to wait before start running.(must be use with a job with \"is-dependent\" set)")]
             public override IEnumerable<string> Dependents { get; set; }
         }
@@ -82,15 +91,18 @@ namespace QarnotCLI
             [Option('n', "name", Required = false, HelpText = "Name of the task.")]
             public override string Name { get; set; }
 
-            [Option('t', "tags", Required = false, HelpText = "Tags of the task.")]
+            [Option('t', "tags", SetName = "tags", Required = false, HelpText = "Tags of the task to retrieve. The task should have any the tags given")]
             public override IEnumerable<string> Tags { get; set; }
+
+            [Option("exclusive-tags", SetName = "exclusive-tags", Required = false, HelpText = "Tags of the task to retrieve. The task should have all the tags given")]
+            public override IEnumerable<string> TagsIntersect { get; set; }
 
             [Option('i', "id", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
             public override string Id { get; set; }
         }
 
         [Verb("task info", HelpText = "Detail info of the task selected.")]
-        public class InfoTaskOptions : AGetOptions
+        public class InfoTaskOptions : ATaskGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -103,25 +115,6 @@ namespace QarnotCLI
                         new InfoTaskOptions { Name = "Task name", Tags = new string[] { "TAG1", "TAG2" } });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
-            public override string Id { get; set; }
-        }
-
-        public abstract class AStdOptions: AGetOptions
-        {
-            public virtual bool Fresh { get; set; } = false;
-            public virtual bool Stdout { get; set; } = false;
-            public virtual bool Stderr { get; set; } = false;
         }
 
         [Verb("task stdout", HelpText = "Get the stdout of the task selected.")]
@@ -139,18 +132,6 @@ namespace QarnotCLI
                 }
             }
 
-            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
-            public override string Id { get; set; }
-
             [Option('f', "fresh", Required = false, HelpText = "get the last stdout dump.")]
             public override bool Fresh { get; set; }
         }
@@ -163,31 +144,21 @@ namespace QarnotCLI
             {
                 get
                 {
-                    yield return new Example("Task stderr", new[] { UnParserSettings.WithGroupSwitchesOnly() },
+                    yield return new Example("Task stderr",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly() },
                         new StderrTaskOptions { Name = "Task name" });
-                    yield return new Example("Task stderr", new[] { UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                    yield return new Example("Task stderr",
+                        new[] { UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
                         new StderrTaskOptions { Name = "Task name", Fresh = true });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
-            public override string Id { get; set; }
 
             [Option('f', "fresh", Required = false, HelpText = "get the last stderr dump.")]
             public override bool Fresh { get; set; }
         }
 
         [Verb("task update-resources", HelpText = "Update resources for a running task.")]
-        public class UpdateTaskResourcesOptions : AGetOptions
+        public class UpdateTaskResourcesOptions : ATaskGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -200,18 +171,28 @@ namespace QarnotCLI
                         new UpdateTaskResourcesOptions { Id = "TaskID" });
                 }
             }
+        }
 
-            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
-            public bool All { get; set; }
+        [Verb("task snapshot", HelpText = "Trigger a snapshot: Request to upload a version of the running task files into the output bucket.")]
+        public class SnapshotTaskOptions : ATaskGetOptions, ISnapshotOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example(
+                        "Classic usage",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new SnapshotTaskOptions { Id = "TaskID" });
+                }
+            }
 
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
-            public override string Name { get; set; }
+            public uint SnapshotPeriodicSec { get; set; }
 
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
-            public override IEnumerable<string> Tags { get; set; }
+            public string Whitelist { get; set; }
 
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
-            public override string Id { get; set; }
+            public string Blacklist { get; set; }
         }
 
         [Verb("task wait", HelpText = "Wait for the end of the task selected.")]
@@ -233,18 +214,6 @@ namespace QarnotCLI
                 }
             }
 
-            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the task.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", Required = false, HelpText = "Tags of the task.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the task you want.")]
-            public override string Id { get; set; }
-
             [Option('o', "stdout", Required = false, HelpText = "Print the Stdout events durring the waiting.")]
             public override bool Stdout { get; set; }
 
@@ -253,7 +222,7 @@ namespace QarnotCLI
         }
 
         [Verb("task abort", HelpText = "Terminate the task selected.")]
-        public class AbortTaskOptions : AGetOptions
+        public class AbortTaskOptions : ATaskGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -266,22 +235,10 @@ namespace QarnotCLI
                         new AbortTaskOptions { Name = "Task name", Tags = new string[] { "TAG1", "TAG2" } });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", HelpText = "Name of the tasks to abort.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", HelpText = "Tags of the tasks to abort.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", HelpText = "Shortname or Uuid of the task you want.")]
-            public override string Id { get; set; }
         }
 
         [Verb("task delete", HelpText = "Delete the task selected.")]
-        public class DeleteTaskOptions : AGetOptions
+        public class DeleteTaskOptions : ATaskGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -294,18 +251,6 @@ namespace QarnotCLI
                         new DeleteTaskOptions { Name = "Task name", Tags = new string[] { "TAG1", "TAG2" } });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the Tasks.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", HelpText = "Name of the tasks to delete.")]
-            public override string Name { get; set; }
-
-            [Option('t', "tags", Group = "Select", HelpText = "Tags of the tasks to delete.")]
-            public override IEnumerable<string> Tags { get; set; }
-
-            [Option('i', "id", Group = "Select", HelpText = "Shortname or Uuid of the task you want.")]
-            public override string Id { get; set; }
         }
     }
 }

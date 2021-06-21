@@ -20,6 +20,10 @@ namespace QarnotCLI
             public string ResultFormat { get; set; }
 
             public bool HumanReadable { get; set; }
+
+            public bool UnsafeSslCertificate { get; set; }
+
+            public string CustomSslCertificate { get; set; }
         }
 
         public abstract class ACreateOptions : AOptions, ICreateOptions
@@ -57,6 +61,11 @@ namespace QarnotCLI
             public virtual string Pool { get; set; }
 
             public virtual string MaximumWallTime { get; set; }
+
+            public virtual bool? WaitForPoolResourcesSynchronization { get; set; }
+
+            public virtual bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
+
         }
 
         public abstract class AGetOptions : AOptions, IGetOptions
@@ -64,6 +73,8 @@ namespace QarnotCLI
             public virtual string Name { get; set; }
 
             public virtual IEnumerable<string> Tags { get; set; }
+
+            public virtual IEnumerable<string> TagsIntersect { get; set; }
 
             public virtual string Id { get; set; }
 

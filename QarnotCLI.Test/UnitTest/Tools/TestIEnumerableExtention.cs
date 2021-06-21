@@ -18,6 +18,7 @@ namespace QarnotCLI.Test
 
         public async Task<string> TestParallelFunctionIntToString(int source, TestParallelObject resources, CancellationToken ct)
         {
+            await Task.Delay(100);
             return source.ToString();
         }
 
@@ -32,6 +33,7 @@ namespace QarnotCLI.Test
             {
                 lst.Add(value);
             }
+
             IEnumerable<string> lstCheck = lst.Select(x => x.ToString());
 
             var lstResult = await lst.ParallelForEachAsync(TestParallelFunctionIntToString, new TestParallelObject());
@@ -41,7 +43,7 @@ namespace QarnotCLI.Test
 
         public async Task<string> TestParallelFunctionWait(int source, int resources, CancellationToken ct)
         {
-            Thread.Sleep(resources);
+            await Task.Delay(resources);
             return "foo";
         }
 
@@ -58,9 +60,10 @@ namespace QarnotCLI.Test
             {
                 lst.Add(value);
             }
+
             IEnumerable<string> lstTest = lst.Select(x => x.ToString());
             var date1 = DateTime.Now;
-            var ret = await lst.ParallelForEachAsync(TestParallelFunctionWait, resources, maxDoP:maxRepeat);
+            var ret = await lst.ParallelForEachAsync(TestParallelFunctionWait, resources, maxDoP: maxRepeat);
             var date2 = DateTime.Now;
             TimeSpan diffDate = date2 - date1;
             int minTime = resources * (count / maxRepeat);

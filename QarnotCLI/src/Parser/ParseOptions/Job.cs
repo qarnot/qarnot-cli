@@ -35,7 +35,7 @@ namespace QarnotCLI
             [Option('s', "shortname", Required = false, HelpText = "ShortName of the job.")]
             public override string Shortname { get; set; }
 
-            [Option('f', "file", Required = false, HelpText = "File with a json configuration of the job. (example : echo '{\"IsDependents\":true, \"Shortname\": \"SN\",\"Name\": \"JobName\"}' > CreateJob.json)")]
+            [Option('f', "file", Required = false, HelpText = "File with a json configuration of the job. (example : echo '{\"IsDependents\":true, \"Shortname\": \"SN\",\"Name\": \"JobName\" }' > CreateJob.json)")]
             public override string FileConf { get; set; }
 
             [Option('d', "is-dependant", Required = false, HelpText = "Job can have job dependant from other ones to run.")]
@@ -65,7 +65,7 @@ namespace QarnotCLI
         }
 
         [Verb("job info", HelpText = "Detail info of the job selected.")]
-        public class InfoJobOptions : AGetOptions
+        public class InfoJobOptions : AJobGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -78,19 +78,10 @@ namespace QarnotCLI
                         new InfoJobOptions { Id = "JobUuid" });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the jobs.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the job.")]
-            public override string Name { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the job you want.")]
-            public override string Id { get; set; }
         }
 
         [Verb("job wait", HelpText = "Wait for the end of the job selected.")]
-        public class WaitJobOptions : AGetOptions
+        public class WaitJobOptions : AJobGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -103,19 +94,10 @@ namespace QarnotCLI
                         new WaitJobOptions { Id = "JobUuid" });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the jobs.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", Required = false, HelpText = "Name of the job.")]
-            public override string Name { get; set; }
-
-            [Option('i', "id", Group = "Select", Required = false, HelpText = "Shortname or Uuid of the job you want.")]
-            public override string Id { get; set; }
         }
 
         [Verb("job abort", HelpText = "Terminate the job selected.")]
-        public class AbortJobOptions : AGetOptions
+        public class AbortJobOptions : AJobGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -128,19 +110,10 @@ namespace QarnotCLI
                         new AbortJobOptions { Id = "JobUuid" });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the jobs.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", HelpText = "Name of the jobs to abort.")]
-            public override string Name { get; set; }
-
-            [Option('i', "id", Group = "Select", HelpText = "Shortname or Uuid of the job you want.")]
-            public override string Id { get; set; }
-        }
+       }
 
         [Verb("job delete", HelpText = "Delete the job selected.")]
-        public class DeleteJobOptions : AGetOptions
+        public class DeleteJobOptions : AJobGetOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -153,15 +126,6 @@ namespace QarnotCLI
                         new DeleteJobOptions { Id = "JobUuid" });
                 }
             }
-
-            [Option('a', "all", Group = "Select", HelpText = "All the jobs.")]
-            public bool All { get; set; }
-
-            [Option('n', "name", Group = "Select", HelpText = "Name of the jobs to delete.")]
-            public override string Name { get; set; }
-
-            [Option('i', "id", Group = "Select", HelpText = "Shortname or Uuid of the job you want.")]
-            public override string Id { get; set; }
         }
     }
 }

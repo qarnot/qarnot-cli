@@ -43,6 +43,7 @@ namespace QarnotCLI.Test
             CreateConfiguration config = new CreateConfiguration(ConfigType.Pool, CommandApi.Create);
             config.Constants = new List<string>() { "key1=val1", "key2=val2" };
             config.Constraints = new List<string>() { "key1=val1", "key2=val2" };
+            config.TasksDefaultWaitForPoolResourcesSynchronization = true;
             var createPool = new ApiObjectCreator.CreateNewPool(Tool);
             var commandLauncher = new CreateCommandLauncher(createPool, FormatTable, FakeApi);
             string ret = await commandLauncher.RunAndPrintCommandAsync(config, FalsePrinter);
@@ -79,6 +80,7 @@ namespace QarnotCLI.Test
         public async Task CreateTaskFromFakeHandlerReturnTheGoodUuid()
         {
             CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
+            config.WaitForPoolResourcesSynchronization = true;
             config.InstanceCount = 1;
             await LaunchCreateTaskFromFakeHandler(config);
         }
@@ -145,6 +147,17 @@ namespace QarnotCLI.Test
             config.Range = "1-2";
             config.JobUuid = "f78fdff8-0000-0000-0000-d9cd4e185ece";
             config.Dependents = new List<string>() { "f78fdff8-0000-0000-0000-d9cd4e185ece", "f78fdff8-0000-0000-0000-d9cd4e185ece" };
+            await LaunchCreateTaskFromFakeHandler(config);
+        }
+
+        [Test]
+        public async Task CreateTaskWithWhitelistBlacklistAndPeriodicFromFakeHandlerReturnTheGoodUuid()
+        {
+            CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
+            config.InstanceCount = 1;
+            config.SnapshotPeriodicSec = 5;
+            config.Whitelist = "white_a";
+            config.Blacklist = "black_a";
             await LaunchCreateTaskFromFakeHandler(config);
         }
 

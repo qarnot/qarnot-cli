@@ -36,21 +36,25 @@ namespace QarnotCLI.Test
 
             public override async Task DeleteAsync(CancellationToken cancellationToken = default(CancellationToken))
             {
+                await Task.Delay(20);
                 return;
             }
 
             public override async Task SyncRemoteToLocalAsync(string localFolderPath, CancellationToken cancellationToken, bool dontDelete = true, string remoteFolderRelativePath = "")
             {
+                await Task.Delay(20);
                 return;
             }
 
             public override async Task SyncLocalToRemoteAsync(string localFolderPath, CancellationToken cancellationToken, bool dontDelete = true, string remoteFolderRelativePath = "")
             {
+                await Task.Delay(20);
                 return ;
             }
 
             public override async Task UpdateAsync(CancellationToken cancellationToken)
             {
+                await Task.Delay(20);
                 return ;
             }
 
@@ -63,21 +67,25 @@ namespace QarnotCLI.Test
 
                 QAbstractStorageEntry entity = mockAStorage.Object;
 
+                await Task.Delay(20);
                 return new List<QAbstractStorageEntry>(){ entity };
             }
 
             public override async Task UploadStringAsync(string content, string remoteFile, Encoding encoding = null, CancellationToken cancellationToken = default(CancellationToken))
             {
+                await Task.Delay(20);
                 return;
             }
 
             public override async Task<string> DownloadStringAsync(string remoteFile, Encoding encoding = null, CancellationToken cancellationToken = default(CancellationToken))
             {
+                await Task.Delay(20);
                 return "string";
             }
 
             public override async Task DeleteEntryAsync(string remoteFile, CancellationToken cancellationToken = default(CancellationToken))
             {
+                await Task.Delay(20);
                 return ;
             }
         }

@@ -8,6 +8,10 @@
 **/.Qarnot
 */coverage*
 .sonarqube/
-dest
 */dest
 artifacts
+*/coverage.json
+*/coverage/
+artifacts/
+dest/
+

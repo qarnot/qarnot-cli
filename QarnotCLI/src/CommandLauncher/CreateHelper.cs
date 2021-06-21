@@ -58,14 +58,14 @@ namespace QarnotCLI
 
         public List<QAbstractStorage> CreateResources(List<string> names, QarnotSDK.Connection connection, CancellationToken ct)
         {
-            return names.Select(name => connection.CreateBucket(name, ct) as QAbstractStorage).ToList();
+            return names.Select(name => connection.CreateBucketAsync(name, ct).Result as QAbstractStorage).ToList();
         }
 
         public QAbstractStorage CreateResult(string name, QarnotSDK.Connection connection, CancellationToken ct)
         {
             if (!string.IsNullOrEmpty(name))
             {
-                return connection.CreateBucket(name, ct) as QAbstractStorage;
+                return connection.CreateBucketAsync(name, ct).Result as QAbstractStorage;
             }
 
             return null;

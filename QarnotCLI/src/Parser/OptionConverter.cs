@@ -19,9 +19,13 @@ namespace QarnotCLI
 
         StdConfiguration ConvertStdOption(ConfigType type, CommandApi command, Options.AStdOptions option);
 
+        SnapshotConfiguration ConvertSnapshotOption(ConfigType type, CommandApi command, Options.SnapshotTaskOptions option);
+
         LocalSetUpConfiguration ConvertGenericSetterOption(ConfigType type, Options.ConfigOptions option);
 
         CreateConfiguration ConvertGenericCreationOption(ConfigType type, Options.ICreateOptions option);
+
+        CreateConfiguration ConvertTaskCreationOption(ConfigType type, Options.CreateTaskOptions option);
     }
 
     public class OptionConverter : IOptionToConfigConverter
@@ -102,6 +106,8 @@ namespace QarnotCLI
             config.ResultFormat = SetResultFormat(option.ResultFormat);
             config.HumanReadable = option.HumanReadable;
             config.ApiConnection.Token = option.Token;
+            config.UnsafeSslCertificate = option.UnsafeSslCertificate;
+            config.CustomSslCertificate = option.CustomSslCertificate;
         }
 
         public IConfiguration ConvertAccountOption(ConfigType type, Options.AccountOptions option)
@@ -217,19 +223,28 @@ namespace QarnotCLI
             config.Name = option.Name;
             config.Id = option.Id;
             config.Summaries = false;
-            config.Tags = option.Tags?.ToList();
+
+            if (option.TagsIntersect != null && option.TagsIntersect.Count() > 0)
+            {
+                config.Tags = option.TagsIntersect?.ToList();
+                config.TagsIntersect = true;
+            }
+            else
+            {
+                config.Tags = option.Tags?.ToList();
+            }
 
             return config;
         }
 
         /// <summary>
         /// upgrade of the ConvertGenericGetterOption
-        /// to have the stdout and error options
+        /// to have the stdout and error options.
         /// </summary>
-        /// <param name="type">object type</param>
-        /// <param name="command">object command to launch</param>
-        /// <param name="option">object options and values</param>
-        /// <returns>a new object command to be launch</returns>
+        /// <param name="type">object type.</param>
+        /// <param name="command">object command to launch.</param>
+        /// <param name="option">object options and values.</param>
+        /// <returns>a new object command to be launch.</returns>
         public StdConfiguration ConvertStdOption(ConfigType type, CommandApi command, Options.AStdOptions option)
         {
             StdConfiguration config = new StdConfiguration(type, command);
@@ -241,6 +256,33 @@ namespace QarnotCLI
 
             return config;
         }
+
+        private ISnapshotConfiguration HydrateSnapOption(ISnapshotConfiguration config, Options.ISnapshotOptions option)
+        {
+            config.SnapshotPeriodicSec = option.SnapshotPeriodicSec;
+            config.Whitelist = option.Whitelist;
+            config.Blacklist = option.Blacklist;
+
+            return config;
+        }
+
+        /// <summary>
+        /// upgrade of the ConvertGenericGetterOption
+        /// to have the snap options
+        /// </summary>
+        /// <param name="type">object type</param>
+        /// <param name="command">object command to launch</param>
+        /// <param name="option">object options and values</param>
+        /// <returns>a new object command to be launch</returns>
+        public SnapshotConfiguration ConvertSnapshotOption(ConfigType type, CommandApi command, Options.SnapshotTaskOptions option)
+        {
+            SnapshotConfiguration config = new SnapshotConfiguration(type, command);
+
+            SetDefaultRunConfigurationOption(config, type, command, option);
+            HydrateSnapOption(config, option);
+            return config;
+        }
+
 
         public LocalSetUpConfiguration ConvertGenericSetterOption(ConfigType type, Options.ConfigOptions option)
         {
@@ -268,14 +310,7 @@ namespace QarnotCLI
         public PoolSetConfiguration ConvertElasticPoolSetterOption(ConfigType type, CommandApi command, Options.SetPoolOptions option)
         {
             PoolSetConfiguration config = new PoolSetConfiguration(type, CommandApi.Set);
-            GetDefaultOptions(config, option);
-
-            ConfigGetGlobalOptions(option);
-            ConfigPrintInformation(option, type, string.Empty);
-            config.Name = option.Name;
-            config.Id = option.Id;
-            config.Summaries = false;
-            config.Tags = option.Tags?.ToList();
+            SetDefaultRunConfigurationOption(config, type, command, option);
 
             config.ElasticMinimumTotalNodes = option.ElasticMinimumTotalNodes;
             config.ElasticMaximumTotalNodes = option.ElasticMaximumTotalNodes;
@@ -295,10 +330,10 @@ namespace QarnotCLI
             if (match_day.Success)
             {
                 GroupCollection groups = match_day.Groups;
-                string day = groups[1].Value == string.Empty ? "0" : groups[1].Value;
-                string hour = groups[4].Value == string.Empty ? "0" : groups[4].Value;
-                string minute = groups[7].Value == string.Empty ? "0" : groups[7].Value;
-                string second = groups[10].Value == string.Empty ? "0" : groups[10].Value;
+                string day = string.IsNullOrEmpty(groups[1].Value) ? "0" : groups[1].Value;
+                string hour = string.IsNullOrEmpty(groups[4].Value) ? "0" : groups[4].Value;
+                string minute = string.IsNullOrEmpty(groups[7].Value) ? "0" : groups[7].Value;
+                string second = string.IsNullOrEmpty(groups[10].Value) ? "0" : groups[10].Value;
                 return new TimeSpan(int.Parse(day), int.Parse(hour), int.Parse(minute), int.Parse(second));
             }
 
@@ -306,9 +341,9 @@ namespace QarnotCLI
             if (match_hour.Success)
             {
                 GroupCollection groups = match_hour.Groups;
-                string hour = groups[1].Value == string.Empty ? "0" : groups[1].Value;
-                string minute = groups[3].Value == string.Empty ? "0" : groups[3].Value;
-                string second = groups[5].Value == string.Empty ? "0" : groups[5].Value;
+                string hour = string.IsNullOrEmpty(groups[1].Value) ? "0" : groups[1].Value;
+                string minute = string.IsNullOrEmpty(groups[3].Value) ? "0" : groups[3].Value;
+                string second = string.IsNullOrEmpty(groups[5].Value) ? "0" : groups[5].Value;
                 return new TimeSpan(0, int.Parse(hour), int.Parse(minute), int.Parse(second));
             }
 
@@ -384,6 +419,8 @@ namespace QarnotCLI
             Options.IElasticityOptions elasticOption = option as Options.IElasticityOptions;
             var MaximumWallTime = string.IsNullOrEmpty(option.MaximumWallTime) ? config.MaximumWallTime : (TimeSpan?)ParseTimeSpanString(option.MaximumWallTime);
             config.MaximumWallTime = MaximumWallTime == default(TimeSpan) ? null : MaximumWallTime;
+            config.TasksDefaultWaitForPoolResourcesSynchronization = option.TasksDefaultWaitForPoolResourcesSynchronization ?? config.TasksDefaultWaitForPoolResourcesSynchronization;
+            config.WaitForPoolResourcesSynchronization = option.WaitForPoolResourcesSynchronization ?? config.WaitForPoolResourcesSynchronization;
             if (elasticOption != null)
             {
                 config.ElasticMinimumTotalNodes = elasticOption.ElasticMinimumTotalNodes;
@@ -394,6 +431,13 @@ namespace QarnotCLI
                 config.ElasticMinimumIdlingTime = elasticOption.ElasticMinimumIdlingTime;
             }
 
+            return config;
+        }
+
+        public CreateConfiguration ConvertTaskCreationOption(ConfigType type, Options.CreateTaskOptions option)
+        {
+            var config = ConvertGenericCreationOption(type, option);
+            HydrateSnapOption(config, option);
             return config;
         }
     }

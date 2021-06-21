@@ -20,7 +20,7 @@ namespace QarnotCLI.Test
         public void TestConnectionWrapperStoredNull()
         {
             var wrapper = new ConnectionWrapper();
-            var ex = Assert.Throws<System.ArgumentException>(() => wrapper.CreateConnection(null));
+            var ex = Assert.Throws<System.ArgumentNullException>(() => wrapper.CreateConnection(null));
             Assert.IsNotNull(ex);
         }
 

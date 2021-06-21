@@ -14,6 +14,8 @@ namespace QarnotCLI.Test
         {
         }
 
+        public List<HttpRequestMessage> Request = new List<HttpRequestMessage>();
+
         public string ReturnMessage { get; set; } = "{\"Your\":\"response\"}";
 
         public List<string> ReturnMessageList { get; set; } = null;
@@ -22,6 +24,8 @@ namespace QarnotCLI.Test
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
+            Request.Add(request);
+
             var response = await Task.FromResult(new HttpResponseMessage(HttpStatusCode.Accepted)).ConfigureAwait(false);
             var message = "";
             if (ReturnMessageList != null)

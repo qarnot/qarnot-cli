@@ -35,8 +35,8 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "pool", "create", "--name", name, "--shortname", shortname, "--instanceNodes", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0] };
-            argv = new string[] { "pool", "create", "--name=" + name, "--shortname=" + shortname, "--instanceNodes=" + instance, "--profile=" + profile, "--tags=" + tags[0], tags[1], tags[2], "--constants=" + constants[0], "--constraints=" + constraints[0] };
+            argv = new string[] { "pool", "create", "--name", name, "--shortname", shortname, "--instanceNodes", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0], "--tasks-wait-for-synchronization", "false"  };
+            argv = new string[] { "pool", "create", "--name=" + name, "--shortname=" + shortname, "--instanceNodes=" + instance, "--profile=" + profile, "--tags=" + tags[0], tags[1], tags[2], "--constants=" + constants[0], "--constraints=" + constraints[0], "--tasks-wait-for-synchronization", "true" };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -53,6 +53,7 @@ namespace QarnotCLI.Test
             CollectionAssert.AreEqual(confset.Constants, constants);
             CollectionAssert.AreEqual(confset.Constraints, constraints);
             Assert.AreEqual(confset.InstanceCount, 42);
+            Assert.AreEqual(confset.TasksDefaultWaitForPoolResourcesSynchronization, true);
 
             argv = new string[] { "pool", "create", "-n", name, "-s", shortname, "-i", instance, "-p", profile, "-t", tags[0], tags[1], tags[2], "-c", constants[0] };
             iConfSet = parser.Parse(argv);
@@ -70,6 +71,7 @@ namespace QarnotCLI.Test
             CollectionAssert.AreEqual(confset.Tags, tags);
             CollectionAssert.AreEqual(confset.Constants, constants);
             Assert.AreEqual(confset.InstanceCount, 42);
+            Assert.AreEqual(confset.TasksDefaultWaitForPoolResourcesSynchronization, false);
             commandLineParser.Dispose();
         }
 
@@ -84,7 +86,7 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "pool", "list", "--name", name, "--id", poolUuid, "--tags", tags };
+            argv = new string[] { "pool", "list" };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is DefaultRunConfiguration))
@@ -93,6 +95,18 @@ namespace QarnotCLI.Test
             }
 
             DefaultRunConfiguration confset = (DefaultRunConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Pool);
+            Assert.AreEqual(confset.Command, CommandApi.List);
+
+            argv = new string[] { "pool", "list", "--name", name, "--id", poolUuid, "--tags", tags };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is DefaultRunConfiguration))
+            {
+                throw new Exception("return value is not DefaultRunConfiguration ");
+            }
+
+            confset = (DefaultRunConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Pool);
             Assert.AreEqual(confset.Command, CommandApi.List);
             Assert.AreEqual(confset.Name, name);
@@ -124,6 +138,7 @@ namespace QarnotCLI.Test
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
+            DefaultRunConfiguration confset = null;
 
             argv = new string[] { "pool", "info", "--name", name, "--id", poolUuid, "--tags", tags };
             iConfSet = parser.Parse(argv);
@@ -133,11 +148,13 @@ namespace QarnotCLI.Test
                 throw new Exception("return value is not DefaultRunConfiguration ");
             }
 
-            DefaultRunConfiguration confset = (DefaultRunConfiguration)iConfSet;
+            confset = (DefaultRunConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Pool);
             Assert.AreEqual(confset.Command, CommandApi.Info);
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, poolUuid);
+            Assert.IsFalse(confset.TagsIntersect);
+            CollectionAssert.Contains(confset.Tags, tags);
 
             argv = new string[] { "pool", "info", "-n", name, "-i", poolUuid, "-t", tags };
             iConfSet = parser.Parse(argv);
@@ -153,6 +170,76 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, poolUuid);
             commandLineParser.Dispose();
+        }
+
+        [Test]
+        [TestCase("list", CommandApi.List)]
+        [TestCase("info", CommandApi.Info)]
+        [TestCase("update-resources", CommandApi.UpdateResources)]
+        [TestCase("set", CommandApi.Set)]
+        [TestCase("delete", CommandApi.Delete)]
+        public void PoolBasicSubverbCanHaveAllTheBasicFlags(string subverb, CommandApi commandEnum)
+        {
+            string poolUuid = "PoolUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string[] argv = null;
+            var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+
+            argv = new string[] { "pool", subverb, "--name", name, "--id", poolUuid, "--tags", tags };
+            iConfSet = parser.Parse(argv);
+            if (!(iConfSet is DefaultRunConfiguration))
+            {
+                throw new Exception("return value is not DefaultRunConfiguration ");
+            }
+
+            DefaultRunConfiguration confset = (DefaultRunConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Pool);
+            Assert.AreEqual(confset.Command, commandEnum);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, poolUuid);
+            Assert.IsFalse(confset.TagsIntersect);
+            CollectionAssert.Contains(confset.Tags, tags);
+
+            argv = new string[] { "pool", subverb, "--name", name, "--id", poolUuid, "--exclusive-tags", tags };
+            iConfSet = parser.Parse(argv);
+            if (!(iConfSet is DefaultRunConfiguration))
+            {
+                throw new Exception("return value is not DefaultRunConfiguration ");
+            }
+
+            confset = (DefaultRunConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Pool);
+            Assert.AreEqual(confset.Command, commandEnum);
+            Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(confset.Id, poolUuid);
+            Assert.IsTrue(confset.TagsIntersect);
+            CollectionAssert.Contains(confset.Tags, tags);
+        }
+
+        [Test]
+        [TestCase("list")]
+        [TestCase("info")]
+        [TestCase("update-resources")]
+        [TestCase("set")]
+        [TestCase("delete")]
+        public void PoolSubverbCannotHaveTagsAndTagIntersect(string subverb)
+        {
+            string poolUuid = "PoolUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string[] argv = null;
+            var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            argv = new string[] { "pool", subverb, "--name", name, "--id", poolUuid, "--tags", tags, "--exclusive-tags", tags };
+            ParseException ex = Assert.Throws<ParseException>(() => parser.Parse(argv));
+            Assert.NotNull(ex);
+
+            // controle
+            parser.Parse(new string[] { "pool", subverb, "--name", name, "--id", poolUuid, "--tags", tags });
+            parser.Parse(new string[] { "pool", subverb, "--name", name, "--id", poolUuid, "--exclusive-tags", tags });
         }
 
         [Test]

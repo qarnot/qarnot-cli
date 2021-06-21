@@ -36,6 +36,12 @@ namespace QarnotCLI
         {
             [Option("token", Required = false, HelpText = "Connection API Token.")]
             string Token { get; set; }
+
+            [Option("unsafe-ssl", Required = false, HelpText = "Don't check the ssl certificate.")]
+            bool UnsafeSslCertificate { get; set; }
+
+            [Option("api-ca-certificate", Required = false, HelpText = "Path of your custom Ssl certificate.")]
+            string CustomSslCertificate { get; set; }
         }
 
         public interface ICreateOptions : IOptions
@@ -73,6 +79,10 @@ namespace QarnotCLI
             string Pool { get; set; }
 
             string MaximumWallTime { get; set; }
+
+            bool? WaitForPoolResourcesSynchronization { get; set; }
+
+            bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
         }
 
         public interface IElasticityOptions
@@ -102,9 +112,23 @@ namespace QarnotCLI
 
             IEnumerable<string> Tags { get; set; }
 
+            IEnumerable<string> TagsIntersect{ get; set; }
+
             string Id { get; set; }
 
             string Summaries { get; set; }
+        }
+
+        public interface ISnapshotOptions
+        {
+            [Option("periodic", Required = false, HelpText = "Periodic time, in seconds, to synchronize the task files to the output bucket.")]
+            uint SnapshotPeriodicSec { get; set; }
+
+            [Option("whitelist", Required = false, HelpText = "Whitelist of task files to be synchronized to the output bucket.")]
+            string Whitelist { get; set; }
+
+            [Option("blacklist", Required = false, HelpText = "Blacklist of task files to synchronize to the output bucket.")]
+            string Blacklist { get; set; }
         }
 
         public interface IBucketGetOptions : IOptions

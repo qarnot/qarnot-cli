@@ -98,7 +98,7 @@ namespace QarnotCLI
             SetAccountEmail = connectionInformation.AccountEmail;
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return "Token:" + Token + Environment.NewLine +
                 "Api:" + ApiUri + Environment.NewLine +

@@ -25,9 +25,6 @@ namespace QarnotCLI.Test
         {
             OptionConverter convert = new OptionConverter(new UnitTestJsonDeserializer());
             string fileName = "fileName";
-            int verboseLevel = 5;
-            bool verbose = true;
-            bool quiet = true;
             string line = "{}";
             UnitTestJsonDeserializer.GetFileGet = fileName;
             UnitTestJsonDeserializer.GetFileRetrun = line;

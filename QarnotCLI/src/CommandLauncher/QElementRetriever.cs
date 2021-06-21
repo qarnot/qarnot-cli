@@ -1,6 +1,8 @@
 namespace QarnotCLI
 {
+    using System;
     using System.Collections.Generic;
+    using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using QarnotSDK;
@@ -51,7 +53,7 @@ namespace QarnotCLI
             else
             {
                 CLILogs.Debug("Retrieve all the QJobs");
-                listJob = connection.RetrieveJobs(cancellationToken: ct);
+                listJob = await connection.RetrieveJobsAsync(cancellationToken: ct);
             }
 
             return listJob ?? new List<QJob>() { job };
@@ -82,8 +84,18 @@ namespace QarnotCLI
             }
             else if (config.Tags != null && config.Tags.Count > 0)
             {
-                CLILogs.Debug("Retrieve QPools by Tags : " + config.Tags.ToString());
-                listPool = await connection.RetrievePoolsByTagsAsync(config.Tags, cancellationToken: ct);
+                if (config.TagsIntersect)
+                {
+                    CLILogs.Debug("Retrieve QPools by Tags Intersect : " + config.Tags.ToString());
+                    var poolTagFilter = new QDataDetail<QPool>();
+                    var filterList = config.Tags.Select(tag => QFilter<QPool>.Contains(t => t.Tags, tag));
+                    listPool = await connection.RetrievePoolsAsync(poolTagFilter, cancellationToken: ct);
+                }
+                else
+                {
+                    CLILogs.Debug("Retrieve QPools by Tags : " + config.Tags.ToString());
+                    listPool = await connection.RetrievePoolsByTagsAsync(config.Tags, cancellationToken: ct);
+                }
             }
             else
             {
@@ -118,8 +130,18 @@ namespace QarnotCLI
             }
             else if (config.Tags != null && config.Tags.Count > 0)
             {
-                CLILogs.Debug("Retrieve QTasks by Tags : " + config.Tags.ToString());
-                listTask = await connection.RetrieveTasksByTagsAsync(config.Tags, cancellationToken: ct);
+                if (config.TagsIntersect)
+                {
+                    var taskTagFilter = new QDataDetail<QTask>();
+                    var filterList = config.Tags.Select(tag => QFilter<QTask>.Contains(t => t.Tags, tag));
+                    taskTagFilter.Filter = QFilter<QTask>.And(filterList.ToArray());
+                    listTask = await connection.RetrieveTasksAsync(taskTagFilter, cancellationToken: ct);
+                }
+                else
+                {
+                    CLILogs.Debug("Retrieve QTasks by Tags : " + config.Tags.ToString());
+                    listTask = await connection.RetrieveTasksByTagsAsync(config.Tags, cancellationToken: ct);
+                }
             }
             else
             {

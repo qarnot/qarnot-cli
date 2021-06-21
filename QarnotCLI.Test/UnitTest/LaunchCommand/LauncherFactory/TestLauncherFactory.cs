@@ -111,6 +111,12 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void TaskSnapshot()
+        {
+            Assert.IsTrue(this.Factory.CreateLauncher(ConfigType.Task, CommandApi.Snapshot) is CommandGeneric<QTask, GenericInfoCommandValue>);
+        }
+
+        [Test]
         public void TaskInvalidThrowError()
         {
             var ex = Assert.Throws<NotImplementedException>(() => this.Factory.CreateLauncher(ConfigType.Task, CommandApi.Set));
