@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>qarnot</AssemblyName>
-    <Version>1.6.0</Version>
+    <Version>1.7.0</Version>
     <TargetFramework>net5.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Qarnot computing</Authors>
@@ -26,7 +26,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="QarnotSDK" Version="[5.2.0]" />
+    <PackageReference Include="QarnotSDK" Version="[5.3.0]" />
     <PackageReference Include="Timestamp" Version="[1.0.2]" />
   </ItemGroup>
 

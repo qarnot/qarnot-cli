@@ -41,6 +41,8 @@ namespace QarnotCLI
             objToPrint.AccountInformation["Quota Running Task"] = apiSettings.RunningTaskCount.ToString() + "/" + apiSettings.MaxRunningTask.ToString();
             objToPrint.AccountInformation["Quota Total Pool"] = apiSettings.PoolCount.ToString() + "/" + apiSettings.MaxPool.ToString();
             objToPrint.AccountInformation["Quota Running Pool"] = apiSettings.RunningPoolCount.ToString() + "/" + apiSettings.MaxRunningPool.ToString();
+            objToPrint.AccountInformation["Quota Running Instances"] = apiSettings.RunningInstanceCount.ToString() + "/" + apiSettings.MaxInstances.ToString();
+            objToPrint.AccountInformation["Quota Running Cores"] = apiSettings.RunningCoreCount.ToString();
 
             return Task.FromResult(objToPrint);
         }
