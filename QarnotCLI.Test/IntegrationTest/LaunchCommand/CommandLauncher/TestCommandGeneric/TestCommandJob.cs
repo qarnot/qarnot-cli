@@ -79,7 +79,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task AbortJobFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpJobObject.ActiveJobsListBodies;
+            FakeHTTP.ReturnMessage = HttpJobObject.ActiveJobsListBodiesWithPaging;
 
             var commandLauncher = new CommandGeneric<QJob, CommandValues.GenericInfoCommandValue>(
                 new QJobsRetriever(),

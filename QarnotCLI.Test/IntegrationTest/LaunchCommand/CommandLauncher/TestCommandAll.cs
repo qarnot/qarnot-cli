@@ -40,7 +40,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task TestForCommandAll()
         {
-            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
             ConfigType type = ConfigType.All;
             CommandApi command = CommandApi.List;
 

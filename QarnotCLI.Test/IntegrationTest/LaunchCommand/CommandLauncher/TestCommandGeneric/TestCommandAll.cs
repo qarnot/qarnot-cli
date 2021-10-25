@@ -41,10 +41,10 @@ namespace QarnotCLI.Test
         [Test]
         public async Task ListAllFromFakeHandlerReturnTheGoodValues()
         {
-            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodies;
+            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
             FakeHTTP.ReturnMessageList = new List<string>() {
-                HttpPoolObject.PoolsListBodies,
-                HttpTaskObject.TasksListBodies,
+                HttpPoolObject.PoolsListBodiesWithPaging,
+                HttpTaskObject.TasksListBodiesWithPaging,
                 HttpJobObject.JobsListBodies,
                 HttpBucketObject.BucketListBodies,
             };

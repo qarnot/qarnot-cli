@@ -41,7 +41,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task InfoTaskFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
             ConfigType type = ConfigType.Task;
             CommandApi command = CommandApi.Info;
 
@@ -100,7 +100,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task WaitTaskFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
             ConfigType type = ConfigType.Task;
             CommandApi command = CommandApi.Wait;
 
@@ -120,7 +120,7 @@ namespace QarnotCLI.Test
         public async Task StdoutTaskFromFakeHandlerReturnTheGoodUuid()
         {
             FakeHTTP.ReturnMessageList = new List<string>() {
-                HttpTaskObject.TasksListBodies,
+                HttpTaskObject.TasksListBodiesWithPaging,
                 "hello stdout"
                 };
             ConfigType type = ConfigType.Task;
@@ -140,7 +140,7 @@ namespace QarnotCLI.Test
         public async Task StderrTaskFromFakeHandlerReturnTheGoodUuid()
         {
             FakeHTTP.ReturnMessageList = new List<string>() {
-                HttpTaskObject.TasksListBodies,
+                HttpTaskObject.TasksListBodiesWithPaging,
                 "hello stderr"
                 };
             ConfigType type = ConfigType.Task;
@@ -199,7 +199,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task ListTaskFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
 
             var commandLauncher = new CommandGeneric<QTask, CommandValues.TaskCommandValue>(
                 new QTasksRetriever(),
@@ -222,7 +222,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task UpdateTaskResourcesFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
             ConfigType type = ConfigType.Task;
             CommandApi command = CommandApi.UpdateResources;
 
@@ -239,7 +239,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task SnapTaskFromFakeHandlerReturnTheGoodReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodies;
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
             ConfigType type = ConfigType.Task;
             CommandApi command = CommandApi.Snapshot;
 

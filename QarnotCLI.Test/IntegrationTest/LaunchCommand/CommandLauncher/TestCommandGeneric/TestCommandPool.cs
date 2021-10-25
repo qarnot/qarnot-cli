@@ -41,7 +41,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task InfoPoolFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodies;
+            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
             ConfigType type = ConfigType.Pool;
             CommandApi command = CommandApi.Info;
 
@@ -79,7 +79,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task ListPoolFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodies;
+            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
 
             var commandLauncher = new CommandGeneric<QPool, CommandValues.PoolCommandValue>(
                 new QPoolsRetriever(),
@@ -102,7 +102,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task SetPoolFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodies;
+            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
             ConfigType type = ConfigType.Pool;
             CommandApi command = CommandApi.Set;
 
@@ -119,7 +119,7 @@ namespace QarnotCLI.Test
         [Test]
         public async Task UpdatePoolResourcesFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodies;
+            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
             ConfigType type = ConfigType.Pool;
             CommandApi command = CommandApi.UpdateResources;
 
