@@ -11,6 +11,8 @@ namespace QarnotCLI
 
         Dictionary<string, string> CreateConstraints(List<string> line);
 
+        Dictionary<string, string> CreateLabels(List<string> line);
+
         List<QAbstractStorage> CreateResources(List<string> names, QarnotSDK.Connection connect, CancellationToken ct);
 
         QAbstractStorage CreateResult(string names, QarnotSDK.Connection connect, CancellationToken ct);
@@ -18,42 +20,47 @@ namespace QarnotCLI
 
     public class CreateHelper : ICreateHelper
     {
-        private void GetOneConstantsAndConstraintsLine(Dictionary<string, string> constants, string line)
+        private void ParseKeyValuePair(Dictionary<string, string> pairs, string line)
         {
             int position = line.IndexOf("=");
             if (position > 0)
             {
                 var key = line.Substring(0, position);
                 var value = line.Substring(position + 1);
-                constants[key] = value;
+                pairs[key] = value;
                 CLILogs.Debug("  [" + key + "] = [" + value + "]");
             }
         }
 
-        private Dictionary<string, string> CreateConstantsAndConstraints(List<string> lines, string name)
+        private Dictionary<string, string> ParseKeyValuePairs(List<string> lines, string name)
         {
-            Dictionary<string, string> constants = new Dictionary<string, string>();
+            Dictionary<string, string> pairs = new Dictionary<string, string>();
 
             if (lines == null)
             {
-                return constants;
+                return pairs;
             }
 
             CLILogs.Debug(name + " find :");
 
-            lines.ForEach(line => GetOneConstantsAndConstraintsLine(constants, line));
+            lines.ForEach(line => ParseKeyValuePair(pairs, line));
 
-            return constants;
+            return pairs;
+        }
+
+        public Dictionary<string, string> CreateLabels(List<string> lines)
+        {
+            return ParseKeyValuePairs(lines, "labels");
         }
 
         public Dictionary<string, string> CreateConstants(List<string> lines)
         {
-            return CreateConstantsAndConstraints(lines, "constant");
+            return ParseKeyValuePairs(lines, "constant");
         }
 
         public Dictionary<string, string> CreateConstraints(List<string> lines)
         {
-            return CreateConstantsAndConstraints(lines, "constraint");
+            return ParseKeyValuePairs(lines, "constraint");
         }
 
         public List<QAbstractStorage> CreateResources(List<string> names, QarnotSDK.Connection connection, CancellationToken ct)

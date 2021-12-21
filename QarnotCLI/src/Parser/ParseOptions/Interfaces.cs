@@ -62,6 +62,8 @@ namespace QarnotCLI
 
             IEnumerable<string> Constraints { get; set; }
 
+            IEnumerable<string> Labels { get; set; }
+
             IEnumerable<string> Dependents { get; set; }
 
             bool IsDependents { get; set; }

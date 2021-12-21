@@ -315,18 +315,14 @@ namespace QarnotCLI
             this.Constraints = new List<string>();
             this.Dependents = new List<string>();
             this.Tags = new List<string>();
+            this.Labels = new List<string>();
         }
 
         public CreateConfiguration(ConfigType type, CommandApi command)
+            : this()
         {
             this.Type = type;
             this.Command = command;
-            this.ApiConnection = new APIConnectionInformation();
-            this.Resources = new List<string>();
-            this.Constants = new List<string>();
-            this.Constraints = new List<string>();
-            this.Dependents = new List<string>();
-            this.Tags = new List<string>();
         }
 
         public APIConnectionInformation ApiConnection { get; set; }
@@ -396,5 +392,7 @@ namespace QarnotCLI
         public bool TasksDefaultWaitForPoolResourcesSynchronization { get; set; } = false;
 
         public bool? WaitForPoolResourcesSynchronization { get; set; }
+
+        public List<string> Labels { get; set; }
     }
 }

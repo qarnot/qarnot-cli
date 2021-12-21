@@ -44,6 +44,8 @@ namespace QarnotCLI
 
             public virtual IEnumerable<string> Constraints { get; set; }
 
+            public virtual IEnumerable<string> Labels { get; set; }
+
             public virtual IEnumerable<string> Dependents { get; set; }
 
             public virtual IEnumerable<string> Resources { get; set; }

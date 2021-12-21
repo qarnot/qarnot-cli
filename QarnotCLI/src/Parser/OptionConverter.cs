@@ -408,6 +408,7 @@ namespace QarnotCLI
             config.Tags = option.Tags?.ToList().Count > 0 ? option.Tags?.ToList() : config.Tags ;
             config.Constants = option.Constants?.ToList().Count > 0 ? option.Constants?.ToList() : config.Constants;
             config.Constraints = option.Constraints?.ToList().Count > 0 ? option.Constraints?.ToList() : config.Constraints;
+            config.Labels = (option.Labels?.Any() ?? false) ? option.Labels.ToList() : config.Labels;
             config.Resources = option.Resources?.ToList().Count > 0 ? option.Resources?.ToList() : config.Resources;
             config.InstanceCount = option.InstanceCount > 0 ? option.InstanceCount : config.InstanceCount;
             config.JobUuid = option.Job ?? config.JobUuid;

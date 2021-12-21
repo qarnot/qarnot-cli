@@ -51,6 +51,11 @@ namespace QarnotCLI
                     pool.SetConstraint(item.Key, item.Value);
                 }
 
+                foreach (var item in this.Tools.CreateLabels(config.Labels))
+                {
+                    pool.SetLabel(item.Key, item.Value);
+                }
+
                 pool.IsElastic = config.IsElastic;
                 pool.ElasticMinimumTotalNodes = config.ElasticMinimumTotalNodes == default(int) ? pool.ElasticMinimumTotalNodes : config.ElasticMinimumTotalNodes;
                 pool.ElasticMaximumTotalNodes = config.ElasticMaximumTotalNodes == default(int) ? pool.ElasticMaximumTotalNodes : config.ElasticMaximumTotalNodes;
@@ -150,6 +155,11 @@ namespace QarnotCLI
                 foreach (var item in this.Tools.CreateConstraints(config.Constraints))
                 {
                     task.SetConstraint(item.Key, item.Value);
+                }
+
+                foreach (var item in this.Tools.CreateLabels(config.Labels))
+                {
+                    task.SetLabel(item.Key, item.Value);
                 }
 
                 task.SetTaskDependencies(config.Dependents.Select(id => new Guid(id)).ToArray());
