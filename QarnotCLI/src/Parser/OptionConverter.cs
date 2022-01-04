@@ -297,6 +297,7 @@ namespace QarnotCLI
             config.ApiConnection.StorageUri = option.Storage;
             config.ApiConnection.AccountEmail = option.AccountEmail;
             config.ApiConnection.SetForcePathStyleString(option.ForcePathStyle);
+            config.ApiConnection.DisableBucketPathsSanitization = option.NoSanitizeBucketPaths;
 
             config.ShowConnectionInfo = option.ShowConnectionInfo;
             if (option.ShowConnectionInfo)

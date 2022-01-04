@@ -14,6 +14,8 @@ namespace QarnotCLI
         private string accountEmail;
         private bool? forcePathStyle;
 
+        private bool? disableBucketPathsSanitization;
+
         public string Token
         {
             get { return string.IsNullOrWhiteSpace(token) ? null : token; }
@@ -42,6 +44,12 @@ namespace QarnotCLI
         {
             get { return forcePathStyle == null ? false : forcePathStyle.Value; }
             set { forcePathStyle = value; }
+        }
+
+        public bool DisableBucketPathsSanitization
+        {
+            get { return disableBucketPathsSanitization == null ? false : disableBucketPathsSanitization.Value; }
+            set { disableBucketPathsSanitization = value; }
         }
 
         public string SetToken
@@ -82,6 +90,24 @@ namespace QarnotCLI
             }
         }
 
+        public void SetDisableBucketPathsSanitizationString(string disable)
+        {
+            if (!string.IsNullOrEmpty(disable))
+            {
+                disableBucketPathsSanitization = Convert.ToBoolean(disable);
+            }
+        }
+
+        public bool? SetDisableBucketPathsSanitization
+        {
+            set { disableBucketPathsSanitization = disableBucketPathsSanitization.HasValue ? disableBucketPathsSanitization : value; }
+        }
+
+        public bool? GetDisableBucketPathsSanitization
+        {
+            get { return disableBucketPathsSanitization; }
+        }
+
         public bool IsComplete()
         {
             return !(string.IsNullOrWhiteSpace(token) ||
@@ -96,6 +122,7 @@ namespace QarnotCLI
             SetStorageUri = connectionInformation.StorageUri;
             SetForcePathStyle = connectionInformation.GetForcePathStyle;
             SetAccountEmail = connectionInformation.AccountEmail;
+            SetDisableBucketPathsSanitization = connectionInformation.GetDisableBucketPathsSanitization;
         }
 
         public override string ToString()
@@ -104,7 +131,8 @@ namespace QarnotCLI
                 "Api:" + ApiUri + Environment.NewLine +
                 "Storage:" + StorageUri + Environment.NewLine +
                 "AccountEmail:" + AccountEmail + Environment.NewLine +
-                "ForceStoragePathStyle:" + ForcePathStyle.ToString();
+                "ForceStoragePathStyle:" + ForcePathStyle.ToString()+ Environment.NewLine +
+                "DisableBucketPathsSanitization:" + DisableBucketPathsSanitization.ToString();
         }
     }
 }

@@ -67,6 +67,17 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void GetValueTestDasableBucketPathSanitization()
+        {
+            APIConnectionInformation apiInformation = new APIConnectionInformation();
+            string line = "disable-path-sanitization=true";
+
+            var fileinfo = new ConfigurationFileReader();
+            fileinfo.GetValue(line, apiInformation);
+            Assert.AreEqual(apiInformation.DisableBucketPathsSanitization, true);
+        }
+
+        [Test]
         public void ParseLinesTestMoreThanRequiredVariablesSendNoError()
         {
             var fileinfo = new ConfigurationFileReader();
@@ -150,6 +161,7 @@ namespace QarnotCLI.Test
                 "storage=BUCKET",
                 "account-email=EMAIL",
                 "force-path=true",
+                "disable-path-sanitization=true"
             };
             QarnotCLI.APIConnectionInformation apiInformation = fileinfo.ParseLines(lines);
             Assert.AreEqual(apiInformation.Token, "TOKEN");
@@ -157,6 +169,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(apiInformation.StorageUri, "BUCKET");
             Assert.AreEqual(apiInformation.AccountEmail, "EMAIL");
             Assert.AreEqual(apiInformation.ForcePathStyle, true);
+            Assert.AreEqual(true, apiInformation.DisableBucketPathsSanitization);
         }
     }
 }

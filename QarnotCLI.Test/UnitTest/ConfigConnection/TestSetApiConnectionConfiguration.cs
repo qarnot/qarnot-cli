@@ -104,6 +104,8 @@ namespace QarnotCLI.Test
 
             public static bool? ForcePath { get; set; } = true;
 
+            public static bool? DisableSanitization { get; set; } = true;
+
             public APIConnectionInformation ReadFile(string filePath)
             {
                 var api = new APIConnectionInformation();
@@ -112,6 +114,7 @@ namespace QarnotCLI.Test
                 api.StorageUri = StorageUri;
                 api.AccountEmail = AccountEmail;
                 api.ForcePathStyle = ForcePath.Value;
+                api.DisableBucketPathsSanitization = DisableSanitization.Value;
                 return api;
             }
         }
@@ -232,6 +235,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(Writer.Checker["storage"], FakeFileInformationGetter.StorageUri);
             Assert.AreEqual(Writer.Checker["account-email"], FakeFileInformationGetter.AccountEmail);
             Assert.AreEqual(Writer.Checker["force-path"], FakeFileInformationGetter.ForcePath.ToString());
+            Assert.AreEqual(Writer.Checker["disable-path-sanitization"], FakeFileInformationGetter.DisableSanitization.ToString());
         }
 
         [Test]
@@ -244,6 +248,7 @@ namespace QarnotCLI.Test
             connectionInformation.StorageUri = "bucket123";
             connectionInformation.AccountEmail = "email123";
             connectionInformation.ForcePathStyle = false;
+            connectionInformation.DisableBucketPathsSanitization = false;
             config.ApiConnection = connectionInformation;
 
             Set.SetConfigInformation("path123", config);
@@ -253,6 +258,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(Writer.Checker["uri"], "uri123");
             Assert.AreEqual(Writer.Checker["account-email"], "email123");
             Assert.AreEqual(Writer.Checker["force-path"], "False");
+            Assert.AreEqual(Writer.Checker["disable-path-sanitization"], "False");
         }
     }
 }

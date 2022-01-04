@@ -1,5 +1,13 @@
 #!/bin/bash
 
+version="2.58.9"
+
+if [ $# -ne 0 ]
+then
+    version=$1
+fi
+echo $version
+
 set -e
 
 expected_cur_dir=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
@@ -21,12 +29,15 @@ cp manMarkDown/* ../DocfxDoccumentation/docfx_project/man
 popd  # back to QarnotCLI_Doc
 
 pushd DocfxDoccumentation
-if [ ! -d docfx ]; then
-    nuget install docfx.console -OutputDirectory docfx -Version 2.49.0
+if [ ! -d docfx/docfx.console.$version ]; then
+    if [ -d docfx ]; then
+        rm -r docfx  # remove older versions of docfx
+    fi
+    nuget install docfx.console -OutputDirectory docfx -Version $version
 fi
-chmod 755 docfx/docfx.console.2.49.0/tools/docfx.exe
-mono docfx/docfx.console.2.49.0/tools/docfx.exe metadata docfx_project/docfx.json
-mono docfx/docfx.console.2.49.0/tools/docfx.exe build docfx_project/docfx.json
+chmod 755 docfx/docfx.console.$version/tools/docfx.exe
+mono docfx/docfx.console.$version/tools/docfx.exe metadata docfx_project/docfx.json
+mono docfx/docfx.console.$version/tools/docfx.exe build docfx_project/docfx.json
 pushd docfx_project/_site
 cp images/Q\ -\ white.svg logo.svg && cp images/Q\ -\ black.png favicon.ico
 

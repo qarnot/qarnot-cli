@@ -244,6 +244,24 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public async Task TestCommandSynchronizeLocalFolderToBucketWithInvalidRemotePathIsBlockedBySanitization()
+        {
+            var bucket = Builder<FakeBucket>.CreateNew().Build();
+            CancellationToken ct = default(CancellationToken);
+            var command = new SynchronizeLocalFolderToBucketCommand();
+            var config = new BucketConfiguration() {
+                LocalPathGet = "a",
+                RemoteRelativePath = "/invalid//Path",
+                DeleteFiles = true,
+            };
+            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+
+            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
+            Assert.AreEqual(ret.Uuid, "Shortname1");
+            Assert.AreEqual("Synchronization failed. Invalid remote path", (ret as CommandValues.GenericInfoCommandValue).Message);
+        }
+
+        [Test]
         public async Task TestCommandDeleteBucket()
         {
             var bucket = Builder<FakeBucket>.CreateNew().Build();
@@ -279,6 +297,24 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public async Task TestCommandSynchronizeLocalFolderFromBucketWithInvalidRemotePathIsBlockedBySanitization()
+        {
+            var bucket = Builder<FakeBucket>.CreateNew().Build();
+            CancellationToken ct = default(CancellationToken);
+            var command = new SynchronizeLocalFolderFromBucketCommand();
+            var config = new BucketConfiguration() {
+                LocalPathGet = "a",
+                RemoteRelativePath = "/invalid//Path",
+                DeleteFiles = true,
+            };
+            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+
+            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
+            Assert.AreEqual(ret.Uuid, "Shortname1");
+            Assert.AreEqual("Synchronization failed. Invalid remote path", (ret as CommandValues.GenericInfoCommandValue).Message);
+        }
+
+        [Test]
         public async Task TestCommandUploadBucket()
         {
 
@@ -299,6 +335,26 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public async Task TestCommandUploadBucketWithInvalidRemotePathIsBlockedBySanitization()
+        {
+            var bucket = Builder<FakeBucket>.CreateNew().Build();
+            CancellationToken ct = default(CancellationToken);
+            var command = new UploadBucketCommand();
+            var config = new BucketConfiguration() {
+                LocalPathFiles = new List<string>(),
+                LocalPathFolders = new List<string>(),
+                LocalPathGet = "a",
+                RemoteRelativePath = "/invalid//Path",
+                DeleteFiles = true,
+            };
+            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+
+            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
+            Assert.AreEqual(ret.Uuid, "Shortname1");
+            Assert.AreEqual("Upload failed. Invalid remote path", (ret as CommandValues.GenericInfoCommandValue).Message);
+        }
+
+        [Test]
         public async Task TestCommandDownloadBucket()
         {
 
@@ -316,6 +372,39 @@ namespace QarnotCLI.Test
 
             Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
             Assert.AreEqual(ret.Uuid, "Shortname1");
+        }
+
+        [TestCase("/invalidLeadingSlash", "file")]
+        [TestCase("\\invalidLeadingSlash", "folder")]
+        [TestCase("invalid//Double///Slash")]
+        [TestCase("invalid\\\\DoubleSlash")]
+        public async Task TestCommandDownloadBucketWithinvalidRemotePathIsBlockedBySanitization(string invalidPath, string pathType = null)
+        {
+            var bucket = Builder<FakeBucket>.CreateNew().Build();
+            CancellationToken ct = default(CancellationToken);
+            var command = new DownloadBucketCommand();
+            var config = new BucketConfiguration() {
+                RemoteRelativePathFiles = new List<string>(),
+                RemoteRelativePathFolders = new List<string>(),
+                LocalPathGet = "a",
+                RemoteRelativePath = "b",
+                DeleteFiles = true,
+            };
+            switch(pathType)
+            {
+                case "folder":
+                    config.RemoteRelativePathFolders.Add(invalidPath);
+                    break;
+                case "file":
+                default:
+                    config.RemoteRelativePathFiles.Add(invalidPath);
+                    break;
+            }
+            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+
+            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
+            Assert.AreEqual(ret.Uuid, "Shortname1");
+            Assert.AreEqual("Download failed. Invalid remote path(s)", (ret as CommandValues.GenericInfoCommandValue).Message);
         }
 
         [Test]

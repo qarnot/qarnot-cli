@@ -31,7 +31,21 @@ namespace QarnotCLI
                 throw new ArgumentNullException();
             string apiUri = config?.ApiConnection?.ApiUri == null ? "https://api.qarnot.com" : config?.ApiConnection?.ApiUri;
             HttpClientHandler client = getClientHandler(config);
-            return new Connection(apiUri, config?.ApiConnection?.StorageUri, config?.ApiConnection?.Token, client, forceStoragePathStyle: config?.ApiConnection?.ForcePathStyle ?? false)
+
+            var enableSanitization = !(config?.ApiConnection?.DisableBucketPathsSanitization ?? false);
+            if (enableSanitization)
+            {
+                CLILogs.Info("Bucket path sanitization is enabled (default). Use --no-sanitize-bucket-paths argument to disable.");
+            }
+
+            return new Connection(
+                apiUri,
+                config?.ApiConnection?.StorageUri,
+                config?.ApiConnection?.Token,
+                client,
+                forceStoragePathStyle: config?.ApiConnection?.ForcePathStyle ?? false,
+                sanitizeBucketPaths: enableSanitization,
+                showBucketWarnings: false) // the cli will display custom warnings
             {
                 StorageAccessKey = config?.ApiConnection?.AccountEmail
             };

@@ -8,7 +8,7 @@ namespace QarnotCLI.Test
 
     public class ConnectionOverrider: Connection
     {
-        public ConnectionOverrider(string url, string storage, string token, FakeHTTPHandler httpClientHandler = null ): base (url, storage, token, httpClientHandler:httpClientHandler)
+        public ConnectionOverrider(string url, string storage, string token, FakeHTTPHandler httpClientHandler = null, bool sanitizeBucketPaths = true): base (url, storage, token, httpClientHandler:httpClientHandler, sanitizeBucketPaths: sanitizeBucketPaths)
         {
             ;
         }
@@ -29,14 +29,17 @@ namespace QarnotCLI.Test
     {
         public FakeHTTPHandler FakeHTTP { get; set; }
 
-        public FakeConnectionWrapper(FakeHTTPHandler fakeHTTP)
+        public IConfiguration FakeConfig { get; set; }
+
+        public FakeConnectionWrapper(FakeHTTPHandler fakeHTTP, IConfiguration fakeConfig = default)
         {
             FakeHTTP = fakeHTTP;
+            FakeConfig = fakeConfig;
         }
 
         public Connection CreateConnection(IConfiguration config)
         {
-            return new ConnectionOverrider("http://localhost", "http://localhost", "Token", httpClientHandler: FakeHTTP) {
+            return new ConnectionOverrider("http://localhost", "http://localhost", "Token", httpClientHandler: FakeHTTP, !FakeConfig?.ApiConnection.DisableBucketPathsSanitization ?? true) {
                 StorageAccessKey = "test@test.test"
             };
         }

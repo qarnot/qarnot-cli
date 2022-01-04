@@ -89,6 +89,12 @@ namespace QarnotCLI
             List<string> folderList = new List<string>();
             string folder = config.RemoteRelativePath ?? "";
 
+            if (!config.ApiConnection.DisableBucketPathsSanitization
+                && (PathSanitization.IsThePathInvalid(folder)))
+            {
+                return null;
+            }
+
             folderList = await ExtractBucketFilesInfoFromBucket(bucket, folder, ct, iconfig.HumanReadable);
 
             return new CommandValues.BucketInfoCommandValue()
@@ -110,6 +116,17 @@ namespace QarnotCLI
             string localFolderPath = config.LocalPathGet;
             bool donTDelete = config.DeleteFiles;
             string remoteFolderRelativePath = config.RemoteRelativePath;
+
+            if (!config.ApiConnection.DisableBucketPathsSanitization
+                && (PathSanitization.IsThePathInvalid(remoteFolderRelativePath)))
+            {
+                return new CommandValues.GenericInfoCommandValue()
+                {
+                    Uuid = bucket.Shortname,
+                    Message = "Synchronization failed. Invalid remote path",
+                };
+            }
+
             CLILogs.Debug("Local path : " + localFolderPath);
 
             await bucket.SyncRemoteToLocalAsync(localFolderPath, ct, donTDelete, remoteFolderRelativePath);
@@ -131,6 +148,17 @@ namespace QarnotCLI
             string localFolderPath = config.LocalPathGet;
             bool donTDelete = config.DeleteFiles;
             string remoteFolderRelativePath = config.RemoteRelativePath;
+
+            if (!config.ApiConnection.DisableBucketPathsSanitization
+                && (PathSanitization.IsThePathInvalid(remoteFolderRelativePath)))
+            {
+                return new CommandValues.GenericInfoCommandValue()
+                {
+                    Uuid = bucket.Shortname,
+                    Message = "Synchronization failed. Invalid remote path",
+                };
+            }
+
             CLILogs.Debug("Local path : " + localFolderPath);
 
             await bucket.SyncLocalToRemoteAsync(localFolderPath, ct, donTDelete, remoteFolderRelativePath);
@@ -151,6 +179,16 @@ namespace QarnotCLI
 
             BucketConfiguration config = iconfig as BucketConfiguration;
             List<Task> listOfTask = new List<Task>();
+
+            if (!config.ApiConnection.DisableBucketPathsSanitization
+                && (PathSanitization.IsThePathInvalid(config.RemoteRelativePath)))
+            {
+                return new CommandValues.GenericInfoCommandValue()
+                {
+                    Uuid = bucket.Shortname,
+                    Message = "Upload failed. Invalid remote path",
+                };
+            }
 
             if (!string.IsNullOrEmpty(config.String))
             {
@@ -182,6 +220,18 @@ namespace QarnotCLI
             string returnString = "Bucket download";
             string localPath = config.LocalPathGet ?? ".";
 
+            if (!config.ApiConnection.DisableBucketPathsSanitization
+                && (config.RemoteRelativePathFiles.Any(remoteFile => PathSanitization.IsThePathInvalid(remoteFile))
+                 || config.RemoteRelativePathFolders.Any(remoteFile => PathSanitization.IsThePathInvalid(remoteFile))
+                 || PathSanitization.IsThePathInvalid(config.StringPath)))
+            {
+                return new CommandValues.GenericInfoCommandValue()
+                {
+                    Uuid = bucket.Shortname,
+                    Message = "Download failed. Invalid remote path(s)",
+                };
+            }
+
             if (!string.IsNullOrEmpty(config.StringPath))
             {
                 CLILogs.Debug("Command Bucket : DownLoad String");
@@ -206,6 +256,16 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QBucket bucket, IConfiguration iconfig, CancellationToken ct = default(CancellationToken))
         {
             BucketConfiguration config = iconfig as BucketConfiguration;
+
+            if (!config.ApiConnection.DisableBucketPathsSanitization
+                && (config.RemoteRelativePaths.Any(remoteFile => PathSanitization.IsThePathInvalid(remoteFile))))
+            {
+                return new CommandValues.GenericInfoCommandValue()
+                {
+                    Uuid = bucket.Shortname,
+                    Message = "Removal failed. Invalid remote path(s)",
+                };
+            }
             CLILogs.Debug("Command Bucket : Remove entities " + string.Join(", ", config.RemoteRelativePaths));
             string returnString = "Bucket delete paths : " + string.Join(", ", config.RemoteRelativePaths);
 

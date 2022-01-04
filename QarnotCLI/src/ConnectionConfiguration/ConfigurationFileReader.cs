@@ -35,6 +35,9 @@ namespace QarnotCLI
                 case "force-path":
                     connectionVariables.SetForcePathStyleString(splitline[1]);
                     break;
+                case "disable-path-sanitization":
+                    connectionVariables.SetDisableBucketPathsSanitizationString(splitline[1]);
+                    break;
             }
         }
 

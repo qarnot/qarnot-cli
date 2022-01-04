@@ -45,6 +45,9 @@ namespace QarnotCLI
 
             [Option('f', "force-storage-path-style", Required = false, HelpText = "Force the storage path style.")]
             public string ForcePathStyle { get; set; }
+
+            [Option("no-sanitize-bucket-paths", Required = false, HelpText = "Disable automatic sanitization of bucket paths")]
+            public bool NoSanitizeBucketPaths { get; set; }
         }
     }
 }

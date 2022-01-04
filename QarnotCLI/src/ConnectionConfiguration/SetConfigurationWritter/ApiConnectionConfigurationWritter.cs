@@ -118,6 +118,10 @@ namespace QarnotCLI
                 {
                     FileWriter.Write("force-path", connectionInformation.ForcePathStyle.ToString(), fs);
                 }
+                if (connectionInformation.GetDisableBucketPathsSanitization.HasValue)
+                {
+                    FileWriter.Write("disable-path-sanitization", connectionInformation.DisableBucketPathsSanitization.ToString(), fs);
+                }
             }
         }
     }

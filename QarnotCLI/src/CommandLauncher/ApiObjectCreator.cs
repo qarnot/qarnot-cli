@@ -285,6 +285,17 @@ namespace QarnotCLI
             public async override Task<CommandValues.GenericInfoCommandValue> Create(IConfiguration iconfig, QarnotSDK.Connection connect, CancellationToken ct)
             {
                 BucketConfiguration config = iconfig as BucketConfiguration;
+
+                if (!config.ApiConnection.DisableBucketPathsSanitization
+                    && (PathSanitization.IsThePathInvalid(config.RemoteRelativePath)))
+                {
+                    return new CommandValues.GenericInfoCommandValue()
+                    {
+                        Uuid = config.Name,
+                        Message = "Creation failed. Invalid remote path",
+                    };
+                }
+
                 QBucket bucket = await this.CreateBucket(config, connect, ct);
                 await this.LaunchBucket(bucket, ct);
 

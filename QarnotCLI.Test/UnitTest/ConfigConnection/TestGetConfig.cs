@@ -128,6 +128,7 @@ namespace QarnotCLI.Test
                 ApiUri = null,
                 StorageUri = null,
                 SetForcePathStyle = null,
+                SetDisableBucketPathsSanitization = null
             };
             ret.RetrieveConfigurationInformation(api);
             Assert.AreEqual(api.Token, "token0");
@@ -135,6 +136,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(api.StorageUri, "storage_file");
             Assert.AreEqual(api.ForcePathStyle, false);
             Assert.AreEqual(api.GetForcePathStyle, null);
+            Assert.AreEqual(false, api.DisableBucketPathsSanitization);
+            Assert.AreEqual(null, api.GetDisableBucketPathsSanitization);
         }
 
         [Test]
