@@ -95,17 +95,30 @@ namespace QarnotCLI
             [Option("max-node", Required = false, HelpText = "Maximum node number for the pool in elastic mode.")]
             uint ElasticMaximumTotalNodes { get; set; }
 
-            [Option("min-ling-node", Required = false, HelpText = "Minimum idling node number.")]
+            [Option("min-idling-node", Required = false, HelpText = "Minimum idling node number.")]
             uint ElasticMinimumIdlingNodes { get; set; }
 
-            [Option("resize-periode", Required = false, HelpText = "Elastic Resize Period.")]
+            [Option("resize-period", Required = false, HelpText = "Elastic Resize Period.")]
             uint ElasticResizePeriod { get; set; }
 
             [Option("resize-factor", Required = false, HelpText = "Elastic Resize Factor.")]
             float ElasticResizeFactor { get; set; }
 
-            [Option("min-ling-time", Required = false, HelpText = "Minimum idling time.")]
+            [Option("min-idling-time", Required = false, HelpText = "Minimum idling time.")]
             uint ElasticMinimumIdlingTime { get; set; }
+
+
+            /////// BC area
+            // Keep these ones for BC as the CLI was originally launched with these badly named options
+            [Option("min-ling-node", Required = false, HelpText = "[DEPRECATED], use --min-idling-node instead")]
+            uint _elasticMinimumIdlingNodes_legacyBadOptionName { get { return ElasticMinimumIdlingNodes; } set { ElasticMinimumIdlingNodes = value; } }
+
+            [Option("min-ling-time", Required = false, HelpText = "[DEPRECATED] Use --min-idling-time instead")]
+            uint _elasticMinimumIdlingTime_legacyBadOptionName { get { return ElasticMinimumIdlingTime; } set { ElasticMinimumIdlingTime = value; } }
+
+            [Option("resize-periode", Required = false, HelpText = "[DEPRECATED] use --resize-period instead")]
+            uint _elasticResizePeriod_legacyBadOptionName { get { return ElasticResizePeriod; } set { ElasticResizePeriod = value; } }
+            /////// BC area
         }
 
         public interface IGetOptions : IOptions

@@ -39,9 +39,9 @@
                 switch (level)
                 {
                     case CLILogs.LogsLevel.Debug:
-                        return new Printer.Debug(color, new MessagePrinter(Console.Out));
+                        return new Printer.Debug(color, new MessagePrinter(Console.Error));
                     case CLILogs.LogsLevel.Info:
-                        return new Printer.Info(color, new MessagePrinter(Console.Out));
+                        return new Printer.Info(color, new MessagePrinter(Console.Error));
                     case CLILogs.LogsLevel.Error:
                         return new Printer.Error(color, new MessagePrinter(Console.Error));
                     case CLILogs.LogsLevel.Warning:

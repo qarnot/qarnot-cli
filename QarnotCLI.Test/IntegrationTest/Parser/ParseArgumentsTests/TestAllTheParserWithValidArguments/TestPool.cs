@@ -292,7 +292,7 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "pool", "set", "--name", name, "--id", poolUuid, "--min-node", "1", "--max-node", "2", "--min-ling-node", "3", "--resize-periode", "4", "--resize-factor", "5", "--min-ling-time", "6" };
+            argv = new string[] { "pool", "set", "--name", name, "--id", poolUuid, "--min-node", "1", "--max-node", "2", "--min-idling-node", "3", "--resize-period", "4", "--resize-factor", "5", "--min-idling-time", "6" };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is PoolSetConfiguration))
