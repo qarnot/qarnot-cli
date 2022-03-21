@@ -85,6 +85,8 @@ namespace QarnotCLI
             bool? WaitForPoolResourcesSynchronization { get; set; }
 
             bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
+
+            uint? MaxRetriesPerInstance { get; set; }
         }
 
         public interface IElasticityOptions

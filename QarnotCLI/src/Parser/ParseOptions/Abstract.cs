@@ -68,6 +68,8 @@ namespace QarnotCLI
 
             public virtual bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
 
+            public virtual uint? MaxRetriesPerInstance { get; set; }
+
         }
 
         public abstract class AGetOptions : AOptions, IGetOptions

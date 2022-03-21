@@ -69,6 +69,9 @@ namespace QarnotCLI
             [Option("wait-for-resources-synchronization", Required = false, HelpText = "Wait for the pool resources to synchronized before launching the task (set to true or false, default: null).")]
             public override bool? WaitForPoolResourcesSynchronization { get; set; }
 
+            [Option("max-retries-per-instance", Required = false, HelpText = "Total number of times each task instance will be allowed to retry in case of failure")]
+            public override uint? MaxRetriesPerInstance { get; set; }
+
             public uint SnapshotPeriodicSec { get; set; }
 
             public string Whitelist { get; set; }

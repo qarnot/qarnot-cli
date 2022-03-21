@@ -161,6 +161,17 @@ namespace QarnotCLI.Test
             await LaunchCreateTaskFromFakeHandler(config);
         }
 
+
+        [Test]
+        public async Task CreateTask_WithMaxRetriesPerInstance_PrintsSomethingOnStdout()
+        {
+            CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
+            config.InstanceCount = 1;
+            config.SnapshotPeriodicSec = 5;
+            config.MaxRetriesPerInstance = 19;
+            await LaunchCreateTaskFromFakeHandler(config);
+        }
+
         public async Task LaunchCreateTaskFromFakeHandler(CreateConfiguration config)
         {
             FakeHTTP.ReturnMessage = HttpTaskObject.TaskResponseBody;

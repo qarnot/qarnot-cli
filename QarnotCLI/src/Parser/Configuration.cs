@@ -394,5 +394,7 @@ namespace QarnotCLI
         public bool? WaitForPoolResourcesSynchronization { get; set; }
 
         public List<string> Labels { get; set; }
+
+        public uint? MaxRetriesPerInstance { get; set; }
     }
 }

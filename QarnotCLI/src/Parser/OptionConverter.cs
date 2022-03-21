@@ -422,6 +422,7 @@ namespace QarnotCLI
             var MaximumWallTime = string.IsNullOrEmpty(option.MaximumWallTime) ? config.MaximumWallTime : (TimeSpan?)ParseTimeSpanString(option.MaximumWallTime);
             config.MaximumWallTime = MaximumWallTime == default(TimeSpan) ? null : MaximumWallTime;
             config.TasksDefaultWaitForPoolResourcesSynchronization = option.TasksDefaultWaitForPoolResourcesSynchronization ?? config.TasksDefaultWaitForPoolResourcesSynchronization;
+            config.MaxRetriesPerInstance = option.MaxRetriesPerInstance ?? config.MaxRetriesPerInstance;
             config.WaitForPoolResourcesSynchronization = option.WaitForPoolResourcesSynchronization ?? config.WaitForPoolResourcesSynchronization;
             if (elasticOption != null)
             {

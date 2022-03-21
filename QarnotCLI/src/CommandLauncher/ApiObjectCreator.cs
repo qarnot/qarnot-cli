@@ -167,6 +167,10 @@ namespace QarnotCLI
                 task.ResultsWhitelist = config.Whitelist;
                 task.ResultsBlacklist = config.Blacklist;
 
+                if (config.MaxRetriesPerInstance.HasValue) {
+                    task.MaxRetriesPerInstance = config.MaxRetriesPerInstance.Value;
+                }
+
                 CLILogs.Info("create task");
                 return task;
             }
