@@ -100,7 +100,7 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public async Task SetPoolFromFakeHandlerReturnTheGoodUuid()
+        public async Task SetPoolElasticSettingsFromFakeHandlerReturnTheGoodUuid()
         {
             FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
             ConfigType type = ConfigType.Pool;
@@ -109,7 +109,7 @@ namespace QarnotCLI.Test
             var commandLauncher = LaunchFactory.CreateLauncher(type, command);
 
             string returnString = await commandLauncher.RunAndPrintCommandAsync(
-                new PoolSetConfiguration(type, command),
+                new PoolSetElasticSettingsConfiguration(type, command),
                 FalsePrinter);
 
             string expected1 = "796a5321-0001-4a5c-2f42-54cce169dff8";

@@ -25,9 +25,9 @@ namespace QarnotCLI.Test
         {
             IConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create) { Type = ConfigType.Task, Name = "bob", Profile = "Bob", InstanceCount = 2 };
             Assert.IsTrue(CommandLineParser.CheckTask(config));
-            config = new CreateConfiguration(ConfigType.Task, CommandApi.Create) { Type = ConfigType.Task, Name = "bob", JobUuid = "Bob", InstanceCount = 2 };
+            config = new CreateConfiguration(ConfigType.Task, CommandApi.Create) { Type = ConfigType.Task, Name = "bob", JobUuidOrShortname = "Bob", InstanceCount = 2 };
             Assert.IsTrue(CommandLineParser.CheckTask(config));
-            config = new CreateConfiguration(ConfigType.Task, CommandApi.Create) { Type = ConfigType.Task, Name = "bob", PoolUuid = "Bob", InstanceCount = 2 };
+            config = new CreateConfiguration(ConfigType.Task, CommandApi.Create) { Type = ConfigType.Task, Name = "bob", PoolUuidOrShortname = "Bob", InstanceCount = 2 };
             Assert.IsTrue(CommandLineParser.CheckTask(config));
             config = new CreateConfiguration(ConfigType.Task, CommandApi.Create) { Type = ConfigType.Task, Name = "bob", Profile = "Bob", Range = "2" };
             Assert.IsTrue(CommandLineParser.CheckTask(config));

@@ -33,6 +33,7 @@ namespace QarnotCLI
                 "list",
                 "delete",
                 "set",
+                "set-elastic-settings",
                 "get",
                 "snapshot",
                 "stdout",

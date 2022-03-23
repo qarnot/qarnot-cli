@@ -150,8 +150,9 @@ namespace QarnotCLI
             }
         }
 
-        [Verb("pool set", HelpText = "Set the pool elastic options.")]
-        public class SetPoolOptions : APoolGetOptions, IElasticityOptions
+        // TODO: Deprecate this option and remove it as its name is not explicit enough (or group it with SetPoolElasticSettingsOptions using aliases)
+        [Verb("pool set", HelpText = "[DEPRECATED] Set the pool elastic options.")]
+        public class SetPoolOptions : PoolElasticSettingsOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -161,10 +162,29 @@ namespace QarnotCLI
                     yield return new Example(
                         "Classic usage",
                         new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
-                        new SetPoolOptions { Id = "Pool Uuid", Tags = new string[] { "TAG1", "TAG2" } });
+                        new SetPoolOptions { Id = "Pool Uuid", ElasticMinimumTotalNodes = 2, ElasticMaximumTotalNodes = 10});
                 }
             }
+        }
 
+        [Verb("pool set-elastic-settings", HelpText = "Set the pool elastic options.")]
+        public class SetPoolElasticSettingsOptions : PoolElasticSettingsOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example(
+                        "Classic usage",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new SetPoolElasticSettingsOptions { Id = "Pool Uuid", ElasticMinimumTotalNodes = 2, ElasticMaximumTotalNodes = 10});
+                }
+            }
+        }
+
+        public class PoolElasticSettingsOptions : APoolGetOptions, IElasticityOptions
+        {
             public virtual uint ElasticMinimumTotalNodes { get; set; }
 
             public virtual uint ElasticMaximumTotalNodes { get; set; }

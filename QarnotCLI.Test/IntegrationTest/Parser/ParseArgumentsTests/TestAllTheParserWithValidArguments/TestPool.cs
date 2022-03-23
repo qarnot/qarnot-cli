@@ -177,6 +177,7 @@ namespace QarnotCLI.Test
         [TestCase("info", CommandApi.Info)]
         [TestCase("update-resources", CommandApi.UpdateResources)]
         [TestCase("set", CommandApi.Set)]
+        [TestCase("set-elastic-settings", CommandApi.Set)]
         [TestCase("delete", CommandApi.Delete)]
         public void PoolBasicSubverbCanHaveAllTheBasicFlags(string subverb, CommandApi commandEnum)
         {
@@ -224,6 +225,7 @@ namespace QarnotCLI.Test
         [TestCase("info")]
         [TestCase("update-resources")]
         [TestCase("set")]
+        [TestCase("set-elastic-settings")]
         [TestCase("delete")]
         public void PoolSubverbCannotHaveTagsAndTagIntersect(string subverb)
         {
@@ -282,8 +284,9 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Id, poolUuid);
         }
 
-        [Test]
-        public void SetPoolCheckTestParsArg()
+        [TestCase("set")]
+        [TestCase("set-elastic-settings")]
+        public void SetPoolElasticSettingsCheckTestParsArg(string verb)
         {
             string poolUuid = "PoolUUID";
             string name = "NAME";
@@ -292,15 +295,15 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "pool", "set", "--name", name, "--id", poolUuid, "--min-node", "1", "--max-node", "2", "--min-idling-node", "3", "--resize-period", "4", "--resize-factor", "5", "--min-idling-time", "6" };
+            argv = new string[] { "pool", verb, "--name", name, "--id", poolUuid, "--min-node", "1", "--max-node", "2", "--min-idling-node", "3", "--resize-period", "4", "--resize-factor", "5", "--min-idling-time", "6" };
             iConfSet = parser.Parse(argv);
 
-            if (!(iConfSet is PoolSetConfiguration))
+            if (!(iConfSet is PoolSetElasticSettingsConfiguration))
             {
                 throw new Exception("return value is not PoolSetConfiguration ");
             }
 
-            PoolSetConfiguration confset = (PoolSetConfiguration)iConfSet;
+            PoolSetElasticSettingsConfiguration confset = (PoolSetElasticSettingsConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Pool);
             Assert.AreEqual(confset.Command, CommandApi.Set);
             Assert.AreEqual(confset.Name, name);
@@ -312,15 +315,15 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.ElasticResizeFactor, 5);
             Assert.AreEqual(confset.ElasticMinimumIdlingTime, 6);
 
-            argv = new string[] { "pool", "set", "-n", name, "-i", poolUuid };
+            argv = new string[] { "pool", verb, "-n", name, "-i", poolUuid };
             iConfSet = parser.Parse(argv);
 
-            if (!(iConfSet is PoolSetConfiguration))
+            if (!(iConfSet is PoolSetElasticSettingsConfiguration))
             {
                 throw new Exception("return value is not PoolSetConfiguration ");
             }
 
-            confset = (PoolSetConfiguration)iConfSet;
+            confset = (PoolSetElasticSettingsConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Pool);
             Assert.AreEqual(confset.Command, CommandApi.Set);
             Assert.AreEqual(confset.Name, name);

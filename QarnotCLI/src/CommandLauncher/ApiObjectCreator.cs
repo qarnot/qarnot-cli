@@ -101,14 +101,30 @@ namespace QarnotCLI
 
             private async Task<QTask> CreateInstanceTaskAsync(CreateConfiguration config, QarnotSDK.Connection connect, CancellationToken ct = default(CancellationToken))
             {
-                if (!string.IsNullOrEmpty(config.JobUuid))
+                if (!string.IsNullOrEmpty(config.JobUuidOrShortname))
                 {
-                    QarnotSDK.QJob job = await connect.RetrieveJobByUuidAsync(config.JobUuid, ct);
+                    QarnotSDK.QJob job;
+                    if (Guid.TryParse(config.JobUuidOrShortname, out var jobUuid))
+                    {
+                        job = await connect.RetrieveJobByUuidAsync(config.JobUuidOrShortname, ct);
+                    }
+                    else
+                    {
+                        job = await connect.RetrieveJobByShortnameAsync(config.JobUuidOrShortname, ct);
+                    }
                     return new QarnotSDK.QTask(connect, config.Name, job, config.InstanceCount, config.Shortname);
                 }
-                else if (!string.IsNullOrEmpty(config.PoolUuid))
+                else if (!string.IsNullOrEmpty(config.PoolUuidOrShortname))
                 {
-                    QarnotSDK.QPool pool = new QarnotSDK.QPool(connect, new Guid(config.PoolUuid));
+                    QarnotSDK.QPool pool;
+                    if (Guid.TryParse(config.PoolUuidOrShortname, out var poolUuid))
+                    {
+                        pool = new QarnotSDK.QPool(connect, poolUuid);
+                    }
+                    else
+                    {
+                        pool = await connect.RetrievePoolByShortnameAsync(config.PoolUuidOrShortname, ct);
+                    }
                     return new QarnotSDK.QTask(connect, config.Name, pool, config.InstanceCount, config.Shortname, config.WaitForPoolResourcesSynchronization);
                 }
 
@@ -118,14 +134,30 @@ namespace QarnotCLI
             private async Task<QTask> CreateRangeTaskAsync(CreateConfiguration config, QarnotSDK.Connection connect, CancellationToken ct = default(CancellationToken))
             {
                 AdvancedRanges range = new AdvancedRanges(config.Range);
-                if (!string.IsNullOrEmpty(config.JobUuid))
+                if (!string.IsNullOrEmpty(config.JobUuidOrShortname))
                 {
-                    QarnotSDK.QJob job = await connect.RetrieveJobByUuidAsync(config.JobUuid, ct);
+                    QarnotSDK.QJob job;
+                    if (Guid.TryParse(config.JobUuidOrShortname, out var jobUuid))
+                    {
+                        job = await connect.RetrieveJobByUuidAsync(config.JobUuidOrShortname, ct);
+                    }
+                    else
+                    {
+                        job = await connect.RetrieveJobByShortnameAsync(config.JobUuidOrShortname, ct);
+                    }
                     return new QarnotSDK.QTask(connect, config.Name, job, range, config.Shortname);
                 }
-                else if (!string.IsNullOrEmpty(config.PoolUuid))
+                else if (!string.IsNullOrEmpty(config.PoolUuidOrShortname))
                 {
-                    QarnotSDK.QPool pool = new QarnotSDK.QPool(connect, new Guid(config.PoolUuid));
+                    QarnotSDK.QPool pool;
+                    if (Guid.TryParse(config.PoolUuidOrShortname, out var poolUuid))
+                    {
+                        pool = new QarnotSDK.QPool(connect, poolUuid);
+                    }
+                    else
+                    {
+                        pool = await connect.RetrievePoolByShortnameAsync(config.PoolUuidOrShortname, ct);
+                    }
                     return new QarnotSDK.QTask(connect, config.Name, pool, range, config.Shortname, config.WaitForPoolResourcesSynchronization);
                 }
 
@@ -222,9 +254,9 @@ namespace QarnotCLI
             {
                 CLILogs.Info("create job");
                 QPool pool = null;
-                if (!string.IsNullOrEmpty(config.PoolUuid))
+                if (!string.IsNullOrEmpty(config.PoolUuidOrShortname))
                 {
-                    pool = await connect.RetrievePoolByUuidAsync(config.PoolUuid, ct);
+                    pool = await connect.RetrievePoolByUuidAsync(config.PoolUuidOrShortname, ct);
                 }
 
                 QJob job = new QJob(connect, config.Name, pool, config.Shortname, config.IsDependents);

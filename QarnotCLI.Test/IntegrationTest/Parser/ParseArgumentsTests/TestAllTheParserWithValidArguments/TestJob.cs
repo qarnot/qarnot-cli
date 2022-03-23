@@ -178,7 +178,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Type, ConfigType.Job);
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Shortname, shortname);
-            Assert.AreEqual(confset.PoolUuid, poolUuid);
+            Assert.AreEqual(confset.PoolUuidOrShortname, poolUuid);
 
             argv = new string[] { "job", "create", "-n", name, "--pool", poolUuid, "-s", shortname };
             iConfSet = parser.Parse(argv);
@@ -192,7 +192,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Type, ConfigType.Job);
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Shortname, shortname);
-            Assert.AreEqual(confset.PoolUuid, poolUuid);
+            Assert.AreEqual(confset.PoolUuidOrShortname, poolUuid);
             commandLineParser.Dispose();
         }
 

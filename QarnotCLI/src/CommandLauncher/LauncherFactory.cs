@@ -60,7 +60,7 @@ namespace QarnotCLI
                 case CommandApi.UpdateResources:
                     return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new UpdatePoolResourcesCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Set:
-                    return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new SetPoolCommand(), this.Formatter, this.ConnectionWrapper);
+                    return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new SetPoolElasticSettingsCommand(), this.Formatter, this.ConnectionWrapper);
                 default:
                     throw new NotImplementedException("Not implemented command for Pool");
             }

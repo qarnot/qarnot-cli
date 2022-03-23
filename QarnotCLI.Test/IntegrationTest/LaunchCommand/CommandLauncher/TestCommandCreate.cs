@@ -68,7 +68,7 @@ namespace QarnotCLI.Test
         {
             FakeHTTP.ReturnMessage = HttpJobObject.JobResponseBody;
             CreateConfiguration config = new CreateConfiguration(ConfigType.Job, CommandApi.Create);
-            config.PoolUuid = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
+            config.PoolUuidOrShortname = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
             var createJob = new ApiObjectCreator.CreateNewJob(Tool);
             var commandLauncher = new CreateCommandLauncher(createJob, FormatTable, FakeApi);
             string ret = await commandLauncher.RunAndPrintCommandAsync(config, FalsePrinter);
@@ -89,7 +89,7 @@ namespace QarnotCLI.Test
         public async Task CreateTaskWithPoolFromFakeHandlerReturnTheGoodUuid()
         {
             CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
-            config.PoolUuid = "f78fdff8-0000-0000-0000-d9cd4e185ece";
+            config.PoolUuidOrShortname = "f78fdff8-0000-0000-0000-d9cd4e185ece";
             config.InstanceCount = 1;
             await LaunchCreateTaskFromFakeHandler(config);
         }
@@ -98,7 +98,7 @@ namespace QarnotCLI.Test
         public async Task CreateTaskWithPoolRangeFromFakeHandlerReturnTheGoodUuid()
         {
             CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
-            config.PoolUuid = "f78fdff8-0000-0000-0000-d9cd4e185ece";
+            config.PoolUuidOrShortname = "f78fdff8-0000-0000-0000-d9cd4e185ece";
             config.Range = "1-2";
             await LaunchCreateTaskFromFakeHandler(config);
         }
@@ -107,7 +107,7 @@ namespace QarnotCLI.Test
         public async Task CreateTaskWithJobFromFakeHandlerReturnTheGoodUuid()
         {
             CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
-            config.JobUuid = "f78fdff8-0000-0000-0000-d9cd4e185ece";
+            config.JobUuidOrShortname = "f78fdff8-0000-0000-0000-d9cd4e185ece";
             config.InstanceCount = 1;
             await LaunchCreateTaskFromFakeHandler(config);
         }
@@ -116,7 +116,7 @@ namespace QarnotCLI.Test
         public async Task CreateTaskWithJobRangeFromFakeHandlerReturnTheGoodUuid()
         {
             CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
-            config.JobUuid = "f78fdff8-0000-0000-0000-d9cd4e185ece";
+            config.JobUuidOrShortname = "f78fdff8-0000-0000-0000-d9cd4e185ece";
             config.Range = "1-2";
             await LaunchCreateTaskFromFakeHandler(config);
         }
@@ -145,7 +145,7 @@ namespace QarnotCLI.Test
         {
             CreateConfiguration config = new CreateConfiguration(ConfigType.Task, CommandApi.Create);
             config.Range = "1-2";
-            config.JobUuid = "f78fdff8-0000-0000-0000-d9cd4e185ece";
+            config.JobUuidOrShortname = "f78fdff8-0000-0000-0000-d9cd4e185ece";
             config.Dependents = new List<string>() { "f78fdff8-0000-0000-0000-d9cd4e185ece", "f78fdff8-0000-0000-0000-d9cd4e185ece" };
             await LaunchCreateTaskFromFakeHandler(config);
         }

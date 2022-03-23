@@ -26,7 +26,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="QarnotSDK" Version="[5.4.0]" />
+    <PackageReference Include="QarnotSDK" Version="[5.4.3]" />
     <PackageReference Include="Timestamp" Version="[1.0.2]" />
   </ItemGroup>
 

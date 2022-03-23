@@ -24,10 +24,10 @@ namespace QarnotCLI
                 }
             }
 
-            [Option("job", Required = false, HelpText = "Uuid of the job attached to the task.")]
+            [Option("job", Required = false, HelpText = "Uuid or Shortname of the job attached to the task.")]
             public override string Job { get; set; }
 
-            [Option("pool", Required = false, HelpText = "Uuid of the pool attached to the task.")]
+            [Option("pool", Required = false, HelpText = "Uuid or Shortname of the pool attached to the task.")]
             public override string Pool { get; set; }
 
             [Option('n', "name", HelpText = "Name of the task.")]

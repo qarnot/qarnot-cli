@@ -13,7 +13,7 @@ namespace QarnotCLI
 
         BucketConfiguration ConvertBucketOption(ConfigType type, CommandApi command, Options.IBucketGetOptions option);
 
-        PoolSetConfiguration ConvertElasticPoolSetterOption(ConfigType type, CommandApi command, Options.SetPoolOptions option);
+        PoolSetElasticSettingsConfiguration ConvertElasticPoolSetterOption(ConfigType type, CommandApi command, Options.PoolElasticSettingsOptions option);
 
         DefaultRunConfiguration ConvertGenericGetterOption(ConfigType type, CommandApi command, Options.IGetOptions option);
 
@@ -308,9 +308,9 @@ namespace QarnotCLI
             return config;
         }
 
-        public PoolSetConfiguration ConvertElasticPoolSetterOption(ConfigType type, CommandApi command, Options.SetPoolOptions option)
+        public PoolSetElasticSettingsConfiguration ConvertElasticPoolSetterOption(ConfigType type, CommandApi command, Options.PoolElasticSettingsOptions option)
         {
-            PoolSetConfiguration config = new PoolSetConfiguration(type, CommandApi.Set);
+            PoolSetElasticSettingsConfiguration config = new PoolSetElasticSettingsConfiguration(type, CommandApi.Set);
             SetDefaultRunConfigurationOption(config, type, command, option);
 
             config.ElasticMinimumTotalNodes = option.ElasticMinimumTotalNodes;
@@ -412,8 +412,8 @@ namespace QarnotCLI
             config.Labels = (option.Labels?.Any() ?? false) ? option.Labels.ToList() : config.Labels;
             config.Resources = option.Resources?.ToList().Count > 0 ? option.Resources?.ToList() : config.Resources;
             config.InstanceCount = option.InstanceCount > 0 ? option.InstanceCount : config.InstanceCount;
-            config.JobUuid = option.Job ?? config.JobUuid;
-            config.PoolUuid = option.Pool ?? config.PoolUuid;
+            config.JobUuidOrShortname = option.Job ?? config.JobUuidOrShortname;
+            config.PoolUuidOrShortname = option.Pool ?? config.PoolUuidOrShortname;
             config.IsElastic = option.IsElastic ? option.IsElastic : config.IsElastic;
             config.IsDependents = option.IsDependents ? option.IsDependents : config.IsDependents;
             config.Result = option.Result ?? config.Result;

@@ -282,9 +282,9 @@ namespace QarnotCLI
     /// <summary>
     /// Configuration for the QPool Elastic info.
     /// </summary>
-    public class PoolSetConfiguration : DefaultRunConfiguration
+    public class PoolSetElasticSettingsConfiguration : DefaultRunConfiguration
     {
-        public PoolSetConfiguration(ConfigType type, CommandApi command)
+        public PoolSetElasticSettingsConfiguration(ConfigType type, CommandApi command)
             : base(type, command)
         {
         }
@@ -371,9 +371,9 @@ namespace QarnotCLI
 
         public bool IsElastic { get; set; }
 
-        public string JobUuid { get; set; }
+        public string JobUuidOrShortname { get; set; }
 
-        public string PoolUuid { get; set; }
+        public string PoolUuidOrShortname { get; set; }
 
         public uint ElasticMinimumTotalNodes { get; set; }
 

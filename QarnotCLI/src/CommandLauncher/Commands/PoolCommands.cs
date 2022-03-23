@@ -32,12 +32,12 @@ namespace QarnotCLI
         }
     }
 
-    public class SetPoolCommand : ICommand<QPool, CommandValues.GenericInfoCommandValue>
+    public class SetPoolElasticSettingsCommand : ICommand<QPool, CommandValues.GenericInfoCommandValue>
     {
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("Command pool : Pool name " + pool.Name);
-            PoolSetConfiguration config = iconfig as PoolSetConfiguration;
+            PoolSetElasticSettingsConfiguration config = iconfig as PoolSetElasticSettingsConfiguration;
             CLILogs.Debug("Command pool : Set Pool Elastic info");
             pool.ElasticMinimumTotalNodes = config.ElasticMinimumTotalNodes == default(int) ? pool.ElasticMinimumTotalNodes : config.ElasticMinimumTotalNodes;
             pool.ElasticMaximumTotalNodes = config.ElasticMaximumTotalNodes == default(int) ? pool.ElasticMaximumTotalNodes : config.ElasticMaximumTotalNodes;

@@ -109,7 +109,7 @@ namespace QarnotCLI
             {
                 CreateConfiguration createConfig = (CreateConfiguration)config;
                 if (string.IsNullOrEmpty(createConfig.Name) ||
-                    (string.IsNullOrEmpty(createConfig.Profile) && string.IsNullOrEmpty(createConfig.PoolUuid) && string.IsNullOrEmpty(createConfig.JobUuid)) ||
+                    (string.IsNullOrEmpty(createConfig.Profile) && string.IsNullOrEmpty(createConfig.PoolUuidOrShortname) && string.IsNullOrEmpty(createConfig.JobUuidOrShortname)) ||
                     (createConfig.InstanceCount == 0 && string.IsNullOrEmpty(createConfig.Range)) ||
                     (createConfig.InstanceCount != 0 && !string.IsNullOrEmpty(createConfig.Range)))
                 {
@@ -198,6 +198,7 @@ namespace QarnotCLI
                                                     Options.ListPoolOptions,
                                                     Options.InfoPoolOptions,
                                                     Options.SetPoolOptions,
+                                                    Options.SetPoolElasticSettingsOptions,
                                                     Options.DeletePoolOptions,
                                                     Options.UpdatePoolResourcesOptions>(argv);
 
@@ -209,6 +210,7 @@ namespace QarnotCLI
                 (Options.InfoPoolOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.Info, o),
                 (Options.DeletePoolOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.Delete, o),
                 (Options.SetPoolOptions o) => result = this.CreateConfig.ConvertElasticPoolSetterOption(ConfigType.Pool, CommandApi.Set, o),
+                (Options.SetPoolElasticSettingsOptions o) => result = this.CreateConfig.ConvertElasticPoolSetterOption(ConfigType.Pool, CommandApi.Set, o),
                 (Options.UpdatePoolResourcesOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.UpdateResources, o),
                 err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
