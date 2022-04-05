@@ -24,13 +24,14 @@ namespace QarnotCLI.Test
         public void CreateBucketOptionsCheckTestParsArg()
         {
             string name = "NAME";
+            uint ttl = 36000;
             string[] argv = null;
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
             BucketConfiguration confset = null;
 
-            argv = new string[] { "bucket", "create", "--name", name };
+            argv = new string[] { "bucket", "create", "--name", name, "--ttl", ttl.ToString() };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is BucketConfiguration))
@@ -41,6 +42,7 @@ namespace QarnotCLI.Test
             confset = (BucketConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Bucket);
             Assert.AreEqual(confset.Name, name);
+            Assert.AreEqual(ttl, confset.CacheTTL);
 
             argv = new string[] { "bucket", "create", "-n", name };
             iConfSet = parser.Parse(argv);
@@ -53,6 +55,7 @@ namespace QarnotCLI.Test
             confset = (BucketConfiguration)iConfSet;
             Assert.AreEqual(confset.Type, ConfigType.Bucket);
             Assert.AreEqual(confset.Name, name);
+            Assert.IsNull(confset.CacheTTL);
             commandLineParser.Dispose();
         }
 
@@ -95,6 +98,45 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Name, name);
 
             argv = new string[] { "bucket", "set", "-n", name, "--local-folder", folder };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is BucketConfiguration))
+            {
+                throw new Exception("return value is not ConfigurationBucket ");
+            }
+
+            confset = (BucketConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Bucket);
+            Assert.AreEqual(confset.Command, CommandApi.Upload);
+            Assert.AreEqual(confset.Name, name);
+            commandLineParser.Dispose();
+        }
+
+        [Test]
+        public void PutBucketOptionsCheckTestParsArg()
+        {
+            string name = "NAME";
+            string folder = "/my/folder/";
+            string[] argv = null;
+            var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+            BucketConfiguration confset = null;
+
+            argv = new string[] { "bucket", "put", "--name", name, "--local-folder", folder };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is BucketConfiguration))
+            {
+                throw new Exception("return value is not ConfigurationBucket ");
+            }
+
+            confset = (BucketConfiguration)iConfSet;
+            Assert.AreEqual(confset.Type, ConfigType.Bucket);
+            Assert.AreEqual(confset.Command, CommandApi.Upload);
+            Assert.AreEqual(confset.Name, name);
+
+            argv = new string[] { "bucket", "put", "-n", name, "--local-folder", folder };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is BucketConfiguration))

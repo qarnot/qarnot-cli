@@ -40,7 +40,8 @@ namespace QarnotCLI.Test
         public Connection CreateConnection(IConfiguration config)
         {
             return new ConnectionOverrider("http://localhost", "http://localhost", "Token", httpClientHandler: FakeHTTP, !FakeConfig?.ApiConnection.DisableBucketPathsSanitization ?? true) {
-                StorageAccessKey = "test@test.test"
+                StorageAccessKey = "test@test.test",
+                S3HttpClientFactory = !FakeConfig?.ApiConnection.StorageUnsafeSsl ?? false ? new UnsafeS3HttpClientFactory(): null
             };
         }
     }

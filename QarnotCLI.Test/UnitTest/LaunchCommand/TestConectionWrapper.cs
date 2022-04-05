@@ -35,6 +35,7 @@ namespace QarnotCLI.Test
             info.StorageUri = "https://storageuri.com";
             info.AccountEmail = "accountemail@test.com";
             info.ForcePathStyle = true;
+            info.StorageUnsafeSsl = true;
             mockAStorage.Setup(foo => foo.ApiConnection).Returns(info);
 
             IConfiguration config = mockAStorage.Object;
@@ -45,6 +46,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(new Uri("https://storageuri.com/"), connection.StorageUri);
             Assert.AreEqual(true, connection.ForceStoragePathStyle);
             Assert.AreEqual("accountemail@test.com", connection.StorageAccessKey);
+            Assert.IsInstanceOf<UnsafeS3HttpClientFactory>(connection.S3HttpClientFactory);
         }
     }
 }

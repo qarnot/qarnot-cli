@@ -10,7 +10,7 @@ namespace QarnotCLI
     public partial class Options
     {
         [Verb("pool create", HelpText = "Create and launch a new pool.")]
-        public class CreatePoolOptions : ACreateOptions, IElasticityOptions
+        public class CreatePoolOptions : ACreateOptions, IElasticityOptions, IPrivilegesOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -34,7 +34,7 @@ namespace QarnotCLI
             [Option('p', "profile", HelpText = "(Required) Name of the profile used for the pool.")]
             public override string Profile { get; set; }
 
-            [Option('i', "instanceNodes", HelpText = "(Required) instance count of the pool.")]
+            [Option('i', "instanceNodes", HelpText = "(Required if not elastic) instance count of the pool.")]
             public override uint InstanceCount { get; set; }
 
             [Option('e', "pool-is-elastic", HelpText = "The pool create is elastic.")]
@@ -58,11 +58,11 @@ namespace QarnotCLI
             [Option('r', "resources", Required = false, HelpText = "Name of the buckets of the pool.")]
             public override IEnumerable<string> Resources { get; set; }
 
-            public virtual uint ElasticMinimumTotalNodes { get; set; }
+            public virtual uint ElasticMinimumTotalSlots { get; set; }
 
-            public virtual uint ElasticMaximumTotalNodes { get; set; }
+            public virtual uint ElasticMaximumTotalSlots { get; set; }
 
-            public virtual uint ElasticMinimumIdlingNodes { get; set; }
+            public virtual uint ElasticMinimumIdlingSlots { get; set; }
 
             public virtual uint ElasticResizePeriod { get; set; }
 
@@ -72,6 +72,10 @@ namespace QarnotCLI
 
             [Option("tasks-wait-for-synchronization", Required = false, HelpText = "Have all the pool's tasks wait for the resources to be synchronized before running if the pool resources are updated before the task submission. (set to true or false, default: false)")]
             public override bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
+            public virtual bool? ExportApiAndStorageCredentialsInEnvironment { get; set; }
+
+            [Option("ttl", Required = false, HelpText = "Default TTL for the pool resources cache (in seconds). Default is 7776000s.")]
+            public override uint? DefaultResourcesCacheTTLSec { get; set; }
         }
 
         [Verb("pool list", HelpText = "List the running pools.")]
@@ -162,7 +166,7 @@ namespace QarnotCLI
                     yield return new Example(
                         "Classic usage",
                         new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
-                        new SetPoolOptions { Id = "Pool Uuid", ElasticMinimumTotalNodes = 2, ElasticMaximumTotalNodes = 10});
+                        new SetPoolOptions { Id = "Pool Uuid", ElasticMinimumTotalSlots = 2, ElasticMaximumTotalSlots = 10});
                 }
             }
         }
@@ -178,18 +182,18 @@ namespace QarnotCLI
                     yield return new Example(
                         "Classic usage",
                         new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
-                        new SetPoolElasticSettingsOptions { Id = "Pool Uuid", ElasticMinimumTotalNodes = 2, ElasticMaximumTotalNodes = 10});
+                        new SetPoolElasticSettingsOptions { Id = "Pool Uuid", ElasticMinimumTotalSlots = 2, ElasticMaximumTotalSlots = 10});
                 }
             }
         }
 
         public class PoolElasticSettingsOptions : APoolGetOptions, IElasticityOptions
         {
-            public virtual uint ElasticMinimumTotalNodes { get; set; }
+            public virtual uint ElasticMinimumTotalSlots { get; set; }
 
-            public virtual uint ElasticMaximumTotalNodes { get; set; }
+            public virtual uint ElasticMaximumTotalSlots { get; set; }
 
-            public virtual uint ElasticMinimumIdlingNodes { get; set; }
+            public virtual uint ElasticMinimumIdlingSlots { get; set; }
 
             public virtual uint ElasticResizePeriod { get; set; }
 

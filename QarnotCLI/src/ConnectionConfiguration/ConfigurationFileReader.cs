@@ -38,6 +38,12 @@ namespace QarnotCLI
                 case "disable-path-sanitization":
                     connectionVariables.SetDisableBucketPathsSanitizationString(splitline[1]);
                     break;
+                case "unsafe-ssl":
+                    connectionVariables.SetUnsafeSslString(splitline[1]);
+                    break;
+                case "storage-unsafe-ssl":
+                    connectionVariables.SetStorageUnsafeSslString(splitline[1]);
+                    break;
             }
         }
 

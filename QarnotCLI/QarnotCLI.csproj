@@ -3,7 +3,7 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <AssemblyName>qarnot</AssemblyName>
-    <Version>1.11.0</Version>
+    <Version>1.13.0</Version>
     <TargetFramework>net5.0</TargetFramework>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Qarnot computing</Authors>
@@ -19,14 +19,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Newtonsoft.Json" Version="[12.0.3]" />
+    <PackageReference Include="Newtonsoft.Json" Version="[13.0.1]" />
     <PackageReference Include="CommandLineParser" Version="[2.7.0]" />
     <PackageReference Include="Octokit" Version="[0.44.0]" />
     <PackageReference Include="MSBuildGitHash" Version="[2.0.1]">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="QarnotSDK" Version="[5.4.3]" />
+    <PackageReference Include="QarnotSDK" Version="[5.5.3]" />
     <PackageReference Include="Timestamp" Version="[1.0.2]" />
   </ItemGroup>
 

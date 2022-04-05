@@ -44,10 +44,10 @@ When you use the CLI for the first time you need to set the configuration :
 |task|wait|`./qarnot task --id bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3`|
 |task|abort|`./qarnot task abort --all`|
 |task|delete|`./qarnot task delete --tags TAG1`|
-|pool|create|`./qarnot task create --instanceNodes 4 --name "Pool name" --profile docker-batch --tags TAG1 --pool-is-elastic --min-node 3 --max-node 5 `|
+|pool|create|`./qarnot task create --name "Pool name" --profile docker-batch --tags TAG1 --pool-is-elastic --min-slot 3 --max-slot 5 `|
 |pool|infos|`./qarnot pool infos --name "Pool name"`|
 |pool|list|`./qarnot pool list`|
-|pool|set|`./qarnot pool set --id bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --min-node 2`|
+|pool|set|`./qarnot pool set --id bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --min-slot 2`|
 |pool|abort|`./qarnot pool abort --all`|
 |pool|delete|`./qarnot pool delete --tags TAG1`|
 |job|create|`./qarnot job create  --name "Job name"`|

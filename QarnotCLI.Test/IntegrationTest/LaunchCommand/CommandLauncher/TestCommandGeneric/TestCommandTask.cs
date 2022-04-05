@@ -41,14 +41,14 @@ namespace QarnotCLI.Test
         [Test]
         public async Task InfoTaskFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
+            FakeHTTP.ReturnMessage = HttpTaskObject.TaskResponseBody;
             ConfigType type = ConfigType.Task;
             CommandApi command = CommandApi.Info;
 
             var commandLauncher = LaunchFactory.CreateLauncher(type, command);
 
             string returnString = await commandLauncher.RunAndPrintCommandAsync(
-                new DefaultRunConfiguration(type, command) { Name = "task_name1" },
+                new DefaultRunConfiguration(type, command) { Name = "task_name" },
                 FalsePrinter);
 
             string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";

@@ -70,6 +70,8 @@ namespace QarnotCLI
 
             public virtual uint? MaxRetriesPerInstance { get; set; }
 
+            public virtual uint? DefaultResourcesCacheTTLSec { get; set; }
+
         }
 
         public abstract class AGetOptions : AOptions, IGetOptions

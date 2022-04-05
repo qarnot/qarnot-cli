@@ -16,6 +16,9 @@ namespace QarnotCLI
 
         private bool? disableBucketPathsSanitization;
 
+        private bool? unsafeSsl;
+        private bool? storageUnsafeSsl;
+
         public string Token
         {
             get { return string.IsNullOrWhiteSpace(token) ? null : token; }
@@ -50,6 +53,18 @@ namespace QarnotCLI
         {
             get { return disableBucketPathsSanitization == null ? false : disableBucketPathsSanitization.Value; }
             set { disableBucketPathsSanitization = value; }
+        }
+
+        public bool UnsafeSsl
+        {
+            get { return unsafeSsl == null ? false : unsafeSsl.Value; }
+            set { unsafeSsl = value; }
+        }
+
+        public bool StorageUnsafeSsl
+        {
+            get { return storageUnsafeSsl == null ? false : storageUnsafeSsl.Value; }
+            set { storageUnsafeSsl = value; }
         }
 
         public string SetToken
@@ -108,6 +123,42 @@ namespace QarnotCLI
             get { return disableBucketPathsSanitization; }
         }
 
+        public void SetUnsafeSslString(string useUnsafeSsl)
+        {
+            if (!string.IsNullOrEmpty(useUnsafeSsl))
+            {
+                unsafeSsl = Convert.ToBoolean(useUnsafeSsl);
+            }
+        }
+
+        public bool? SetUnsafeSsl
+        {
+            set { unsafeSsl = unsafeSsl.HasValue ? unsafeSsl : value; }
+        }
+
+        public bool? GetUnsafeSsl
+        {
+            get { return unsafeSsl; }
+        }
+
+        public void SetStorageUnsafeSslString(string storageUnsafe)
+        {
+            if (!string.IsNullOrEmpty(storageUnsafe))
+            {
+                storageUnsafeSsl = Convert.ToBoolean(storageUnsafe);
+            }
+        }
+
+        public bool? SetStorageUnsafeSsl
+        {
+            set { storageUnsafeSsl = storageUnsafeSsl.HasValue ? storageUnsafeSsl : value; }
+        }
+
+        public bool? GetStorageUnsafeSsl
+        {
+            get { return storageUnsafeSsl; }
+        }
+
         public bool IsComplete()
         {
             return !(string.IsNullOrWhiteSpace(token) ||
@@ -123,6 +174,8 @@ namespace QarnotCLI
             SetForcePathStyle = connectionInformation.GetForcePathStyle;
             SetAccountEmail = connectionInformation.AccountEmail;
             SetDisableBucketPathsSanitization = connectionInformation.GetDisableBucketPathsSanitization;
+            SetUnsafeSsl = connectionInformation.GetUnsafeSsl;
+            SetStorageUnsafeSsl = connectionInformation.GetStorageUnsafeSsl;
         }
 
         public override string ToString()
@@ -131,8 +184,10 @@ namespace QarnotCLI
                 "Api:" + ApiUri + Environment.NewLine +
                 "Storage:" + StorageUri + Environment.NewLine +
                 "AccountEmail:" + AccountEmail + Environment.NewLine +
-                "ForceStoragePathStyle:" + ForcePathStyle.ToString()+ Environment.NewLine +
-                "DisableBucketPathsSanitization:" + DisableBucketPathsSanitization.ToString();
+                "ForceStoragePathStyle:" + ForcePathStyle.ToString() + Environment.NewLine +
+                "DisableBucketPathsSanitization:" + DisableBucketPathsSanitization.ToString() + Environment.NewLine +
+                "UnsafeSsl:" + UnsafeSsl.ToString() + Environment.NewLine +
+                "StorageUnsafeSsl:" + StorageUnsafeSsl.ToString();
         }
     }
 }

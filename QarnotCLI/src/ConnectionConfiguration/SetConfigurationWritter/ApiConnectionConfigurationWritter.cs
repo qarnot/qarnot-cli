@@ -122,6 +122,14 @@ namespace QarnotCLI
                 {
                     FileWriter.Write("disable-path-sanitization", connectionInformation.DisableBucketPathsSanitization.ToString(), fs);
                 }
+                if (connectionInformation.GetUnsafeSsl.HasValue)
+                {
+                    FileWriter.Write("unsafe-ssl", connectionInformation.UnsafeSsl.ToString(), fs);
+                }
+                if (connectionInformation.GetStorageUnsafeSsl.HasValue)
+                {
+                    FileWriter.Write("storage-unsafe-ssl", connectionInformation.StorageUnsafeSsl.ToString(), fs);
+                }
             }
         }
     }

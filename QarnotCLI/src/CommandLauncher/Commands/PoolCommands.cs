@@ -39,9 +39,9 @@ namespace QarnotCLI
             CLILogs.Debug("Command pool : Pool name " + pool.Name);
             PoolSetElasticSettingsConfiguration config = iconfig as PoolSetElasticSettingsConfiguration;
             CLILogs.Debug("Command pool : Set Pool Elastic info");
-            pool.ElasticMinimumTotalNodes = config.ElasticMinimumTotalNodes == default(int) ? pool.ElasticMinimumTotalNodes : config.ElasticMinimumTotalNodes;
-            pool.ElasticMaximumTotalNodes = config.ElasticMaximumTotalNodes == default(int) ? pool.ElasticMaximumTotalNodes : config.ElasticMaximumTotalNodes;
-            pool.ElasticMinimumIdlingNodes = config.ElasticMinimumIdlingNodes == default(int) ? pool.ElasticMinimumIdlingNodes : config.ElasticMinimumIdlingNodes;
+            pool.ElasticMinimumTotalSlots = config.ElasticMinimumTotalSlots == default(int) ? pool.ElasticMinimumTotalSlots : config.ElasticMinimumTotalSlots;
+            pool.ElasticMaximumTotalSlots = config.ElasticMaximumTotalSlots == default(int) ? pool.ElasticMaximumTotalSlots : config.ElasticMaximumTotalSlots;
+            pool.ElasticMinimumIdlingSlots = config.ElasticMinimumIdlingSlots == default(int) ? pool.ElasticMinimumIdlingSlots : config.ElasticMinimumIdlingSlots;
             pool.ElasticResizePeriod = config.ElasticResizePeriod == default(int) ? pool.ElasticResizePeriod : config.ElasticResizePeriod;
             pool.ElasticResizeFactor = config.ElasticResizeFactor == default(int) ? pool.ElasticResizeFactor : config.ElasticResizeFactor;
             pool.ElasticMinimumIdlingTime = config.ElasticMinimumIdlingTime == default(int) ? pool.ElasticMinimumIdlingTime : config.ElasticMinimumIdlingTime;

@@ -67,7 +67,7 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public void GetValueTestDasableBucketPathSanitization()
+        public void GetValueTestDisableBucketPathSanitization()
         {
             APIConnectionInformation apiInformation = new APIConnectionInformation();
             string line = "disable-path-sanitization=true";
@@ -75,6 +75,28 @@ namespace QarnotCLI.Test
             var fileinfo = new ConfigurationFileReader();
             fileinfo.GetValue(line, apiInformation);
             Assert.AreEqual(apiInformation.DisableBucketPathsSanitization, true);
+        }
+
+        [Test]
+        public void GetValueTestUnsafeSsl()
+        {
+            APIConnectionInformation apiInformation = new APIConnectionInformation();
+            string line = "unsafe-ssl=true";
+
+            var fileinfo = new ConfigurationFileReader();
+            fileinfo.GetValue(line, apiInformation);
+            Assert.AreEqual(apiInformation.UnsafeSsl, true);
+        }
+
+        [Test]
+        public void GetValueTestStorageUnsafeSsl()
+        {
+            APIConnectionInformation apiInformation = new APIConnectionInformation();
+            string line = "storage-unsafe-ssl=true";
+
+            var fileinfo = new ConfigurationFileReader();
+            fileinfo.GetValue(line, apiInformation);
+            Assert.AreEqual(apiInformation.StorageUnsafeSsl, true);
         }
 
         [Test]
@@ -161,7 +183,9 @@ namespace QarnotCLI.Test
                 "storage=BUCKET",
                 "account-email=EMAIL",
                 "force-path=true",
-                "disable-path-sanitization=true"
+                "disable-path-sanitization=true",
+                "unsafe-ssl=true",
+                "storage-unsafe-ssl=true"
             };
             QarnotCLI.APIConnectionInformation apiInformation = fileinfo.ParseLines(lines);
             Assert.AreEqual(apiInformation.Token, "TOKEN");
@@ -170,6 +194,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(apiInformation.AccountEmail, "EMAIL");
             Assert.AreEqual(apiInformation.ForcePathStyle, true);
             Assert.AreEqual(true, apiInformation.DisableBucketPathsSanitization);
+            Assert.AreEqual(true, apiInformation.UnsafeSsl);
+            Assert.AreEqual(true, apiInformation.StorageUnsafeSsl);
         }
     }
 }

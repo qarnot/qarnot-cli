@@ -106,6 +106,10 @@ namespace QarnotCLI.Test
 
             public static bool? DisableSanitization { get; set; } = true;
 
+            public static bool? UnsafeSsl { get; set; } = false;
+
+            public static bool? StorageUnsafeSsl { get; set; } = false;
+
             public APIConnectionInformation ReadFile(string filePath)
             {
                 var api = new APIConnectionInformation();
@@ -115,6 +119,8 @@ namespace QarnotCLI.Test
                 api.AccountEmail = AccountEmail;
                 api.ForcePathStyle = ForcePath.Value;
                 api.DisableBucketPathsSanitization = DisableSanitization.Value;
+                api.UnsafeSsl = UnsafeSsl.Value;
+                api.StorageUnsafeSsl = StorageUnsafeSsl.Value;
                 return api;
             }
         }
@@ -236,6 +242,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(Writer.Checker["account-email"], FakeFileInformationGetter.AccountEmail);
             Assert.AreEqual(Writer.Checker["force-path"], FakeFileInformationGetter.ForcePath.ToString());
             Assert.AreEqual(Writer.Checker["disable-path-sanitization"], FakeFileInformationGetter.DisableSanitization.ToString());
+            Assert.AreEqual(Writer.Checker["unsafe-ssl"], FakeFileInformationGetter.UnsafeSsl.ToString());
+            Assert.AreEqual(Writer.Checker["storage-unsafe-ssl"], FakeFileInformationGetter.StorageUnsafeSsl.ToString());
         }
 
         [Test]
@@ -249,6 +257,8 @@ namespace QarnotCLI.Test
             connectionInformation.AccountEmail = "email123";
             connectionInformation.ForcePathStyle = false;
             connectionInformation.DisableBucketPathsSanitization = false;
+            connectionInformation.UnsafeSsl = true;
+            connectionInformation.StorageUnsafeSsl = true;
             config.ApiConnection = connectionInformation;
 
             Set.SetConfigInformation("path123", config);
@@ -259,6 +269,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(Writer.Checker["account-email"], "email123");
             Assert.AreEqual(Writer.Checker["force-path"], "False");
             Assert.AreEqual(Writer.Checker["disable-path-sanitization"], "False");
+            Assert.AreEqual(Writer.Checker["unsafe-ssl"], "True");
+            Assert.AreEqual(Writer.Checker["storage-unsafe-ssl"], "True");
         }
     }
 }

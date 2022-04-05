@@ -74,8 +74,8 @@ namespace QarnotCLI
 
             if (!string.IsNullOrEmpty(config.Name))
             {
-                CLILogs.Debug("Retrieve QPools by name : " + config.Name);
-                pool = await connection.RetrievePoolByNameAsync(config.Name, cancellationToken: ct);
+                CLILogs.Debug("Retrieve QPools by Shortname : " + config.Name);
+                pool = await connection.RetrievePoolByShortnameAsync(config.Name, cancellationToken: ct);
             }
             else if (!string.IsNullOrEmpty(config.Id))
             {
@@ -120,8 +120,8 @@ namespace QarnotCLI
 
             if (!string.IsNullOrEmpty(config.Name))
             {
-                CLILogs.Debug("Retrieve QTasks by Name : " + config.Name);
-                task = await connection.RetrieveTaskByNameAsync(config.Name, cancellationToken: ct);
+                CLILogs.Debug("Retrieve QTasks by Shortname : " + config.Name);
+                task = await connection.RetrieveTaskByShortnameAsync(config.Name, cancellationToken: ct);
             }
             else if (!string.IsNullOrEmpty(config.Id))
             {

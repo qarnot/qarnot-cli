@@ -35,6 +35,7 @@ namespace QarnotCLI.Test
             string whitelist = "white*";
             string blacklist = "black*";
             string maxRetriesPerInstance = "23";
+            uint defaultTTL = 36000;
             string[] argv = null;
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
@@ -62,8 +63,10 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Whitelist, whitelist);
             Assert.AreEqual(confset.Blacklist, blacklist);
             Assert.AreEqual(23, confset.MaxRetriesPerInstance);
+            Assert.IsNull(confset.ExportApiAndStorageCredentialsInEnvironment);
+            Assert.IsNull(confset.DefaultResourcesCacheTTLSec);
 
-            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--range", range, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--wait-for-resources-synchronization", "false" , "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance };
+            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--range", range, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--wait-for-resources-synchronization", "false" , "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance, "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString() };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -84,6 +87,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Whitelist, whitelist);
             Assert.AreEqual(confset.Blacklist, blacklist);
             Assert.AreEqual(23, confset.MaxRetriesPerInstance);
+            Assert.AreEqual(true, confset.ExportApiAndStorageCredentialsInEnvironment);
+            Assert.AreEqual(defaultTTL, confset.DefaultResourcesCacheTTLSec);
 
             argv = new string[] { "task", "create", "-n", name, "-s", shortname, "-i", instance, "-p", profile, "-t", tags[0], tags[1], tags[2], "-c", constants[0], "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance };
             iConfSet = parser.Parse(argv);

@@ -57,12 +57,22 @@ namespace QarnotCLI
                 }
 
                 pool.IsElastic = config.IsElastic;
-                pool.ElasticMinimumTotalNodes = config.ElasticMinimumTotalNodes == default(int) ? pool.ElasticMinimumTotalNodes : config.ElasticMinimumTotalNodes;
-                pool.ElasticMaximumTotalNodes = config.ElasticMaximumTotalNodes == default(int) ? pool.ElasticMaximumTotalNodes : config.ElasticMaximumTotalNodes;
-                pool.ElasticMinimumIdlingNodes = config.ElasticMinimumIdlingNodes == default(int) ? pool.ElasticMinimumIdlingNodes : config.ElasticMinimumIdlingNodes;
+                pool.ElasticMinimumTotalSlots = config.ElasticMinimumTotalSlots == default(int) ? pool.ElasticMinimumTotalSlots : config.ElasticMinimumTotalSlots;
+                pool.ElasticMaximumTotalSlots = config.ElasticMaximumTotalSlots == default(int) ? pool.ElasticMaximumTotalSlots : config.ElasticMaximumTotalSlots;
+                pool.ElasticMinimumIdlingSlots = config.ElasticMinimumIdlingSlots == default(int) ? pool.ElasticMinimumIdlingSlots : config.ElasticMinimumIdlingSlots;
                 pool.ElasticResizePeriod = config.ElasticResizePeriod == default(int) ? pool.ElasticResizePeriod : config.ElasticResizePeriod;
                 pool.ElasticResizeFactor = config.ElasticResizeFactor == default(int) ? pool.ElasticResizeFactor : config.ElasticResizeFactor;
                 pool.ElasticMinimumIdlingTime = config.ElasticMinimumIdlingTime == default(int) ? pool.ElasticMinimumIdlingTime : config.ElasticMinimumIdlingTime;
+
+                if (config.ExportApiAndStorageCredentialsInEnvironment.HasValue)
+                {
+                    pool.Privileges.ExportApiAndStorageCredentialsInEnvironment = config.ExportApiAndStorageCredentialsInEnvironment.Value;
+                }
+
+                if (config.DefaultResourcesCacheTTLSec.HasValue)
+                {
+                    pool.DefaultResourcesCacheTTLSec = config.DefaultResourcesCacheTTLSec.Value;
+                }
 
                 CLILogs.Info("create pool");
                 return pool;
@@ -203,6 +213,17 @@ namespace QarnotCLI
                     task.MaxRetriesPerInstance = config.MaxRetriesPerInstance.Value;
                 }
 
+                if (config.ExportApiAndStorageCredentialsInEnvironment.HasValue)
+                {
+                    task.Privileges.ExportApiAndStorageCredentialsInEnvironment = config.ExportApiAndStorageCredentialsInEnvironment.Value;
+                }
+
+                if (config.DefaultResourcesCacheTTLSec.HasValue)
+                {
+                    task.DefaultResourcesCacheTTLSec = config.DefaultResourcesCacheTTLSec.Value;
+                }
+
+
                 CLILogs.Info("create task");
                 return task;
             }
@@ -301,7 +322,12 @@ namespace QarnotCLI
 
             private async Task<QBucket> CreateBucket(BucketConfiguration config, QarnotSDK.Connection connect, CancellationToken ct)
             {
-                return await connect.CreateBucketAsync(config.Name, ct);
+                var bucket = await connect.CreateBucketAsync(config.Name, ct);
+                if (config.CacheTTL.HasValue)
+                {
+                    bucket.WithCacheTTL(config.CacheTTL.Value);
+                }
+                return bucket;
             }
 
             private async Task<QBucket> LaunchBucket(QBucket bucket, CancellationToken ct)

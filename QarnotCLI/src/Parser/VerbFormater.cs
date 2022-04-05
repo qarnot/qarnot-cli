@@ -32,6 +32,7 @@ namespace QarnotCLI
                 "abort",
                 "list",
                 "delete",
+                "put",
                 "set",
                 "set-elastic-settings",
                 "get",

@@ -48,6 +48,9 @@ namespace QarnotCLI
 
             [Option("no-sanitize-bucket-paths", Required = false, HelpText = "Disable automatic sanitization of bucket paths")]
             public bool NoSanitizeBucketPaths { get; set; }
+
+            [Option("storage-unsafe-ssl", Required = false, HelpText = "Bypass SSL checks for storage connection.")]
+            public bool StorageUnsafeSsl { get; set; }
         }
     }
 }

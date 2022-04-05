@@ -69,6 +69,18 @@ namespace QarnotCLI
     }
 
     /// <summary>
+    /// The general privileges Configuration interface
+    /// </summary>
+    public interface IPrivilegesConfiguration
+    {
+        /// <summary>
+        /// Add a snap period
+        /// </summary>
+        /// <value>Time in second of the snap period.</value>
+        bool? ExportApiAndStorageCredentialsInEnvironment { get; set; }
+    }
+
+    /// <summary>
     /// Configuration for the set of the info files.
     /// </summary>
     public class LocalSetUpConfiguration : IConfiguration
@@ -203,6 +215,7 @@ namespace QarnotCLI
         public virtual string String { get; set; }
 
         public virtual string StringPath { get; set; }
+        public virtual int? CacheTTL { get; set; }
     }
 
     /// <summary>
@@ -289,11 +302,11 @@ namespace QarnotCLI
         {
         }
 
-        public uint ElasticMinimumTotalNodes { get; set; }
+        public uint ElasticMinimumTotalSlots { get; set; }
 
-        public uint ElasticMaximumTotalNodes { get; set; }
+        public uint ElasticMaximumTotalSlots { get; set; }
 
-        public uint ElasticMinimumIdlingNodes { get; set; }
+        public uint ElasticMinimumIdlingSlots { get; set; }
 
         public uint ElasticResizePeriod { get; set; }
 
@@ -305,7 +318,7 @@ namespace QarnotCLI
     /// <summary>
     /// Configuration for the QObject create info.
     /// </summary>
-    public class CreateConfiguration : IConfiguration, ISnapshotConfiguration
+    public class CreateConfiguration : IConfiguration, ISnapshotConfiguration, IPrivilegesConfiguration
     {
         public CreateConfiguration()
         {
@@ -375,11 +388,11 @@ namespace QarnotCLI
 
         public string PoolUuidOrShortname { get; set; }
 
-        public uint ElasticMinimumTotalNodes { get; set; }
+        public uint ElasticMinimumTotalSlots { get; set; }
 
-        public uint ElasticMaximumTotalNodes { get; set; }
+        public uint ElasticMaximumTotalSlots { get; set; }
 
-        public uint ElasticMinimumIdlingNodes { get; set; }
+        public uint ElasticMinimumIdlingSlots { get; set; }
 
         public uint ElasticResizePeriod { get; set; }
 
@@ -396,5 +409,9 @@ namespace QarnotCLI
         public List<string> Labels { get; set; }
 
         public uint? MaxRetriesPerInstance { get; set; }
+
+        public bool? ExportApiAndStorageCredentialsInEnvironment { get; set; }
+
+        public uint? DefaultResourcesCacheTTLSec { get; set; }
     }
 }

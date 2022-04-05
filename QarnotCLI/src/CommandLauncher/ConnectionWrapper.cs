@@ -13,7 +13,7 @@ namespace QarnotCLI
     {
         private HttpClientHandler getClientHandler(IConfiguration config)
         {
-            if (config.UnsafeSslCertificate)
+            if (config.UnsafeSslCertificate || (config?.ApiConnection?.UnsafeSsl ?? false))
             {
                return new QarnotSDK.UnsafeClientHandler();
             }
@@ -47,7 +47,8 @@ namespace QarnotCLI
                 sanitizeBucketPaths: enableSanitization,
                 showBucketWarnings: false) // the cli will display custom warnings
             {
-                StorageAccessKey = config?.ApiConnection?.AccountEmail
+                StorageAccessKey = config?.ApiConnection?.AccountEmail,
+                S3HttpClientFactory = config?.ApiConnection?.StorageUnsafeSsl ?? false ? new UnsafeS3HttpClientFactory() : null
             };
         }
     }

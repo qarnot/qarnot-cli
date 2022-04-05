@@ -30,13 +30,14 @@ namespace QarnotCLI.Test
             string[] tags = new[] { "TAG1", "TAG2", "TAG3" };
             string[] constants = new[] { "CONSTANT" };
             string[] constraints = new[] { "CONSTRAINTS" };
+            uint defaultTTL = 36000;
             string[] argv = null;
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
             argv = new string[] { "pool", "create", "--name", name, "--shortname", shortname, "--instanceNodes", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0], "--tasks-wait-for-synchronization", "false"  };
-            argv = new string[] { "pool", "create", "--name=" + name, "--shortname=" + shortname, "--instanceNodes=" + instance, "--profile=" + profile, "--tags=" + tags[0], tags[1], tags[2], "--constants=" + constants[0], "--constraints=" + constraints[0], "--tasks-wait-for-synchronization", "true" };
+            argv = new string[] { "pool", "create", "--name=" + name, "--shortname=" + shortname, "--instanceNodes=" + instance, "--profile=" + profile, "--tags=" + tags[0], tags[1], tags[2], "--constants=" + constants[0], "--constraints=" + constraints[0], "--tasks-wait-for-synchronization", "true", "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString()  };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -54,6 +55,8 @@ namespace QarnotCLI.Test
             CollectionAssert.AreEqual(confset.Constraints, constraints);
             Assert.AreEqual(confset.InstanceCount, 42);
             Assert.AreEqual(confset.TasksDefaultWaitForPoolResourcesSynchronization, true);
+            Assert.AreEqual(true, confset.ExportApiAndStorageCredentialsInEnvironment);
+            Assert.AreEqual(defaultTTL, confset.DefaultResourcesCacheTTLSec);
 
             argv = new string[] { "pool", "create", "-n", name, "-s", shortname, "-i", instance, "-p", profile, "-t", tags[0], tags[1], tags[2], "-c", constants[0] };
             iConfSet = parser.Parse(argv);
@@ -72,7 +75,30 @@ namespace QarnotCLI.Test
             CollectionAssert.AreEqual(confset.Constants, constants);
             Assert.AreEqual(confset.InstanceCount, 42);
             Assert.AreEqual(confset.TasksDefaultWaitForPoolResourcesSynchronization, false);
+            Assert.IsNull(confset.ExportApiAndStorageCredentialsInEnvironment);
+            Assert.IsNull(confset.DefaultResourcesCacheTTLSec);
             commandLineParser.Dispose();
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CreatePoolWithElasticSettingsAndNoInstanceNodesShouldNotFail(bool useLegacyNodeTerm)
+        {
+            string name = "NAME";
+            string shortname = "SHORT";
+            string minimumElasticSlots = "2";
+            string profile = "PROFILE";
+            string[] argv = null;
+            var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+
+            argv = new string[] { "pool", "create", "--name", name, "--shortname", shortname, "--profile", profile, "--pool-is-elastic", useLegacyNodeTerm ? "--min-node": "--min-slot", minimumElasticSlots};
+            var iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is CreateConfiguration))
+            {
+                throw new Exception("return value is not CreateConfiguration ");
+            }
         }
 
         [Test]
@@ -284,9 +310,10 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Id, poolUuid);
         }
 
-        [TestCase("set")]
-        [TestCase("set-elastic-settings")]
-        public void SetPoolElasticSettingsCheckTestParsArg(string verb)
+        [TestCase("set", "node")] // Legacy
+        [TestCase("set-elastic-settings", "node")]
+        [TestCase("set-elastic-settings", "slot")]
+        public void SetPoolElasticSettingsCheckTestParsArg(string verb, string elasticSlotTerm)
         {
             string poolUuid = "PoolUUID";
             string name = "NAME";
@@ -295,7 +322,7 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "pool", verb, "--name", name, "--id", poolUuid, "--min-node", "1", "--max-node", "2", "--min-idling-node", "3", "--resize-period", "4", "--resize-factor", "5", "--min-idling-time", "6" };
+            argv = new string[] { "pool", verb, "--name", name, "--id", poolUuid, $"--min-{elasticSlotTerm}", "1", $"--max-{elasticSlotTerm}", "2", $"--min-idling-{elasticSlotTerm}", "3", "--resize-period", "4", "--resize-factor", "5", "--min-idling-time", "6" };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is PoolSetElasticSettingsConfiguration))
@@ -308,9 +335,9 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Command, CommandApi.Set);
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, poolUuid);
-            Assert.AreEqual(confset.ElasticMinimumTotalNodes, 1);
-            Assert.AreEqual(confset.ElasticMaximumTotalNodes, 2);
-            Assert.AreEqual(confset.ElasticMinimumIdlingNodes, 3);
+            Assert.AreEqual(confset.ElasticMinimumTotalSlots, 1);
+            Assert.AreEqual(confset.ElasticMaximumTotalSlots, 2);
+            Assert.AreEqual(confset.ElasticMinimumIdlingSlots, 3);
             Assert.AreEqual(confset.ElasticResizePeriod, 4);
             Assert.AreEqual(confset.ElasticResizeFactor, 5);
             Assert.AreEqual(confset.ElasticMinimumIdlingTime, 6);

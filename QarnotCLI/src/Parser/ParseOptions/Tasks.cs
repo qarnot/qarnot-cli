@@ -10,7 +10,7 @@ namespace QarnotCLI
     public partial class Options
     {
         [Verb("task create", HelpText = "Create and launch a new task.")]
-        public class CreateTaskOptions : ACreateOptions, ISnapshotOptions
+        public class CreateTaskOptions : ACreateOptions, ISnapshotOptions, IPrivilegesOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -80,6 +80,10 @@ namespace QarnotCLI
 
             [Option('d', "dependents", Required = false, HelpText = "List of Uuid the task need to wait before start running.(must be use with a job with \"is-dependent\" set)")]
             public override IEnumerable<string> Dependents { get; set; }
+            public virtual bool? ExportApiAndStorageCredentialsInEnvironment { get; set; }
+
+            [Option("ttl", Required = false, HelpText = "Default TTL for the task resources cache (in seconds). Default is 7776000s.")]
+            public override uint? DefaultResourcesCacheTTLSec { get; set; }
         }
 
         [Verb("task list", HelpText = "List the running tasks.")]

@@ -24,6 +24,9 @@ namespace QarnotCLI
                 }
             }
 
+            [Option("ttl", Required = false, HelpText = "Time to live of the resource cache (in seconds). Override the task or pool default resources ttl.")]
+            public int? CacheTTL { get; set; }
+
             [Option("files", Required = false, HelpText = "File or folder to send to the bucket.")]
             public IEnumerable<string> FileList { get; set; }
 
@@ -31,8 +34,10 @@ namespace QarnotCLI
             public IEnumerable<string> FolderList { get; set; }
         }
 
-        [Verb("bucket set", HelpText = "Upload a new file, folder or string to a bucket.")]
-        public class SetBucketOptions : ABucketGetOptions
+        // TODO: Deprecate this option and remove it as its name is not explicit enough (or group it with PutBucketOptions using aliases)
+        [Verb("bucket set", HelpText = "[DEPRECATED] Upload a new file, folder or string to a bucket")]
+        [System.Obsolete("Use 'bucket put' instead")]
+        public class SetBucketOptions : BucketPutOptions
         {
             [Usage(ApplicationAlias = "qarnot")]
             public static IEnumerable<Example> Examples
@@ -45,6 +50,26 @@ namespace QarnotCLI
                     yield return new Example("Logging errors (missing name)", new SetBucketOptions { });
                 }
             }
+        }
+
+        [Verb("bucket put", HelpText = "Upload a new file, folder or string to a bucket.")]
+        public class PutBucketOptions : BucketPutOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example("Send 2 folder to a bucket folder", UnParserSettings.WithGroupSwitchesOnly(), new PutBucketOptions { Name = "Bucket-name", LocalFoldersPath = new string[] { "./folder1", "./folder2" } });
+                    yield return new Example("Send 2 file to a bucket folder", UnParserSettings.WithGroupSwitchesOnly(), new PutBucketOptions { Name = "Bucket-name", LocalFilesPath = new string[] { "./folder/file1", "./folder/file2" } });
+                    yield return new Example("Send a string to a bucket file", UnParserSettings.WithGroupSwitchesOnly(), new PutBucketOptions { Name = "Bucket-name", String = "string to send", RemoteFolderPath = "/folder/path/name.txt" });
+                    yield return new Example("Logging errors (missing name)", new PutBucketOptions { });
+                }
+            }
+        }
+
+        public class BucketPutOptions : ABucketGetOptions
+        {
 
             [Option('l', "local-folder", Group="send", Required = false, HelpText = "List of folders to send.")]
             public IEnumerable<string> LocalFoldersPath { get; set; }

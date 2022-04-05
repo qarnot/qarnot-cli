@@ -173,6 +173,7 @@ namespace QarnotCLI
             {
                 config.LocalPathFolders = bucketCreate.FolderList.ToList();
                 config.LocalPathFiles = bucketCreate.FileList.ToList();
+                config.CacheTTL = bucketCreate.CacheTTL;
             }
             else if (option is Options.SetBucketOptions bucketSet)
             {
@@ -181,6 +182,14 @@ namespace QarnotCLI
                 config.RemoteRelativePath = bucketSet.RemoteFolderPath;
                 config.StringPath = bucketSet.RemoteFolderPath;
                 config.String = bucketSet.String;
+            }
+            else if (option is Options.PutBucketOptions bucketPut)
+            {
+                config.LocalPathFolders = bucketPut.LocalFoldersPath.ToList();
+                config.LocalPathFiles = bucketPut.LocalFilesPath.ToList();
+                config.RemoteRelativePath = bucketPut.RemoteFolderPath;
+                config.StringPath = bucketPut.RemoteFolderPath;
+                config.String = bucketPut.String;
             }
             else if (option is Options.GetBucketOptions bucketGet)
             {
@@ -283,6 +292,12 @@ namespace QarnotCLI
             return config;
         }
 
+        public IPrivilegesConfiguration ConvertPrivilegesOption(IPrivilegesConfiguration config, Options.IPrivilegesOptions option)
+        {
+            config.ExportApiAndStorageCredentialsInEnvironment = option.ExportApiAndStorageCredentialsInEnvironment ?? config.ExportApiAndStorageCredentialsInEnvironment;
+            return config;
+        }
+
 
         public LocalSetUpConfiguration ConvertGenericSetterOption(ConfigType type, Options.ConfigOptions option)
         {
@@ -298,6 +313,8 @@ namespace QarnotCLI
             config.ApiConnection.AccountEmail = option.AccountEmail;
             config.ApiConnection.SetForcePathStyleString(option.ForcePathStyle);
             config.ApiConnection.DisableBucketPathsSanitization = option.NoSanitizeBucketPaths;
+            config.ApiConnection.UnsafeSsl = option.UnsafeSslCertificate;
+            config.ApiConnection.StorageUnsafeSsl = option.StorageUnsafeSsl;
 
             config.ShowConnectionInfo = option.ShowConnectionInfo;
             if (option.ShowConnectionInfo)
@@ -313,9 +330,9 @@ namespace QarnotCLI
             PoolSetElasticSettingsConfiguration config = new PoolSetElasticSettingsConfiguration(type, CommandApi.Set);
             SetDefaultRunConfigurationOption(config, type, command, option);
 
-            config.ElasticMinimumTotalNodes = option.ElasticMinimumTotalNodes;
-            config.ElasticMaximumTotalNodes = option.ElasticMaximumTotalNodes;
-            config.ElasticMinimumIdlingNodes = option.ElasticMinimumIdlingNodes;
+            config.ElasticMinimumTotalSlots = option.ElasticMinimumTotalSlots;
+            config.ElasticMaximumTotalSlots = option.ElasticMaximumTotalSlots;
+            config.ElasticMinimumIdlingSlots = option.ElasticMinimumIdlingSlots;
             config.ElasticResizePeriod = option.ElasticResizePeriod;
             config.ElasticResizeFactor = option.ElasticResizeFactor;
             config.ElasticMinimumIdlingTime = option.ElasticMinimumIdlingTime;
@@ -424,14 +441,21 @@ namespace QarnotCLI
             config.TasksDefaultWaitForPoolResourcesSynchronization = option.TasksDefaultWaitForPoolResourcesSynchronization ?? config.TasksDefaultWaitForPoolResourcesSynchronization;
             config.MaxRetriesPerInstance = option.MaxRetriesPerInstance ?? config.MaxRetriesPerInstance;
             config.WaitForPoolResourcesSynchronization = option.WaitForPoolResourcesSynchronization ?? config.WaitForPoolResourcesSynchronization;
+            config.DefaultResourcesCacheTTLSec = option.DefaultResourcesCacheTTLSec ?? config.DefaultResourcesCacheTTLSec;
             if (elasticOption != null)
             {
-                config.ElasticMinimumTotalNodes = elasticOption.ElasticMinimumTotalNodes;
-                config.ElasticMaximumTotalNodes = elasticOption.ElasticMaximumTotalNodes;
-                config.ElasticMinimumIdlingNodes = elasticOption.ElasticMinimumIdlingNodes;
+                config.ElasticMinimumTotalSlots = elasticOption.ElasticMinimumTotalSlots;
+                config.ElasticMaximumTotalSlots = elasticOption.ElasticMaximumTotalSlots;
+                config.ElasticMinimumIdlingSlots = elasticOption.ElasticMinimumIdlingSlots;
                 config.ElasticResizePeriod = elasticOption.ElasticResizePeriod;
                 config.ElasticResizeFactor = elasticOption.ElasticResizeFactor;
                 config.ElasticMinimumIdlingTime = elasticOption.ElasticMinimumIdlingTime;
+            }
+
+            Options.IPrivilegesOptions privilegesOption = option as Options.IPrivilegesOptions;
+            if (privilegesOption != null)
+            {
+                ConvertPrivilegesOption(config, privilegesOption);
             }
 
             return config;

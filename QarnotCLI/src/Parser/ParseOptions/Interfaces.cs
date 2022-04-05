@@ -87,18 +87,20 @@ namespace QarnotCLI
             bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
 
             uint? MaxRetriesPerInstance { get; set; }
+
+            uint? DefaultResourcesCacheTTLSec { get; set; }
         }
 
         public interface IElasticityOptions
         {
-            [Option("min-node", Required = false, HelpText = "Minimum node number for the pool in elastic mode.")]
-            uint ElasticMinimumTotalNodes { get; set; }
+            [Option("min-slot", Required = false, HelpText = "Minimum slot number for the pool in elastic mode.")]
+            uint ElasticMinimumTotalSlots { get; set; }
 
-            [Option("max-node", Required = false, HelpText = "Maximum node number for the pool in elastic mode.")]
-            uint ElasticMaximumTotalNodes { get; set; }
+            [Option("max-slot", Required = false, HelpText = "Maximum slot number for the pool in elastic mode.")]
+            uint ElasticMaximumTotalSlots { get; set; }
 
-            [Option("min-idling-node", Required = false, HelpText = "Minimum idling node number.")]
-            uint ElasticMinimumIdlingNodes { get; set; }
+            [Option("min-idling-slot", Required = false, HelpText = "Minimum idling slot number.")]
+            uint ElasticMinimumIdlingSlots { get; set; }
 
             [Option("resize-period", Required = false, HelpText = "Elastic Resize Period.")]
             uint ElasticResizePeriod { get; set; }
@@ -113,14 +115,29 @@ namespace QarnotCLI
             /////// BC area
             // Keep these ones for BC as the CLI was originally launched with these badly named options
             [Option("min-ling-node", Required = false, HelpText = "[DEPRECATED], use --min-idling-node instead")]
-            uint _elasticMinimumIdlingNodes_legacyBadOptionName { get { return ElasticMinimumIdlingNodes; } set { ElasticMinimumIdlingNodes = value; } }
+            uint _elasticMinimumIdlingNodes_legacyBadOptionName { get { return ElasticMinimumIdlingSlots; } set { ElasticMinimumIdlingSlots = value; } }
 
             [Option("min-ling-time", Required = false, HelpText = "[DEPRECATED] Use --min-idling-time instead")]
             uint _elasticMinimumIdlingTime_legacyBadOptionName { get { return ElasticMinimumIdlingTime; } set { ElasticMinimumIdlingTime = value; } }
 
             [Option("resize-periode", Required = false, HelpText = "[DEPRECATED] use --resize-period instead")]
             uint _elasticResizePeriod_legacyBadOptionName { get { return ElasticResizePeriod; } set { ElasticResizePeriod = value; } }
+
+            [Option("min-node", Required = false, HelpText = "[DEPRECATED] Use --min-slot instead")]
+            uint _elasticMinimumTotalNodes { get => ElasticMinimumTotalSlots; set { ElasticMinimumTotalSlots = value; } }
+
+            [Option("max-node", Required = false, HelpText = "[DEPRECATED] Use --max-slot instead")]
+            uint _elasticMaximumTotalNodes  { get => ElasticMaximumTotalSlots; set { ElasticMaximumTotalSlots = value; } }
+
+            [Option("min-idling-node", Required = false, HelpText = "[DEPRECATED] Use --min-idling-slot instead")]
+            uint _elasticMinimumIdlingNodes { get => ElasticMinimumIdlingSlots; set { ElasticMinimumIdlingSlots = value; } }
             /////// BC area
+        }
+
+        public interface IPrivilegesOptions
+        {
+            [Option("export-credentials-to-env", Required = false, HelpText = "Activate the exportation of the api and storage credentials to the task environment. Default is false.")]
+            bool? ExportApiAndStorageCredentialsInEnvironment { get; set; }
         }
 
         public interface IGetOptions : IOptions

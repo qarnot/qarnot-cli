@@ -23,12 +23,18 @@ namespace QarnotCLI.Test
 
             public bool EnvForce { get; set; }
 
-            public FakeGetEnvConnectionInformation(bool envToken, bool envApi, bool envStorage, bool envForce = false)
+            public bool EnvUnsafe { get; set; }
+
+            public bool EnvStorageUnsafe { get; set; }
+
+            public FakeGetEnvConnectionInformation(bool envToken, bool envApi, bool envStorage, bool envForce = false, bool envUnsafe = false, bool envStorageUnsafe = false)
             {
                 EnvToken = envToken;
                 EnvApi = envApi;
                 EnvStorage = envStorage;
                 EnvForce = envForce;
+                EnvUnsafe = envUnsafe;
+                EnvStorageUnsafe = envStorageUnsafe;
             }
 
             public bool GetEnvironmentVariableBoolOrElse(string envName, bool elseValue = false)
@@ -61,6 +67,16 @@ namespace QarnotCLI.Test
                 if (EnvStorage)
                 {
                     api.SetForcePathStyle = true;
+                }
+
+                if (EnvUnsafe)
+                {
+                    api.SetUnsafeSsl = true;
+                }
+
+                if (EnvStorageUnsafe)
+                {
+                    api.SetStorageUnsafeSsl = true;
                 }
             }
         }
@@ -103,7 +119,7 @@ namespace QarnotCLI.Test
                     Token = "token_file",
                     ApiUri = "api_file",
                     StorageUri = "storage_file",
-                    AccountEmail = "email_file",
+                    AccountEmail = "email_file"
                 };
                 return api;
             }
@@ -128,7 +144,9 @@ namespace QarnotCLI.Test
                 ApiUri = null,
                 StorageUri = null,
                 SetForcePathStyle = null,
-                SetDisableBucketPathsSanitization = null
+                SetDisableBucketPathsSanitization = null,
+                SetUnsafeSsl = null,
+                SetStorageUnsafeSsl = null
             };
             ret.RetrieveConfigurationInformation(api);
             Assert.AreEqual(api.Token, "token0");
@@ -138,12 +156,16 @@ namespace QarnotCLI.Test
             Assert.AreEqual(api.GetForcePathStyle, null);
             Assert.AreEqual(false, api.DisableBucketPathsSanitization);
             Assert.AreEqual(null, api.GetDisableBucketPathsSanitization);
+            Assert.AreEqual(false, api.UnsafeSsl);
+            Assert.AreEqual(null, api.GetUnsafeSsl);
+            Assert.AreEqual(false, api.StorageUnsafeSsl);
+            Assert.AreEqual(null, api.GetStorageUnsafeSsl);
         }
 
         [Test]
         public void TestAllEnvVarSet()
         {
-            var fakeGetEnvConnectionInformation = new FakeGetEnvConnectionInformation(true, true, true);
+            var fakeGetEnvConnectionInformation = new FakeGetEnvConnectionInformation(true, true, true, envUnsafe:true, envStorageUnsafe:true);
             FakeEnvironmentPathGetter fakeEnvironmentPathGetter = new FakeEnvironmentPathGetter();
             FakeFileInformationGetter fakeFileInformationGetter = new FakeFileInformationGetter();
             var ret = new ApiConnectionConfigurationRetriever(fakeEnvironmentPathGetter, fakeGetEnvConnectionInformation, fakeFileInformationGetter);
@@ -159,6 +181,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(api.ApiUri, "api_env");
             Assert.AreEqual(api.StorageUri, "storage_env");
             Assert.AreEqual(api.ForcePathStyle, true);
+            Assert.AreEqual(api.UnsafeSsl, true);
+            Assert.AreEqual(api.StorageUnsafeSsl, true);
         }
 
         [Test]
@@ -202,6 +226,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(api.Token, "token_file");
             Assert.AreEqual(api.ApiUri, "api_file");
             Assert.AreEqual(api.StorageUri, "storage_file");
+            Assert.AreEqual(false, api.UnsafeSsl);
+            Assert.AreEqual(false, api.StorageUnsafeSsl);
         }
     }
 }

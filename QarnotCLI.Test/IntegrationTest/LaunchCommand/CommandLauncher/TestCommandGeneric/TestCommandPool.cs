@@ -41,17 +41,17 @@ namespace QarnotCLI.Test
         [Test]
         public async Task InfoPoolFromFakeHandlerReturnTheGoodUuid()
         {
-            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
+            FakeHTTP.ReturnMessage = HttpPoolObject.PoolResponseBody;
             ConfigType type = ConfigType.Pool;
             CommandApi command = CommandApi.Info;
 
             var commandLauncher = LaunchFactory.CreateLauncher(type, command);
 
             string returnString = await commandLauncher.RunAndPrintCommandAsync(
-                new DefaultRunConfiguration(type, command) { Name = "Pool Name Test List1" },
+                new DefaultRunConfiguration(type, command) { Name = "pool_name" },
                 FalsePrinter);
 
-            string expected1 = "796a5321-0001-4a5c-2f42-54cce169dff8";
+            string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
             string expected2 = "CreationDate\": \"2019-11-08T10:54:11Z";
             StringAssert.Contains(expected1, returnString);
             StringAssert.Contains(expected2, returnString);

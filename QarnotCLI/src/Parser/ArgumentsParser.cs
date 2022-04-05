@@ -174,7 +174,7 @@ namespace QarnotCLI
                 CreateConfiguration createConfig = (CreateConfiguration)config;
                 if (string.IsNullOrEmpty(createConfig.Name) ||
                     string.IsNullOrEmpty(createConfig.Profile) ||
-                    createConfig.InstanceCount == 0)
+                    (createConfig.InstanceCount == 0 && !createConfig.IsElastic))
                 {
                     return false;
                 }
@@ -289,6 +289,7 @@ namespace QarnotCLI
                                                     Options.ListBucketOptions,
                                                     Options.GetBucketOptions,
                                                     Options.SetBucketOptions,
+                                                    Options.PutBucketOptions,
                                                     Options.SyncFromBucketOptions,
                                                     Options.SyncToBucketOptions,
                                                     Options.TerminateBucketOptions>(argv);
@@ -299,6 +300,7 @@ namespace QarnotCLI
                 (Options.CreateBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Create, o),
                 (Options.GetBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Download, o),
                 (Options.SetBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Upload, o),
+                (Options.PutBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Upload, o),
                 (Options.SyncFromBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.SyncFrom, o),
                 (Options.SyncToBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.SyncTo, o),
                 (Options.ListBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.List, o),
