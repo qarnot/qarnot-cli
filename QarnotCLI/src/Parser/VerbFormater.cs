@@ -42,6 +42,7 @@ namespace QarnotCLI
                 "sync-from",
                 "sync-to",
                 "update-resources",
+                "update-constant",
             };
 
             if (whiteListCommand.Contains(command) && whiteListSubCommand.Contains(subCommand))

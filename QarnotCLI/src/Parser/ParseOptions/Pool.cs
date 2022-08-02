@@ -138,6 +138,26 @@ namespace QarnotCLI
             }
         }
 
+        [Verb("pool update-constant", HelpText = "Update a constant of a running pool.")]
+        public class UpdatePoolConstantOptions : APoolGetOptions, IConstantOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example(
+                        "Classic usage",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new UpdatePoolConstantOptions { Id = "Pool Uuid", ConstantName = "QARNOT_SECRET__SUPER_TOKEN", ConstantValue = "new-token" });
+                }
+            }
+
+            public string ConstantName { get; set; }
+
+            public string ConstantValue { get; set; }
+        }
+
         [Verb("pool delete", HelpText = "Delete the pool selected.")]
         public class DeletePoolOptions : APoolGetOptions
         {

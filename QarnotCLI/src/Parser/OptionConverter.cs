@@ -19,6 +19,8 @@ namespace QarnotCLI
 
         StdConfiguration ConvertStdOption(ConfigType type, CommandApi command, Options.AStdOptions option);
 
+        ConstantUpdateConfiguration ConvertConstantOption(ConfigType type, CommandApi command, Options.IConstantOptions option);
+
         SnapshotConfiguration ConvertSnapshotOption(ConfigType type, CommandApi command, Options.SnapshotTaskOptions option);
 
         LocalSetUpConfiguration ConvertGenericSetterOption(ConfigType type, Options.ConfigOptions option);
@@ -295,6 +297,25 @@ namespace QarnotCLI
         public IPrivilegesConfiguration ConvertPrivilegesOption(IPrivilegesConfiguration config, Options.IPrivilegesOptions option)
         {
             config.ExportApiAndStorageCredentialsInEnvironment = option.ExportApiAndStorageCredentialsInEnvironment ?? config.ExportApiAndStorageCredentialsInEnvironment;
+            return config;
+        }
+
+        /// <summary>
+        /// upgrade of the ConvertGenericGetterOption
+        /// to have the options for constant update.
+        /// </summary>
+        /// <param name="type">object type.</param>
+        /// <param name="command">object command to launch.</param>
+        /// <param name="option">constant update options and values.</param>
+        /// <returns>a new object command to be launch.</returns>
+        public ConstantUpdateConfiguration ConvertConstantOption(ConfigType type, CommandApi command, Options.IConstantOptions option)
+        {
+            var config = new ConstantUpdateConfiguration(type, command);
+
+            SetDefaultRunConfigurationOption(config, type, command, option);
+            config.ConstantName = option.ConstantName;
+            config.ConstantValue = option.ConstantValue;
+
             return config;
         }
 

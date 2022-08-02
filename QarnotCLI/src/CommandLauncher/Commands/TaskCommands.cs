@@ -124,6 +124,22 @@ namespace QarnotCLI
         }
     }
 
+    public class UpdateTaskConstantCommand : ICommand<QTask, CommandValues.GenericInfoCommandValue>
+    {
+        public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QTask task, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
+        {
+            CLILogs.Debug("Command Task : Update Constant");
+            var config = iconfig as ConstantUpdateConfiguration;
+            task.SetConstant(config.ConstantName, config.ConstantValue);
+            await task.CommitAsync(cancellationToken: ct);
+            return new CommandValues.GenericInfoCommandValue()
+            {
+                Uuid = task.Uuid.ToString(),
+                Message = String.Format("Task constant {0} updated", config.ConstantName),
+            };
+        }
+    }
+
     public class SnapshotTaskCommand : ICommand<QTask, CommandValues.GenericInfoCommandValue>
     {
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QTask task, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))

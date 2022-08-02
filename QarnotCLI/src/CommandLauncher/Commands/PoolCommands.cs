@@ -1,3 +1,4 @@
+using System;
 namespace QarnotCLI
 {
     using System.Threading;
@@ -28,6 +29,22 @@ namespace QarnotCLI
             {
                 Uuid = pool.Uuid.ToString(),
                 Message = "Pool resources updated",
+            };
+        }
+    }
+
+    public class UpdatePoolConstantCommand : ICommand<QPool, CommandValues.GenericInfoCommandValue>
+    {
+        public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
+        {
+            CLILogs.Debug("Command pool : Update Constant");
+            var config = iconfig as ConstantUpdateConfiguration;
+            pool.SetConstant(config.ConstantName, config.ConstantValue);
+            await pool.CommitAsync(cancellationToken: ct);
+            return new CommandValues.GenericInfoCommandValue()
+            {
+                Uuid = pool.Uuid.ToString(),
+                Message = String.Format("Pool constant {0} updated", config.ConstantName),
             };
         }
     }

@@ -183,6 +183,26 @@ namespace QarnotCLI
             }
         }
 
+        [Verb("task update-constant", HelpText = "Update a constant of a running task.")]
+        public class UpdateTaskConstantOptions : ATaskGetOptions, IConstantOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example(
+                        "Classic usage",
+                        new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new UpdateTaskConstantOptions { Id = "TaskID", ConstantName = "QARNOT_SECRET__SUPER_TOKEN", ConstantValue = "new-token" });
+                }
+            }
+
+            public string ConstantName { get; set; }
+
+            public string ConstantValue { get; set; }
+        }
+
         [Verb("task snapshot", HelpText = "Trigger a snapshot: Request to upload a version of the running task files into the output bucket.")]
         public class SnapshotTaskOptions : ATaskGetOptions, ISnapshotOptions
         {

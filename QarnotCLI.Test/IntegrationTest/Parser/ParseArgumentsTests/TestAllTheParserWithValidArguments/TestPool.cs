@@ -202,6 +202,7 @@ namespace QarnotCLI.Test
         [TestCase("list", CommandApi.List)]
         [TestCase("info", CommandApi.Info)]
         [TestCase("update-resources", CommandApi.UpdateResources)]
+        [TestCase("update-constant", CommandApi.UpdateConstant)]
         [TestCase("set", CommandApi.Set)]
         [TestCase("set-elastic-settings", CommandApi.Set)]
         [TestCase("delete", CommandApi.Delete)]
@@ -441,6 +442,52 @@ namespace QarnotCLI.Test
             confset = (CreateConfiguration)iConfSetFull;
             Assert.AreEqual(confset.Type, ConfigType.Pool);
             commandLineParser.Dispose();
+        }
+
+        [Test]
+        public void UpdatePoolConstantTestParsArg()
+        {
+            string poolUuid = "PoolUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string constantName = "SOME_CONSTANT";
+            string constantValue = "some-new-value";
+            string[] argv = null;
+            using var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+
+            argv = new string[] { "pool", "update-constant", "--name", name, "--id", poolUuid, "--tags", tags, "--constant-name", constantName, "--constant-value", constantValue };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is ConstantUpdateConfiguration))
+            {
+                throw new Exception("return value is not ConstantUpdateConfiguration ");
+            }
+
+            ConstantUpdateConfiguration confset = (ConstantUpdateConfiguration)iConfSet;
+            Assert.AreEqual(ConfigType.Pool, confset.Type);
+            Assert.AreEqual(CommandApi.UpdateConstant, confset.Command);
+            Assert.AreEqual(name, confset.Name);
+            Assert.AreEqual(poolUuid, confset.Id);
+            Assert.AreEqual(constantName, confset.ConstantName);
+            Assert.AreEqual(constantValue, confset.ConstantValue);
+
+            argv = new string[] { "pool", "update-constant", "-n", name, "-i", poolUuid, "-t", tags, "--constant-name", constantName, "--constant-value", constantValue };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is ConstantUpdateConfiguration))
+            {
+                throw new Exception("return value is not ConstantUpdateConfiguration ");
+            }
+
+            confset = (ConstantUpdateConfiguration)iConfSet;
+            Assert.AreEqual(ConfigType.Pool, confset.Type);
+            Assert.AreEqual(CommandApi.UpdateConstant, confset.Command);
+            Assert.AreEqual(name, confset.Name);
+            Assert.AreEqual(poolUuid, confset.Id);
+            Assert.AreEqual(constantName, confset.ConstantName);
+            Assert.AreEqual(constantValue, confset.ConstantValue);
         }
     }
 }

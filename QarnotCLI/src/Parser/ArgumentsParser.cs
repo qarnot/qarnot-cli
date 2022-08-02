@@ -139,6 +139,7 @@ namespace QarnotCLI
                                                     Options.AbortTaskOptions,
                                                     Options.DeleteTaskOptions,
                                                     Options.UpdateTaskResourcesOptions,
+                                                    Options.UpdateTaskConstantOptions,
                                                     Options.SnapshotTaskOptions,
                                                     Options.StdoutTaskOptions,
                                                     Options.StderrTaskOptions
@@ -154,6 +155,7 @@ namespace QarnotCLI
                 (Options.AbortTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Abort, o),
                 (Options.DeleteTaskOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.Delete, o),
                 (Options.UpdateTaskResourcesOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Task, CommandApi.UpdateResources, o),
+                (Options.UpdateTaskConstantOptions o) => result = this.CreateConfig.ConvertConstantOption(ConfigType.Task, CommandApi.UpdateConstant, o),
                 (Options.SnapshotTaskOptions o) => result = this.CreateConfig.ConvertSnapshotOption(ConfigType.Task, CommandApi.Snapshot, o),
                 (Options.StdoutTaskOptions o) => result = this.CreateConfig.ConvertStdOption(ConfigType.Task, CommandApi.GetStdout, o),
                 (Options.StderrTaskOptions o) => result = this.CreateConfig.ConvertStdOption(ConfigType.Task, CommandApi.GetStderr, o),
@@ -200,7 +202,8 @@ namespace QarnotCLI
                                                     Options.SetPoolOptions,
                                                     Options.SetPoolElasticSettingsOptions,
                                                     Options.DeletePoolOptions,
-                                                    Options.UpdatePoolResourcesOptions>(argv);
+                                                    Options.UpdatePoolResourcesOptions,
+                                                    Options.UpdatePoolConstantOptions>(argv);
 
             checkHelpFlag(argv, parser);
 
@@ -212,6 +215,7 @@ namespace QarnotCLI
                 (Options.SetPoolOptions o) => result = this.CreateConfig.ConvertElasticPoolSetterOption(ConfigType.Pool, CommandApi.Set, o),
                 (Options.SetPoolElasticSettingsOptions o) => result = this.CreateConfig.ConvertElasticPoolSetterOption(ConfigType.Pool, CommandApi.Set, o),
                 (Options.UpdatePoolResourcesOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.UpdateResources, o),
+                (Options.UpdatePoolConstantOptions o) => result = this.CreateConfig.ConvertConstantOption(ConfigType.Pool, CommandApi.UpdateConstant, o),
                 err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
 
             if (!CheckPool(result))

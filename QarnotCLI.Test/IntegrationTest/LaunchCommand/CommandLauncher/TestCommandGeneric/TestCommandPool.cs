@@ -132,5 +132,27 @@ namespace QarnotCLI.Test
             string expected1 = "796a5321-0001-4a5c-2f42-54cce169dff8";
             StringAssert.Contains(expected1, returnString);
         }
+
+        [Test]
+        public async Task UpdatePoolConstantFromFakeHandlerReturnTheGoodUuid()
+        {
+            FakeHTTP.ReturnMessage = HttpPoolObject.PoolsListBodiesWithPaging;
+            ConfigType type = ConfigType.Pool;
+            CommandApi command = CommandApi.UpdateConstant;
+
+            var commandLauncher = new CommandGeneric<QPool, CommandValues.GenericInfoCommandValue>(
+                new QPoolsRetriever(),
+                new UpdatePoolConstantCommand(),
+                FormatTable,
+                FakeApi
+            );
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new ConstantUpdateConfiguration(type, command) {ConstantName = "SOME_CONSTANT", ConstantValue = "some-new-value"},
+                FalsePrinter);
+
+            string expected1 = "796a5321-0001-4a5c-2f42-54cce169dff8";
+            StringAssert.Contains(expected1, returnString);
+        }
     }
 }

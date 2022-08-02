@@ -170,5 +170,15 @@ namespace QarnotCLI
             [Option('n', "name", Required = true, HelpText = "Name of the bucket to get.")]
             string Name { get; set; }
         }
+
+        public interface IConstantOptions : IGetOptions
+        {
+
+            [Option("constant-name", Required = false, HelpText = "Name of the constant to update.")]
+            string ConstantName { get; set; }
+
+            [Option("constant-value", Required = false, HelpText = "New value for the constant to update.")]
+            string ConstantValue { get; set; }
+        }
     }
 }

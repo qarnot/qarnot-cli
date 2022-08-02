@@ -112,6 +112,11 @@ namespace QarnotCLI
         UpdateResources,
 
         /// <summary>
+        /// Update the value of one constant
+        /// </summary>
+        UpdateConstant,
+
+        /// <summary>
         /// Type Remove a part of element
         /// </summary>
         Remove,

@@ -59,6 +59,8 @@ namespace QarnotCLI
                     return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new DeletePoolCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.UpdateResources:
                     return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new UpdatePoolResourcesCommand(), this.Formatter, this.ConnectionWrapper);
+                case CommandApi.UpdateConstant:
+                    return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new UpdatePoolConstantCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Set:
                     return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new SetPoolElasticSettingsCommand(), this.Formatter, this.ConnectionWrapper);
                 default:
@@ -84,6 +86,8 @@ namespace QarnotCLI
                     return new CommandGeneric<QTask, GenericInfoCommandValue>(new QTasksRetriever(), new DeleteTaskCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.UpdateResources:
                     return new CommandGeneric<QTask, GenericInfoCommandValue>(new QTasksRetriever(), new UpdateTaskResourcesCommand(), this.Formatter, this.ConnectionWrapper);
+                case CommandApi.UpdateConstant:
+                    return new CommandGeneric<QTask, GenericInfoCommandValue>(new QTasksRetriever(), new UpdateTaskConstantCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.GetStdout:
                     return new CommandGeneric<QTask, string>(new QTasksRetriever(), new StdoutTaskCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.GetStderr:

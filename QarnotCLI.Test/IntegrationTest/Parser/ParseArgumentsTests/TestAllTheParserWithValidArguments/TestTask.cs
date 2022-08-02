@@ -199,6 +199,7 @@ namespace QarnotCLI.Test
         [TestCase("wait", CommandApi.Wait)]
         [TestCase("abort", CommandApi.Abort)]
         [TestCase("update-resources", CommandApi.UpdateResources)]
+        [TestCase("update-constant", CommandApi.UpdateConstant)]
         [TestCase("delete", CommandApi.Delete)]
         [TestCase("stdout", CommandApi.GetStdout)]
         [TestCase("stderr", CommandApi.GetStderr)]
@@ -582,6 +583,52 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Whitelist, whitelist);
             Assert.AreEqual(confset.Blacklist, blacklist);
             commandLineParser.Dispose();
+        }
+
+        [Test]
+        public void UpdateTaskConstantTestParsArg()
+        {
+            string taskUuid = "TaskUUID";
+            string name = "NAME";
+            string tags = "TAG1,TAG2";
+            string constantName = "SOME_CONSTANT";
+            string constantValue = "some-new-value";
+            string[] argv = null;
+            using var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+            IConfiguration iConfSet = null;
+
+            argv = new string[] { "task", "update-constant", "--name", name, "--id", taskUuid, "--tags", tags, "--constant-name", constantName, "--constant-value", constantValue };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is ConstantUpdateConfiguration))
+            {
+                throw new Exception("return value is not ConstantUpdateConfiguration ");
+            }
+
+            ConstantUpdateConfiguration confset = (ConstantUpdateConfiguration)iConfSet;
+            Assert.AreEqual(ConfigType.Task, confset.Type);
+            Assert.AreEqual(CommandApi.UpdateConstant, confset.Command);
+            Assert.AreEqual(name, confset.Name);
+            Assert.AreEqual(taskUuid, confset.Id);
+            Assert.AreEqual(constantName, confset.ConstantName);
+            Assert.AreEqual(constantValue, confset.ConstantValue);
+
+            argv = new string[] { "task", "update-constant", "-n", name, "-i", taskUuid, "-t", tags, "--constant-name", constantName, "--constant-value", constantValue };
+            iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is ConstantUpdateConfiguration))
+            {
+                throw new Exception("return value is not ConstantUpdateConfiguration ");
+            }
+
+            confset = (ConstantUpdateConfiguration)iConfSet;
+            Assert.AreEqual(ConfigType.Task, confset.Type);
+            Assert.AreEqual(CommandApi.UpdateConstant, confset.Command);
+            Assert.AreEqual(name, confset.Name);
+            Assert.AreEqual(taskUuid, confset.Id);
+            Assert.AreEqual(constantName, confset.ConstantName);
+            Assert.AreEqual(constantValue, confset.ConstantValue);
         }
     }
 }

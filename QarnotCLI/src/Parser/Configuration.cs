@@ -316,6 +316,20 @@ namespace QarnotCLI
     }
 
     /// <summary>
+    /// Configuration for the QConstant info.
+    /// </summary>
+    public class ConstantUpdateConfiguration : DefaultRunConfiguration
+    {
+        public ConstantUpdateConfiguration(ConfigType type, CommandApi command): base(type, command)
+        {
+        }
+
+        public virtual string ConstantName { get; set; }
+        public virtual string ConstantValue { get; set; }
+
+    }
+
+    /// <summary>
     /// Configuration for the QObject create info.
     /// </summary>
     public class CreateConfiguration : IConfiguration, ISnapshotConfiguration, IPrivilegesConfiguration

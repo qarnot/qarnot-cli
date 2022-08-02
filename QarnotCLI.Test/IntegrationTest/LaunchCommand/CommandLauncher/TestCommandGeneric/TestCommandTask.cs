@@ -252,5 +252,27 @@ namespace QarnotCLI.Test
             string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
             StringAssert.Contains(expected1, returnString);
         }
+
+        [Test]
+        public async Task UpdateTaskConstantFromFakeHandlerReturnTheGoodUuid()
+        {
+            FakeHTTP.ReturnMessage = HttpTaskObject.TasksListBodiesWithPaging;
+            ConfigType type = ConfigType.Task;
+            CommandApi command = CommandApi.UpdateConstant;
+
+            var commandLauncher = new CommandGeneric<QTask, CommandValues.GenericInfoCommandValue>(
+                new QTasksRetriever(),
+                new UpdateTaskConstantCommand(),
+                FormatTable,
+                FakeApi
+            );
+
+            string returnString = await commandLauncher.RunAndPrintCommandAsync(
+                new ConstantUpdateConfiguration(type, command) {ConstantName = "SOME_CONSTANT", ConstantValue = "some-new-value"},
+                FalsePrinter);
+
+            string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
+            StringAssert.Contains(expected1, returnString);
+        }
     }
 }
