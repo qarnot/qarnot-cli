@@ -3,6 +3,7 @@ namespace QarnotCLI.Test
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace QarnotCLI.Test
         [SetUp]
         public void Init()
         {
-            CLILogsTest.SurchargeLogs();
+            CLILogsCheckValues.SurchargeLogs();
             FakeHTTP = new FakeHTTPHandler();
             FormatTable = new FormatterFactory.TableFormatter();
             FalsePrinter = new PrintSurchargeVoid();
@@ -153,6 +154,27 @@ namespace QarnotCLI.Test
 
             string expected1 = "796a5321-0001-4a5c-2f42-54cce169dff8";
             StringAssert.Contains(expected1, returnString);
+        }
+
+        [TestCase(CommandApi.UpdateResources)]
+        [TestCase(CommandApi.UpdateConstant)]
+        [TestCase(CommandApi.Delete)]
+        [TestCase(CommandApi.Set)]
+        public void TestBasicCommandOnPoolNotFoundReturnTheErrorMessage(CommandApi command)
+        {
+            FakeHTTP.ReturnStatusCode = System.Net.HttpStatusCode.NotFound;
+            FakeHTTP.ReturnMessage = "{\"Message\": \"No such pool\"}";
+            ConfigType type = ConfigType.Pool;
+
+            var commandManager = new CommandManager(LaunchFactory, FalsePrinter);
+
+            var exception = Assert.ThrowsAsync<CommandManager.ErrorPrintException>(
+                async () => await commandManager.StartAsync(
+                    new DefaultRunConfiguration(type, command) { Name="Invalid pool", TagsIntersect = true }),
+                "Pool not found should throw from sdk");
+
+            string expectedMessage = "No such pool";
+            Assert.True(CLILogsCheckValues.Messages[CLILogs.LogsLevel.Error].Contains(expectedMessage));
         }
     }
 }

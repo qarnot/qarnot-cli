@@ -244,7 +244,7 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public async Task TestCommandSynchronizeLocalFolderToBucketWithInvalidRemotePathIsBlockedBySanitization()
+        public void TestCommandSynchronizeLocalFolderToBucketWithInvalidRemotePathIsBlockedBySanitization()
         {
             var bucket = Builder<FakeBucket>.CreateNew().Build();
             CancellationToken ct = default(CancellationToken);
@@ -254,11 +254,12 @@ namespace QarnotCLI.Test
                 RemoteRelativePath = "/invalid//Path",
                 DeleteFiles = true,
             };
-            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+            var ret = Assert.ThrowsAsync<Exception>(
+                async () => await command.ExecuteAsync(bucket, config, ct),
+                "Invalid path should throw an error");
 
-            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
-            Assert.AreEqual(ret.Uuid, "Shortname1");
-            Assert.AreEqual("Synchronization failed. Invalid remote path", (ret as CommandValues.GenericInfoCommandValue).Message);
+            var expectedErrorMessage = "Synchronization failed. Invalid remote path";
+            Assert.AreEqual(expectedErrorMessage, ret.Message);
         }
 
         [Test]
@@ -297,7 +298,7 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public async Task TestCommandSynchronizeLocalFolderFromBucketWithInvalidRemotePathIsBlockedBySanitization()
+        public void TestCommandSynchronizeLocalFolderFromBucketWithInvalidRemotePathIsBlockedBySanitization()
         {
             var bucket = Builder<FakeBucket>.CreateNew().Build();
             CancellationToken ct = default(CancellationToken);
@@ -307,11 +308,12 @@ namespace QarnotCLI.Test
                 RemoteRelativePath = "/invalid//Path",
                 DeleteFiles = true,
             };
-            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+            var ret = Assert.ThrowsAsync<Exception>(
+                async () => await command.ExecuteAsync(bucket, config, ct),
+                "Invalid path should throw an error");
 
-            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
-            Assert.AreEqual(ret.Uuid, "Shortname1");
-            Assert.AreEqual("Synchronization failed. Invalid remote path", (ret as CommandValues.GenericInfoCommandValue).Message);
+            var expectedErrorMessage = "Synchronization failed. Invalid remote path";
+            Assert.AreEqual(expectedErrorMessage, ret.Message);
         }
 
         [Test]
@@ -335,7 +337,7 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public async Task TestCommandUploadBucketWithInvalidRemotePathIsBlockedBySanitization()
+        public void TestCommandUploadBucketWithInvalidRemotePathIsBlockedBySanitization()
         {
             var bucket = Builder<FakeBucket>.CreateNew().Build();
             CancellationToken ct = default(CancellationToken);
@@ -347,11 +349,12 @@ namespace QarnotCLI.Test
                 RemoteRelativePath = "/invalid//Path",
                 DeleteFiles = true,
             };
-            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+            var ret = Assert.ThrowsAsync<Exception>(
+                async () => await command.ExecuteAsync(bucket, config, ct),
+                "Invalid path should throw an error");
 
-            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
-            Assert.AreEqual(ret.Uuid, "Shortname1");
-            Assert.AreEqual("Upload failed. Invalid remote path", (ret as CommandValues.GenericInfoCommandValue).Message);
+            var expectedErrorMessage = "Upload failed. Invalid remote path";
+            Assert.AreEqual(expectedErrorMessage, ret.Message);
         }
 
         [Test]
@@ -378,7 +381,7 @@ namespace QarnotCLI.Test
         [TestCase("\\invalidLeadingSlash", "folder")]
         [TestCase("invalid//Double///Slash")]
         [TestCase("invalid\\\\DoubleSlash")]
-        public async Task TestCommandDownloadBucketWithinvalidRemotePathIsBlockedBySanitization(string invalidPath, string pathType = null)
+        public void TestCommandDownloadBucketWithInvalidRemotePathIsBlockedBySanitizationAndThrowError(string invalidPath, string pathType = null)
         {
             var bucket = Builder<FakeBucket>.CreateNew().Build();
             CancellationToken ct = default(CancellationToken);
@@ -400,11 +403,12 @@ namespace QarnotCLI.Test
                     config.RemoteRelativePathFiles.Add(invalidPath);
                     break;
             }
-            CommandValues.GenericInfoCommandValue ret = await command.ExecuteAsync(bucket, config, ct);
+            var ret = Assert.ThrowsAsync<Exception>(
+                async () => await command.ExecuteAsync(bucket, config, ct),
+                "Invalid path should throw an error");
 
-            Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
-            Assert.AreEqual(ret.Uuid, "Shortname1");
-            Assert.AreEqual("Download failed. Invalid remote path(s)", (ret as CommandValues.GenericInfoCommandValue).Message);
+            var expectedErrorMessage = "Download failed. Invalid remote path(s)";
+            Assert.AreEqual(expectedErrorMessage, ret.Message);
         }
 
         [Test]
@@ -423,6 +427,59 @@ namespace QarnotCLI.Test
 
             Assert.IsTrue(ret is CommandValues.GenericInfoCommandValue);
             Assert.AreEqual(ret.Uuid, "Shortname1");
+        }
+
+        [Test]
+        [TestCase(CommandApi.Delete)]
+        [TestCase(CommandApi.SyncFrom)]
+        [TestCase(CommandApi.SyncTo)]
+        [TestCase(CommandApi.Upload)]
+        [TestCase(CommandApi.Download)]
+        [TestCase(CommandApi.Remove)]
+        public void TestBasicCommandOnBucketNotFoundReturnTheNotFoundErrorMessage(CommandApi commandType)
+        {
+            QBucket bucket = null; // symbolize the null return from sdk retrieve bucket method if the bucket doses not exist
+            ICommand<QBucket, CommandValues.GenericInfoCommandValue> command;
+            Task commandAsync = null;
+            CancellationToken ct = default(CancellationToken);
+            var config = new BucketConfiguration()
+            {
+                Name = "NonExistingBucket",
+                LocalPathGet = "a",
+                RemoteRelativePaths = new List<string>{"b"},
+            };
+
+            switch(commandType)
+            {
+                case CommandApi.Delete:
+                    command = new DeleteBucketCommand();
+                    commandAsync = command.ExecuteAsync(bucket, config, ct);
+                    break;
+                case CommandApi.SyncFrom:
+                    command = new SynchronizeLocalFolderFromBucketCommand();
+                    commandAsync = command.ExecuteAsync(bucket, config, ct);
+                    break;
+                case CommandApi.SyncTo:
+                    command = new SynchronizeLocalFolderToBucketCommand();
+                    commandAsync = command.ExecuteAsync(bucket, config, ct);
+                    break;
+                case CommandApi.Upload:
+                    command = new UploadBucketCommand();
+                    commandAsync = command.ExecuteAsync(bucket, config, ct);
+                    break;
+                case CommandApi.Download:
+                    command = new DownloadBucketCommand();
+                    commandAsync = command.ExecuteAsync(bucket, config, ct);
+                    break;
+                case CommandApi.Remove:
+                    command = new RemoveEntityBucketCommand();
+                    commandAsync = command.ExecuteAsync(bucket, config, ct);
+                    break;
+            }
+
+            var cliException = Assert.ThrowsAsync<Exception>(async () => await commandAsync, "Bucket not found should throw an error");
+            string expected1 = "Bucket not found";
+            StringAssert.Contains(expected1, cliException.Message);
         }
     }
 }

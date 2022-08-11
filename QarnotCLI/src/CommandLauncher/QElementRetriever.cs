@@ -154,7 +154,7 @@ namespace QarnotCLI
     }
 
     /// <summary>
-    /// This class manages the recuperation of QBBucket elements from the API.
+    /// This class manages the recuperation of QBucket elements from the API.
     /// </summary>
     public class QBucketsRetriever : IQCollectionRetriever<QarnotSDK.QBucket>
     {
@@ -179,7 +179,7 @@ namespace QarnotCLI
     }
 
     /// <summary>
-    /// This class manages the recuperation a QBBucket element By it's name.
+    /// This class manages the recuperation a QBucket element By it's name.
     /// </summary>
     public class QBucketRetriever : IQElementRetriever<QarnotSDK.QBucket>
     {
@@ -192,7 +192,7 @@ namespace QarnotCLI
     }
 
     /// <summary>
-    /// This class manages the recuperation of QBBucket elements from the API.
+    /// This class manages the recuperation of UserInformation from the API.
     /// </summary>
     public class UserInformationRetriever : IQElementRetriever<QarnotSDK.UserInformation>
     {
@@ -204,7 +204,7 @@ namespace QarnotCLI
     }
 
     /// <summary>
-    /// This class manages the recuperation of QBBucket elements from the API.
+    /// This class manages the recuperation of ApiSettings from the API.
     /// </summary>
     public class APISettingsRetriever : IQElementRetriever<QarnotSDK.ApiSettings>
     {

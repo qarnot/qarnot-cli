@@ -11,6 +11,13 @@ namespace QarnotCLI
         {
             CLILogs.Debug("Command Task : Wait");
             var config = iconfig as StdConfiguration;
+
+            if (task == default)
+            {
+                var message = "Wait failed. Task not found";
+                throw new System.Exception(message);
+            }
+
             bool end = false;
             while (end == false)
             {
@@ -45,6 +52,14 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QTask task, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("Command Task : Abort");
+            var config = iconfig as DefaultRunConfiguration;
+
+            if (task == default)
+            {
+                var message = "Abortion ignored. Task not found";
+                throw new System.Exception(message);
+            }
+
             await task.AbortAsync(ct);
             return new CommandValues.GenericInfoCommandValue()
             {
@@ -59,6 +74,14 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QTask task, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("Command Task : Delete");
+            var config = iconfig as DefaultRunConfiguration;
+
+            if (task == default)
+            {
+                var message = "Deletion ignored. Task not found";
+                throw new System.Exception(message);
+            }
+
             await task.DeleteAsync(cancellationToken: ct);
             return new CommandValues.GenericInfoCommandValue()
             {
@@ -78,14 +101,14 @@ namespace QarnotCLI
             string message = "";
             if (config.Fresh)
             {
-                message = await task.FreshStdoutAsync(ct);
+                message = await task?.FreshStdoutAsync(ct);
             }
             else
             {
-                message = await task.StdoutAsync(ct);
+                message = await task?.StdoutAsync(ct);
             }
 
-            return string.Join(Environment.NewLine, message.Split("\\n", StringSplitOptions.RemoveEmptyEntries));
+            return string.Join(Environment.NewLine, message?.Split("\\n", StringSplitOptions.RemoveEmptyEntries));
         }
     }
 
@@ -99,14 +122,14 @@ namespace QarnotCLI
             string message = "";
             if (config.Fresh)
             {
-                message = await task.FreshStderrAsync(ct);
+                message = await task?.FreshStderrAsync(ct);
             }
             else
             {
-                message = await task.StderrAsync(ct);
+                message = await task?.StderrAsync(ct);
             }
 
-            return string.Join(Environment.NewLine, message.Split("\\n", StringSplitOptions.RemoveEmptyEntries));
+            return string.Join(Environment.NewLine, message?.Split("\\n", StringSplitOptions.RemoveEmptyEntries));
         }
     }
 
@@ -115,6 +138,14 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QTask task, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("Command Task : Update Storage");
+            var config = iconfig as DefaultRunConfiguration;
+
+            if (task == default)
+            {
+                var message = "Resources update failed. Task not found";
+                throw new System.Exception(message);
+            }
+
             await task.UpdateResourcesAsync(cancellationToken: ct);
             return new CommandValues.GenericInfoCommandValue()
             {
@@ -130,6 +161,13 @@ namespace QarnotCLI
         {
             CLILogs.Debug("Command Task : Update Constant");
             var config = iconfig as ConstantUpdateConfiguration;
+
+            if (task == default)
+            {
+                var message = "Constant update failed. Task not found";
+                throw new System.Exception(message);
+            }
+
             task.SetConstant(config.ConstantName, config.ConstantValue);
             await task.CommitAsync(cancellationToken: ct);
             return new CommandValues.GenericInfoCommandValue()
@@ -146,6 +184,12 @@ namespace QarnotCLI
         {
             CLILogs.Debug("Command Task : Snapshot Task");
             var config = iconfig as SnapshotConfiguration;
+
+            if (task == default)
+            {
+                var message = "Snapshot  failed. Task not found";
+                throw new System.Exception(message);
+            }
 
             task.SnapshotWhitelist = config.Whitelist;
             task.SnapshotBlacklist = config.Blacklist;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 namespace QarnotCLI.Test
 {
     using System;
@@ -8,8 +9,9 @@ namespace QarnotCLI.Test
 
     public static class CLILogsTest
     {
-        public static void SurchargeLogs()
+        public static void SurchargeLogs(bool resetVerbose = true)
         {
+            CLILogs.Verbose = resetVerbose ? CLILogs.LogsLevel.Info : CLILogs.Verbose;
             foreach (QarnotCLI.CLILogs.LogsLevel key in Enum.GetValues(typeof(QarnotCLI.CLILogs.LogsLevel)))
             {
                 CLILogs.Logs[key] = new PrintSurchargeVoid();
@@ -28,12 +30,18 @@ namespace QarnotCLI.Test
 
     public class PrintSurchargeVoid : Printer.APrint
     {
+        public List<string> Logs { get; set; }
         public PrintSurchargeVoid()
         : base(false, new PrintVoid())
         {
+            Logs = new();
         }
 
-        public override Task PrintAsync(string text) => Task.CompletedTask;
+        public override Task PrintAsync(string text)
+        {
+            Logs.Add(text);
+            return Task.CompletedTask;
+        }
     }
 
     public class PrintVoid : Printer.IMessagePrinter
@@ -50,8 +58,9 @@ namespace QarnotCLI.Test
 
         public static string AllMessages;
 
-        public static void SurchargeLogs()
+        public static void SurchargeLogs(bool resetVerbose = true)
         {
+            CLILogs.Verbose = resetVerbose ? CLILogs.LogsLevel.Info : CLILogs.Verbose;
             foreach (QarnotCLI.CLILogs.LogsLevel key in Enum.GetValues(typeof(QarnotCLI.CLILogs.LogsLevel)))
             {
                 CLILogs.Logs[key] = new PrintSurchargeGetMessages(key);

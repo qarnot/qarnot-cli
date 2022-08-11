@@ -3,6 +3,7 @@ namespace QarnotCLI.Test
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
     using System.Text;
     using System.Threading;
     using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace QarnotCLI.Test
         [SetUp]
         public void Init()
         {
-            CLILogsTest.SurchargeLogs();
+            CLILogsCheckValues.SurchargeLogs();
             FakeHTTP = new FakeHTTPHandler();
             FormatTable = new FormatterFactory.TableFormatter();
             FalsePrinter = new PrintSurchargeVoid();
@@ -273,6 +274,29 @@ namespace QarnotCLI.Test
 
             string expected1 = "f78fdff8-7081-46e1-bb2f-d9cd4e185ece";
             StringAssert.Contains(expected1, returnString);
+        }
+
+        [TestCase(CommandApi.Abort)]
+        [TestCase(CommandApi.UpdateResources)]
+        [TestCase(CommandApi.UpdateConstant)]
+        [TestCase(CommandApi.Delete)]
+        [TestCase(CommandApi.Wait)]
+        [TestCase(CommandApi.Snapshot)]
+        public void TestBasicCommandOnTaskNotFoundReturnTheErrorMessage(CommandApi command)
+        {
+            FakeHTTP.ReturnStatusCode = System.Net.HttpStatusCode.NotFound;
+            FakeHTTP.ReturnMessage = "{\"Message\": \"No such task\"}";
+            ConfigType type = ConfigType.Task;
+
+            var commandManager = new CommandManager(LaunchFactory, FalsePrinter);
+
+            var exception = Assert.ThrowsAsync<CommandManager.ErrorPrintException>(
+                async () => await commandManager.StartAsync(
+                    new DefaultRunConfiguration(type, command) { Name="Invalid task", TagsIntersect = true }),
+                "Task not found should throw from sdk");
+
+            string expectedMessage = "No such task";
+            Assert.True(CLILogsCheckValues.Messages[CLILogs.LogsLevel.Error].Contains(expectedMessage));
         }
     }
 }

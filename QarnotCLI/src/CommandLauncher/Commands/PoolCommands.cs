@@ -10,6 +10,14 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("Command pool : delete");
+            var config = iconfig as DefaultRunConfiguration;
+
+            if (pool == default)
+            {
+                var message = "Deletion ignored. Pool not found";
+                throw new System.Exception(message);
+            }
+
             await pool.DeleteAsync(ct);
             return new CommandValues.GenericInfoCommandValue()
             {
@@ -24,6 +32,14 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("Command pool : Update Storage");
+            var config = iconfig as DefaultRunConfiguration;
+
+            if (pool == default)
+            {
+                var message = "Resources update failed. Pool not found";
+                throw new System.Exception(message);
+            }
+
             await pool.UpdateResourcesAsync(ct);
             return new CommandValues.GenericInfoCommandValue()
             {
@@ -39,6 +55,13 @@ namespace QarnotCLI
         {
             CLILogs.Debug("Command pool : Update Constant");
             var config = iconfig as ConstantUpdateConfiguration;
+
+            if (pool == default)
+            {
+                var message = "Constant update failed. Pool not found";
+                throw new System.Exception(message);
+            }
+
             pool.SetConstant(config.ConstantName, config.ConstantValue);
             await pool.CommitAsync(cancellationToken: ct);
             return new CommandValues.GenericInfoCommandValue()
@@ -53,9 +76,16 @@ namespace QarnotCLI
     {
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig, CancellationToken ct = default(CancellationToken))
         {
-            CLILogs.Debug("Command pool : Pool name " + pool.Name);
             PoolSetElasticSettingsConfiguration config = iconfig as PoolSetElasticSettingsConfiguration;
+            CLILogs.Debug("Command pool : Pool name " + pool?.Name ?? config?.Name);
             CLILogs.Debug("Command pool : Set Pool Elastic info");
+
+            if (pool == default)
+            {
+                var message = "Elastic settings update failed. Pool not found";
+                throw new System.Exception(message);
+            }
+
             pool.ElasticMinimumTotalSlots = config.ElasticMinimumTotalSlots == default(int) ? pool.ElasticMinimumTotalSlots : config.ElasticMinimumTotalSlots;
             pool.ElasticMaximumTotalSlots = config.ElasticMaximumTotalSlots == default(int) ? pool.ElasticMaximumTotalSlots : config.ElasticMaximumTotalSlots;
             pool.ElasticMinimumIdlingSlots = config.ElasticMinimumIdlingSlots == default(int) ? pool.ElasticMinimumIdlingSlots : config.ElasticMinimumIdlingSlots;

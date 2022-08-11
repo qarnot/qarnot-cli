@@ -16,6 +16,14 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QJob job, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("command job : terminate");
+            var config = iconfig as DefaultRunConfiguration;
+
+            if (job == default)
+            {
+                var message = "Abortion ignored. Job not found";
+                throw new System.Exception(message);
+            }
+
             if (job.State == QJobStates.Active)
             {
                 await job.TerminateAsync(ct);
@@ -35,6 +43,13 @@ namespace QarnotCLI
         public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QJob job, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("command job : delete");
+            var config = iconfig as DefaultRunConfiguration;
+
+            if (job == default)
+            {
+                var message = "Deletion ignored. Job not found";
+                throw new System.Exception(message);
+            }
             await job.DeleteAsync(cancellationToken:ct);
             return new CommandValues.GenericInfoCommandValue()
             {
