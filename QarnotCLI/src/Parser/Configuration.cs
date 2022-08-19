@@ -302,17 +302,17 @@ namespace QarnotCLI
         {
         }
 
-        public uint ElasticMinimumTotalSlots { get; set; }
+        public uint? ElasticMinimumTotalSlots { get; set; }
 
-        public uint ElasticMaximumTotalSlots { get; set; }
+        public uint? ElasticMaximumTotalSlots { get; set; }
 
-        public uint ElasticMinimumIdlingSlots { get; set; }
+        public uint? ElasticMinimumIdlingSlots { get; set; }
 
-        public uint ElasticResizePeriod { get; set; }
+        public uint? ElasticResizePeriod { get; set; }
 
-        public float ElasticResizeFactor { get; set; }
+        public float? ElasticResizeFactor { get; set; }
 
-        public uint ElasticMinimumIdlingTime { get; set; }
+        public uint? ElasticMinimumIdlingTime { get; set; }
     }
 
     /// <summary>
@@ -402,17 +402,17 @@ namespace QarnotCLI
 
         public string PoolUuidOrShortname { get; set; }
 
-        public uint ElasticMinimumTotalSlots { get; set; }
+        public uint? ElasticMinimumTotalSlots { get; set; }
 
-        public uint ElasticMaximumTotalSlots { get; set; }
+        public uint? ElasticMaximumTotalSlots { get; set; }
 
-        public uint ElasticMinimumIdlingSlots { get; set; }
+        public uint? ElasticMinimumIdlingSlots { get; set; }
 
-        public uint ElasticResizePeriod { get; set; }
+        public uint? ElasticResizePeriod { get; set; }
 
-        public float ElasticResizeFactor { get; set; }
+        public float? ElasticResizeFactor { get; set; }
 
-        public uint ElasticMinimumIdlingTime { get; set; }
+        public uint? ElasticMinimumIdlingTime { get; set; }
 
         public TimeSpan? MaximumWallTime { get; set; }
 

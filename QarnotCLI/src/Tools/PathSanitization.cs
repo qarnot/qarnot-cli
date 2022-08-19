@@ -25,7 +25,7 @@ namespace QarnotCLI
                 }
                 if (willBeSanitized)
                 {
-                    CLILogs.Warn("The path {path} is invalid. Fix the path by removing the extra sparators or use the argument --no-sanitize-bucket-paths if you are sure about the path");
+                    CLILogs.Warn($"The path {path} is invalid. Fix the path by removing the extra separators or use the argument --no-sanitize-bucket-paths if you are sure about the path");
                 }
             }
 

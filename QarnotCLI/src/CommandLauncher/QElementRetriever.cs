@@ -89,6 +89,7 @@ namespace QarnotCLI
                     CLILogs.Debug("Retrieve QPools by Tags Intersect : " + config.Tags.ToString());
                     var poolTagFilter = new QDataDetail<QPool>();
                     var filterList = config.Tags.Select(tag => QFilter<QPool>.Contains(t => t.Tags, tag));
+                    poolTagFilter.Filter = QFilter<QPool>.And(filterList.ToArray());
                     listPool = await connection.RetrievePoolsAsync(poolTagFilter, cancellationToken: ct);
                 }
                 else

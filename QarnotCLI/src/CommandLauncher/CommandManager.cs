@@ -46,6 +46,17 @@ namespace QarnotCLI
 
                 throw new ErrorPrintException();
             }
+            catch (QarnotSDK.QarnotApiException qe)
+            {
+                // if no info in error message, display the inner exception's message which should contain at least the status code
+                if (qe.Message == "Exception of type 'QarnotSDK.QarnotApiException' was thrown." && !String.IsNullOrWhiteSpace(qe.InnerException?.Message))
+                {
+                    PrintInfoDebug.DebugException(qe.InnerException);
+                    throw new ErrorPrintException();
+                }
+                PrintInfoDebug.DebugException(qe);
+                throw new ErrorPrintException();
+            }
             catch (Exception ex)
             {
                 PrintInfoDebug.DebugException(ex);

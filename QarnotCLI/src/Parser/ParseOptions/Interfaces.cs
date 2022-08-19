@@ -94,43 +94,43 @@ namespace QarnotCLI
         public interface IElasticityOptions
         {
             [Option("min-slot", Required = false, HelpText = "Minimum slot number for the pool in elastic mode.")]
-            uint ElasticMinimumTotalSlots { get; set; }
+            uint? ElasticMinimumTotalSlots { get; set; }
 
             [Option("max-slot", Required = false, HelpText = "Maximum slot number for the pool in elastic mode.")]
-            uint ElasticMaximumTotalSlots { get; set; }
+            uint? ElasticMaximumTotalSlots { get; set; }
 
             [Option("min-idling-slot", Required = false, HelpText = "Minimum idling slot number.")]
-            uint ElasticMinimumIdlingSlots { get; set; }
+            uint? ElasticMinimumIdlingSlots { get; set; }
 
             [Option("resize-period", Required = false, HelpText = "Elastic Resize Period.")]
-            uint ElasticResizePeriod { get; set; }
+            uint? ElasticResizePeriod { get; set; }
 
             [Option("resize-factor", Required = false, HelpText = "Elastic Resize Factor.")]
-            float ElasticResizeFactor { get; set; }
+            float? ElasticResizeFactor { get; set; }
 
             [Option("min-idling-time", Required = false, HelpText = "Minimum idling time.")]
-            uint ElasticMinimumIdlingTime { get; set; }
+            uint? ElasticMinimumIdlingTime { get; set; }
 
 
             /////// BC area
             // Keep these ones for BC as the CLI was originally launched with these badly named options
             [Option("min-ling-node", Required = false, HelpText = "[DEPRECATED], use --min-idling-node instead")]
-            uint _elasticMinimumIdlingNodes_legacyBadOptionName { get { return ElasticMinimumIdlingSlots; } set { ElasticMinimumIdlingSlots = value; } }
+            uint? _elasticMinimumIdlingNodes_legacyBadOptionName { get { return ElasticMinimumIdlingSlots; } set { ElasticMinimumIdlingSlots = value; } }
 
             [Option("min-ling-time", Required = false, HelpText = "[DEPRECATED] Use --min-idling-time instead")]
-            uint _elasticMinimumIdlingTime_legacyBadOptionName { get { return ElasticMinimumIdlingTime; } set { ElasticMinimumIdlingTime = value; } }
+            uint? _elasticMinimumIdlingTime_legacyBadOptionName { get { return ElasticMinimumIdlingTime; } set { ElasticMinimumIdlingTime = value; } }
 
             [Option("resize-periode", Required = false, HelpText = "[DEPRECATED] use --resize-period instead")]
-            uint _elasticResizePeriod_legacyBadOptionName { get { return ElasticResizePeriod; } set { ElasticResizePeriod = value; } }
+            uint? _elasticResizePeriod_legacyBadOptionName { get { return ElasticResizePeriod; } set { ElasticResizePeriod = value; } }
 
             [Option("min-node", Required = false, HelpText = "[DEPRECATED] Use --min-slot instead")]
-            uint _elasticMinimumTotalNodes { get => ElasticMinimumTotalSlots; set { ElasticMinimumTotalSlots = value; } }
+            uint? _elasticMinimumTotalNodes { get => ElasticMinimumTotalSlots; set { ElasticMinimumTotalSlots = value; } }
 
             [Option("max-node", Required = false, HelpText = "[DEPRECATED] Use --max-slot instead")]
-            uint _elasticMaximumTotalNodes  { get => ElasticMaximumTotalSlots; set { ElasticMaximumTotalSlots = value; } }
+            uint? _elasticMaximumTotalNodes  { get => ElasticMaximumTotalSlots; set { ElasticMaximumTotalSlots = value; } }
 
             [Option("min-idling-node", Required = false, HelpText = "[DEPRECATED] Use --min-idling-slot instead")]
-            uint _elasticMinimumIdlingNodes { get => ElasticMinimumIdlingSlots; set { ElasticMinimumIdlingSlots = value; } }
+            uint? _elasticMinimumIdlingNodes { get => ElasticMinimumIdlingSlots; set { ElasticMinimumIdlingSlots = value; } }
             /////// BC area
         }
 

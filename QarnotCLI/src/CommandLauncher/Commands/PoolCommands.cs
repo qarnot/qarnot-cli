@@ -86,12 +86,12 @@ namespace QarnotCLI
                 throw new System.Exception(message);
             }
 
-            pool.ElasticMinimumTotalSlots = config.ElasticMinimumTotalSlots == default(int) ? pool.ElasticMinimumTotalSlots : config.ElasticMinimumTotalSlots;
-            pool.ElasticMaximumTotalSlots = config.ElasticMaximumTotalSlots == default(int) ? pool.ElasticMaximumTotalSlots : config.ElasticMaximumTotalSlots;
-            pool.ElasticMinimumIdlingSlots = config.ElasticMinimumIdlingSlots == default(int) ? pool.ElasticMinimumIdlingSlots : config.ElasticMinimumIdlingSlots;
-            pool.ElasticResizePeriod = config.ElasticResizePeriod == default(int) ? pool.ElasticResizePeriod : config.ElasticResizePeriod;
-            pool.ElasticResizeFactor = config.ElasticResizeFactor == default(int) ? pool.ElasticResizeFactor : config.ElasticResizeFactor;
-            pool.ElasticMinimumIdlingTime = config.ElasticMinimumIdlingTime == default(int) ? pool.ElasticMinimumIdlingTime : config.ElasticMinimumIdlingTime;
+            pool.ElasticMinimumTotalSlots = config.ElasticMinimumTotalSlots ?? pool.ElasticMinimumTotalSlots;
+            pool.ElasticMaximumTotalSlots = config.ElasticMaximumTotalSlots ?? pool.ElasticMaximumTotalSlots;
+            pool.ElasticMinimumIdlingSlots = config.ElasticMinimumIdlingSlots ?? pool.ElasticMinimumIdlingSlots;
+            pool.ElasticResizePeriod = config.ElasticResizePeriod ?? pool.ElasticResizePeriod;
+            pool.ElasticResizeFactor = config.ElasticResizeFactor ?? pool.ElasticResizeFactor;
+            pool.ElasticMinimumIdlingTime = config.ElasticMinimumIdlingTime ?? pool.ElasticMinimumIdlingTime;
             await pool.CommitAsync(ct);
             return new CommandValues.GenericInfoCommandValue()
             {

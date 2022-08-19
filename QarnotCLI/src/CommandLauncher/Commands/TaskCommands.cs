@@ -21,6 +21,7 @@ namespace QarnotCLI
             bool end = false;
             while (end == false)
             {
+                end = await task.WaitAsync(taskTimeoutSeconds:2,ct:ct);
                 if (config.Stdout)
                 {
                     var stdmessage = await task.FreshStdoutAsync(ct);
@@ -37,7 +38,6 @@ namespace QarnotCLI
                         CLILogs.Info("Stderr:" + Environment.NewLine + stdmessage.Replace("\\n", Environment.NewLine));
                     }
                 }
-                end = await task.WaitAsync(taskTimeoutSeconds:2,ct:ct);
             }
 
             var info = new CommandValues.GenericInfoCommandValue();

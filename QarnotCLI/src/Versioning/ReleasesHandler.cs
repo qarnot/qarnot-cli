@@ -37,7 +37,7 @@ namespace QarnotCLI
 
                 return true;
             })
-            .Select(release => new Version(release.TagName));
+            .Select(release => new Version(release.TagName.TrimStart('v'))); // 'v1.15.0' is invalid format. Expects 'major.minor.patch' without 'v'
         }
 
         private Version GetAssemblyVersion()

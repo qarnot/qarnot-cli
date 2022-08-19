@@ -58,17 +58,17 @@ namespace QarnotCLI
             [Option('r', "resources", Required = false, HelpText = "Name of the buckets of the pool.")]
             public override IEnumerable<string> Resources { get; set; }
 
-            public virtual uint ElasticMinimumTotalSlots { get; set; }
+            public virtual uint? ElasticMinimumTotalSlots { get; set; }
 
-            public virtual uint ElasticMaximumTotalSlots { get; set; }
+            public virtual uint? ElasticMaximumTotalSlots { get; set; }
 
-            public virtual uint ElasticMinimumIdlingSlots { get; set; }
+            public virtual uint? ElasticMinimumIdlingSlots { get; set; }
 
-            public virtual uint ElasticResizePeriod { get; set; }
+            public virtual uint? ElasticResizePeriod { get; set; }
 
-            public virtual float ElasticResizeFactor { get; set; }
+            public virtual float? ElasticResizeFactor { get; set; }
 
-            public virtual uint ElasticMinimumIdlingTime { get; set; }
+            public virtual uint? ElasticMinimumIdlingTime { get; set; }
 
             [Option("tasks-wait-for-synchronization", Required = false, HelpText = "Have all the pool's tasks wait for the resources to be synchronized before running if the pool resources are updated before the task submission. (set to true or false, default: false)")]
             public override bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
@@ -209,17 +209,17 @@ namespace QarnotCLI
 
         public class PoolElasticSettingsOptions : APoolGetOptions, IElasticityOptions
         {
-            public virtual uint ElasticMinimumTotalSlots { get; set; }
+            public virtual uint? ElasticMinimumTotalSlots { get; set; }
 
-            public virtual uint ElasticMaximumTotalSlots { get; set; }
+            public virtual uint? ElasticMaximumTotalSlots { get; set; }
 
-            public virtual uint ElasticMinimumIdlingSlots { get; set; }
+            public virtual uint? ElasticMinimumIdlingSlots { get; set; }
 
-            public virtual uint ElasticResizePeriod { get; set; }
+            public virtual uint? ElasticResizePeriod { get; set; }
 
-            public virtual float ElasticResizeFactor { get; set; }
+            public virtual float? ElasticResizeFactor { get; set; }
 
-            public virtual uint ElasticMinimumIdlingTime { get; set; }
+            public virtual uint? ElasticMinimumIdlingTime { get; set; }
         }
     }
 }
