@@ -36,8 +36,6 @@
                     return new TableFormatter();
                 case "JSON":
                     return new JsonFormatter();
-                case "XML":
-                    return new XMLFormatter();
                 default:
                     throw new MissingMethodException(formatType);
             }
@@ -58,8 +56,6 @@
                 case "TABLE":
                     return true;
                 case "JSON":
-                    return true;
-                case "XML":
                     return true;
                 default:
                     throw new ParseException();
@@ -198,59 +194,13 @@
             {
                 try
                 {
-                    return JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented);
+                    return JsonConvert.SerializeObject(obj, Newtonsoft.Json.Formatting.Indented, new [] {new ConnectionJsonConverter()});
                 }
                 catch(Newtonsoft.Json.JsonSerializationException ex)
                 {
                     CLILogs.Error(ex.Message);
                     return "Value not found";
                 }
-            }
-        }
-
-        /// <summary>
-        /// Format XML
-        /// print the XML format of the object send.
-        /// </summary>
-        public class XMLFormatter : IResultFormatter
-        {
-            public XMLFormatter()
-            {
-            }
-
-            public string FormatCollection<T>(List<T> obj)
-            {
-                var value = new Information()
-                {
-                    Values = obj,
-                };
-
-                return CreateXML(value);
-            }
-
-            public string Format<T>(T obj)
-            {
-                return CreateXML(obj);
-            }
-
-            private string CreateXML(object obj)
-            {
-                string jsonSerialize = JsonConvert.SerializeObject(obj);
-                CLILogs.Debug(jsonSerialize);
-                try
-                {
-                    return JsonConvert.DeserializeXNode(jsonSerialize, "Information", false).ToString();
-                }
-                catch(Newtonsoft.Json.JsonSerializationException ex)
-                {
-                    CLILogs.Error(ex.Message);
-                    return "Value not found";
-                }
-            }
-
-            private class Information
-            {
-                public object Values { get; set; }
             }
         }
     }

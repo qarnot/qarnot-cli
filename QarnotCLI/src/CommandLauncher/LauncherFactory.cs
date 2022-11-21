@@ -52,7 +52,7 @@ namespace QarnotCLI
                 case CommandApi.Create:
                     return new CreateCommandLauncher(new ApiObjectCreator.CreateNewPool(new CreateHelper()), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Info:
-                    return new CommandGeneric<QPool, QPool>(new QPoolsRetriever(), new GenericCommand<QPool, QPool>(new ConnectionTransformer()), this.Formatter, this.ConnectionWrapper);
+                    return new CommandGeneric<QPool, QPool>(new QPoolsRetriever(), new GenericCommand<QPool, QPool>(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.List:
                     return new CommandGeneric<QPool, PoolCommandValue>(new QPoolsRetriever(), new GenericCollectionCommand<QPool, PoolCommandValue>(new PoolModelMapper()), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Delete:
@@ -63,6 +63,8 @@ namespace QarnotCLI
                     return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new UpdatePoolConstantCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Set:
                     return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new SetPoolElasticSettingsCommand(), this.Formatter, this.ConnectionWrapper);
+                case CommandApi.SetScaling:
+                    return new CommandGeneric<QPool, GenericInfoCommandValue>(new QPoolsRetriever(), new SetPoolScalingCommand(), this.Formatter, this.ConnectionWrapper);
                 default:
                     throw new NotImplementedException("Not implemented command for Pool");
             }
@@ -75,7 +77,7 @@ namespace QarnotCLI
                 case CommandApi.Create:
                     return new CreateCommandLauncher(new ApiObjectCreator.CreateNewTask(new CreateHelper()), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Info:
-                    return new CommandGeneric<QTask, QTask>(new QTasksRetriever(), new GenericCommand<QTask, QTask>(new ConnectionTransformer()), this.Formatter, this.ConnectionWrapper);
+                    return new CommandGeneric<QTask, QTask>(new QTasksRetriever(), new GenericCommand<QTask, QTask>(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Wait:
                     return new CommandGeneric<QTask, GenericInfoCommandValue>(new QTasksRetriever(), new WaitTaskCommand(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.List:
@@ -106,7 +108,7 @@ namespace QarnotCLI
                 case CommandApi.Create:
                     return new CreateCommandLauncher(new ApiObjectCreator.CreateNewJob(new CreateHelper()), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Info:
-                    return new CommandGeneric<QJob, QJob>(new QJobsRetriever(), new GenericCommand<QJob, QJob>(new ConnectionTransformer()), this.Formatter, this.ConnectionWrapper);
+                    return new CommandGeneric<QJob, QJob>(new QJobsRetriever(), new GenericCommand<QJob, QJob>(), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.List:
                     return new CommandGeneric<QJob, JobCommandValue>(new QJobsRetriever(), new GenericCollectionCommand<QJob, JobCommandValue>(new JobModelMapper()), this.Formatter, this.ConnectionWrapper);
                 case CommandApi.Abort:

@@ -19,7 +19,7 @@ namespace QarnotCLI
 
         public interface IResultOptions
         {
-            [Option("format", Required = false, HelpText = "Change the result format. (format available: TABLE, JSON, XML)(Default TABLE)")]
+            [Option("format", Required = false, HelpText = "Change the result format. (format available: TABLE, JSON)(Default TABLE)")]
             string ResultFormat { get; set; }
 
             [Option('h', "human-readable", Required = false, HelpText = "Print sizes in human readable format (e.g., 1K 234M 2G).")]
@@ -76,6 +76,8 @@ namespace QarnotCLI
 
             bool IsElastic { get; set; }
 
+            string Scaling { get; set; }
+
             string Job { get; set; }
 
             string Pool { get; set; }
@@ -85,6 +87,8 @@ namespace QarnotCLI
             bool? WaitForPoolResourcesSynchronization { get; set; }
 
             bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
+
+            uint? MaxTotalRetries { get; set; }
 
             uint? MaxRetriesPerInstance { get; set; }
 
@@ -179,6 +183,12 @@ namespace QarnotCLI
 
             [Option("constant-value", Required = false, HelpText = "New value for the constant to update.")]
             string ConstantValue { get; set; }
+        }
+
+        public interface IScalingOptions : IGetOptions
+        {
+            [Option("scaling", Required = false, HelpText = "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'")]
+            string Scaling { get; set; }
         }
     }
 }

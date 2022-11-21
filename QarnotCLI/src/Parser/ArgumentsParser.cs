@@ -176,7 +176,7 @@ namespace QarnotCLI
                 CreateConfiguration createConfig = (CreateConfiguration)config;
                 if (string.IsNullOrEmpty(createConfig.Name) ||
                     string.IsNullOrEmpty(createConfig.Profile) ||
-                    (createConfig.InstanceCount == 0 && !createConfig.IsElastic))
+                    (createConfig.InstanceCount == 0 && !createConfig.IsElastic && createConfig.Scaling == default))
                 {
                     return false;
                 }
@@ -201,6 +201,7 @@ namespace QarnotCLI
                                                     Options.InfoPoolOptions,
                                                     Options.SetPoolOptions,
                                                     Options.SetPoolElasticSettingsOptions,
+                                                    Options.SetPoolScalingOptions,
                                                     Options.DeletePoolOptions,
                                                     Options.UpdatePoolResourcesOptions,
                                                     Options.UpdatePoolConstantOptions>(argv);
@@ -214,6 +215,7 @@ namespace QarnotCLI
                 (Options.DeletePoolOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.Delete, o),
                 (Options.SetPoolOptions o) => result = this.CreateConfig.ConvertElasticPoolSetterOption(ConfigType.Pool, CommandApi.Set, o),
                 (Options.SetPoolElasticSettingsOptions o) => result = this.CreateConfig.ConvertElasticPoolSetterOption(ConfigType.Pool, CommandApi.Set, o),
+                (Options.SetPoolScalingOptions o) => result = this.CreateConfig.ConvertScalingSetterOption(ConfigType.Pool, CommandApi.SetScaling, o),
                 (Options.UpdatePoolResourcesOptions o) => result = this.CreateConfig.ConvertGenericGetterOption(ConfigType.Pool, CommandApi.UpdateResources, o),
                 (Options.UpdatePoolConstantOptions o) => result = this.CreateConfig.ConvertConstantOption(ConfigType.Pool, CommandApi.UpdateConstant, o),
                 err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));

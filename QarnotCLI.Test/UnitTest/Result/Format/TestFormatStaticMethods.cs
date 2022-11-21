@@ -39,12 +39,6 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public void CheckFormatForXmlReturnTrue()
-        {
-           Assert.IsTrue(FormatterFactory.CheckFormat("XML"));
-        }
-
-        [Test]
         public void CheckFormatForPhpReturnFalse()
         {
            var ex = Assert.Throws<QarnotCLI.ParseException>(() => FormatterFactory.CheckFormat("PHP"));
@@ -61,12 +55,6 @@ namespace QarnotCLI.Test
         public void CreateFormatForJsonReturnFormatJson()
         {
            Assert.IsTrue(FormatterFactory.CreateFormat("JSON") is FormatterFactory.JsonFormatter);
-        }
-
-        [Test]
-        public void CreateFormatForXmlReturnFormatXml()
-        {
-           Assert.IsTrue(FormatterFactory.CreateFormat("XML") is FormatterFactory.XMLFormatter);
         }
 
         [Test]

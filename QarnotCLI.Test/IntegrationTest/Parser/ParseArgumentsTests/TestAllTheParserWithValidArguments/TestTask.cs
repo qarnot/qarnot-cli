@@ -1,12 +1,6 @@
 namespace QarnotCLI.Test
 {
     using System;
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Newtonsoft.Json;
     using NUnit.Framework;
     using QarnotCLI;
 
@@ -35,13 +29,14 @@ namespace QarnotCLI.Test
             string whitelist = "white*";
             string blacklist = "black*";
             string maxRetriesPerInstance = "23";
+            string maxTotalRetries = "23";
             uint defaultTTL = 36000;
             string[] argv = null;
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--instance", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0], "--wait-for-resources-synchronization", "true" , "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance };
+            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--instance", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0], "--wait-for-resources-synchronization", "true" , "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance, "--max-total-retries", maxTotalRetries };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -62,11 +57,12 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.SnapshotPeriodicSec.ToString(), periodic);
             Assert.AreEqual(confset.Whitelist, whitelist);
             Assert.AreEqual(confset.Blacklist, blacklist);
-            Assert.AreEqual(23, confset.MaxRetriesPerInstance);
+            Assert.AreEqual(UInt32.Parse(maxRetriesPerInstance), confset.MaxRetriesPerInstance);
+            Assert.AreEqual(UInt32.Parse(maxTotalRetries), confset.MaxTotalRetries);
             Assert.IsNull(confset.ExportApiAndStorageCredentialsInEnvironment);
             Assert.IsNull(confset.DefaultResourcesCacheTTLSec);
 
-            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--range", range, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--wait-for-resources-synchronization", "false" , "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance, "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString() };
+            argv = new string[] { "task", "create", "--name", name, "--shortname", shortname, "--range", range, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--wait-for-resources-synchronization", "false" , "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance, "--max-total-retries", maxTotalRetries, "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString() };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -86,11 +82,12 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.SnapshotPeriodicSec.ToString(), periodic);
             Assert.AreEqual(confset.Whitelist, whitelist);
             Assert.AreEqual(confset.Blacklist, blacklist);
-            Assert.AreEqual(23, confset.MaxRetriesPerInstance);
+            Assert.AreEqual(UInt32.Parse(maxRetriesPerInstance), confset.MaxRetriesPerInstance);
+            Assert.AreEqual(UInt32.Parse(maxTotalRetries), confset.MaxTotalRetries);
             Assert.AreEqual(true, confset.ExportApiAndStorageCredentialsInEnvironment);
             Assert.AreEqual(defaultTTL, confset.DefaultResourcesCacheTTLSec);
 
-            argv = new string[] { "task", "create", "-n", name, "-s", shortname, "-i", instance, "-p", profile, "-t", tags[0], tags[1], tags[2], "-c", constants[0], "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance };
+            argv = new string[] { "task", "create", "-n", name, "-s", shortname, "-i", instance, "-p", profile, "-t", tags[0], tags[1], tags[2], "-c", constants[0], "--periodic", periodic, "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance, "--max-total-retries", maxTotalRetries};
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -110,7 +107,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.SnapshotPeriodicSec.ToString(), periodic);
             Assert.AreEqual(confset.Whitelist, whitelist);
             Assert.AreEqual(confset.Blacklist, blacklist);
-            Assert.AreEqual(23, confset.MaxRetriesPerInstance);
+            Assert.AreEqual(UInt32.Parse(maxRetriesPerInstance), confset.MaxRetriesPerInstance);
+            Assert.AreEqual(UInt32.Parse(maxTotalRetries), confset.MaxTotalRetries);
             commandLineParser.Dispose();
         }
 
@@ -296,7 +294,7 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "task", "stdout", "--name", name, "--id", taskUuid, "--tags", tags, "--fresh" };
+            argv = new string[] { "task", "stdout", "--name", name, "--id", taskUuid, "--tags", tags, "--instance-id", "0", "--fresh" };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is StdConfiguration))
@@ -310,6 +308,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, taskUuid);
             Assert.IsTrue(confset.Fresh);
+            Assert.AreEqual(0, confset.InstanceId);
 
             argv = new string[] { "task", "stdout", "-n", name, "-i", taskUuid, "-t", tags, "-f" };
             iConfSet = parser.Parse(argv);
@@ -325,6 +324,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, taskUuid);
             Assert.IsTrue(confset.Fresh);
+            Assert.AreEqual(null, confset.InstanceId);
         }
 
         [Test]
@@ -338,7 +338,7 @@ namespace QarnotCLI.Test
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
-            argv = new string[] { "task", "stderr", "--name", name, "--id", taskUuid, "--tags", tags, "--fresh" };
+            argv = new string[] { "task", "stderr", "--name", name, "--id", taskUuid, "--tags", tags, "--instance-id", "0", "--fresh" };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is StdConfiguration))
@@ -352,6 +352,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, taskUuid);
             Assert.IsTrue(confset.Fresh);
+            Assert.AreEqual(0, confset.InstanceId);
 
             argv = new string[] { "task", "stderr", "-n", name, "-i", taskUuid, "-t", tags, "-f" };
             iConfSet = parser.Parse(argv);
@@ -367,6 +368,7 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.Name, name);
             Assert.AreEqual(confset.Id, taskUuid);
             Assert.IsTrue(confset.Fresh);
+            Assert.AreEqual(null, confset.InstanceId);
         }
 
         [Test]

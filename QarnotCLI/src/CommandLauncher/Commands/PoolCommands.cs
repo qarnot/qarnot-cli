@@ -100,4 +100,28 @@ namespace QarnotCLI
             };
         }
     }
+
+
+    public class SetPoolScalingCommand : ICommand<QPool, CommandValues.GenericInfoCommandValue>
+    {
+        public virtual async Task<CommandValues.GenericInfoCommandValue> ExecuteAsync(QPool pool, IConfiguration iconfig, CancellationToken ct = default(CancellationToken))
+        {
+            PoolSetScalingConfiguration config = iconfig as PoolSetScalingConfiguration;
+            CLILogs.Debug("Command pool : Pool name " + pool?.Name ?? config?.Name);
+            CLILogs.Debug("Command pool : Set pool scaling");
+
+            if (pool == default)
+            {
+                var message = "Pool scaling update failed. Pool not found";
+                throw new System.Exception(message);
+            }
+
+            await pool.UpdateScalingAsync(config.Scaling, ct);
+            return new CommandValues.GenericInfoCommandValue()
+            {
+                Uuid = pool.Uuid.ToString(),
+                Message = "Update pool scaling ",
+            };
+        }
+    }
 }

@@ -56,6 +56,8 @@ namespace QarnotCLI
 
             public virtual bool IsElastic { get; set; }
 
+            public virtual string Scaling { get; set; }
+
             public virtual bool IsDependents { get; set; }
 
             public virtual string Job { get; set; }
@@ -67,6 +69,8 @@ namespace QarnotCLI
             public virtual bool? WaitForPoolResourcesSynchronization { get; set; }
 
             public virtual bool? TasksDefaultWaitForPoolResourcesSynchronization { get; set; }
+
+            public virtual uint? MaxTotalRetries { get; set; }
 
             public virtual uint? MaxRetriesPerInstance { get; set; }
 

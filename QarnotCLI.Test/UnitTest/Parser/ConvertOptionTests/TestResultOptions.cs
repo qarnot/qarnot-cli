@@ -48,15 +48,6 @@ namespace QarnotCLI.Test
         }
 
         [Test]
-        public void CheckGetResultOptionsXML()
-        {
-            string format = "TABLE";
-            Option.ResultFormat = format;
-            Convert.GetDefaultOptions(Config, Option);
-            Assert.AreEqual(Config.ResultFormat, format);
-        }
-
-        [Test]
         public void CheckGetResultOptionsMatchAlsoLowerCaseFormat()
         {
             string format = "json";

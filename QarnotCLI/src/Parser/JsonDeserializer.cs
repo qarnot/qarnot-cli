@@ -14,6 +14,14 @@ namespace QarnotCLI
 
     public class JsonDeserializer : IDeserializer
     {
+        private JsonConverter[] Converters { get; set; }
+
+        public JsonDeserializer() { }
+        public JsonDeserializer(params JsonConverter[] converters): this()
+        {
+            Converters = converters;
+        }
+
         public T GetObjectFromFile<T>(string filePath)
         {
             return this.Deserialize<T>(this.GetFile(filePath));
@@ -26,7 +34,9 @@ namespace QarnotCLI
 
         public T Deserialize<T>(string jsonFile)
         {
-            return JsonConvert.DeserializeObject<T>(jsonFile);
+            return Converters != default ?
+                JsonConvert.DeserializeObject<T>(jsonFile, Converters)
+                : JsonConvert.DeserializeObject<T>(jsonFile);
         }
     }
 }

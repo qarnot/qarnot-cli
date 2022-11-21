@@ -56,6 +56,12 @@ namespace QarnotCLI.Test
         }
 
         [Test]
+        public void PoolSetScaling()
+        {
+            Assert.IsTrue(this.Factory.CreateLauncher(ConfigType.Pool, CommandApi.SetScaling) is CommandGeneric<QPool, GenericInfoCommandValue>);
+        }
+
+        [Test]
         public void PoolInvalidThrowError()
         {
             var ex = Assert.Throws<NotImplementedException>(() => this.Factory.CreateLauncher(ConfigType.Pool, CommandApi.Abort));

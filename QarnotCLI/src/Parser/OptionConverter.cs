@@ -15,6 +15,8 @@ namespace QarnotCLI
 
         PoolSetElasticSettingsConfiguration ConvertElasticPoolSetterOption(ConfigType type, CommandApi command, Options.PoolElasticSettingsOptions option);
 
+        PoolSetScalingConfiguration ConvertScalingSetterOption(ConfigType type, CommandApi command, Options.SetPoolScalingOptions option);
+
         DefaultRunConfiguration ConvertGenericGetterOption(ConfigType type, CommandApi command, Options.IGetOptions option);
 
         StdConfiguration ConvertStdOption(ConfigType type, CommandApi command, Options.AStdOptions option);
@@ -264,6 +266,7 @@ namespace QarnotCLI
             config.Stdout = option.Stdout;
             config.Stderr = option.Stderr;
             config.Fresh = option.Fresh;
+            config.InstanceId = option.InstanceId;
 
             return config;
         }
@@ -298,6 +301,20 @@ namespace QarnotCLI
         {
             config.ExportApiAndStorageCredentialsInEnvironment = option.ExportApiAndStorageCredentialsInEnvironment ?? config.ExportApiAndStorageCredentialsInEnvironment;
             return config;
+        }
+
+        public QarnotSDK.Scaling ConvertScalingOption(string scalingOption)
+        {
+            if (string.IsNullOrWhiteSpace(scalingOption))
+            {
+                return null;
+            }
+            var serializer = new JsonDeserializer(new TimePeriodSpecificationJsonConverter(), new ScalingPolicyConverter());
+            if (scalingOption.Trim().StartsWith("@"))
+            {
+                return serializer.GetObjectFromFile<QarnotSDK.Scaling>(scalingOption.Trim().TrimStart('@'));
+            }
+            return serializer.Deserialize<QarnotSDK.Scaling>(scalingOption);
         }
 
         /// <summary>
@@ -357,6 +374,19 @@ namespace QarnotCLI
             config.ElasticResizePeriod = option.ElasticResizePeriod;
             config.ElasticResizeFactor = option.ElasticResizeFactor;
             config.ElasticMinimumIdlingTime = option.ElasticMinimumIdlingTime;
+            return config;
+        }
+
+
+        public PoolSetScalingConfiguration ConvertScalingSetterOption(ConfigType type, CommandApi command, Options.SetPoolScalingOptions option)
+        {
+            PoolSetScalingConfiguration config = new PoolSetScalingConfiguration(type, CommandApi.SetScaling);
+            SetDefaultRunConfigurationOption(config, type, command, option);
+            if (option.Scaling != default)
+            {
+                config.Scaling = ConvertScalingOption(option.Scaling);
+            }
+
             return config;
         }
 
@@ -460,6 +490,7 @@ namespace QarnotCLI
             var MaximumWallTime = string.IsNullOrEmpty(option.MaximumWallTime) ? config.MaximumWallTime : (TimeSpan?)ParseTimeSpanString(option.MaximumWallTime);
             config.MaximumWallTime = MaximumWallTime == default(TimeSpan) ? null : MaximumWallTime;
             config.TasksDefaultWaitForPoolResourcesSynchronization = option.TasksDefaultWaitForPoolResourcesSynchronization ?? config.TasksDefaultWaitForPoolResourcesSynchronization;
+            config.MaxTotalRetries = option.MaxTotalRetries ?? config.MaxTotalRetries;
             config.MaxRetriesPerInstance = option.MaxRetriesPerInstance ?? config.MaxRetriesPerInstance;
             config.WaitForPoolResourcesSynchronization = option.WaitForPoolResourcesSynchronization ?? config.WaitForPoolResourcesSynchronization;
             config.DefaultResourcesCacheTTLSec = option.DefaultResourcesCacheTTLSec ?? config.DefaultResourcesCacheTTLSec;
@@ -477,6 +508,11 @@ namespace QarnotCLI
             if (privilegesOption != null)
             {
                 ConvertPrivilegesOption(config, privilegesOption);
+            }
+
+            if (option.Scaling != default)
+            {
+                config.Scaling = ConvertScalingOption(option.Scaling);
             }
 
             return config;

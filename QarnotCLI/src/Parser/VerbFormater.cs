@@ -35,6 +35,7 @@ namespace QarnotCLI
                 "put",
                 "set",
                 "set-elastic-settings",
+                "set-scaling",
                 "get",
                 "snapshot",
                 "stdout",

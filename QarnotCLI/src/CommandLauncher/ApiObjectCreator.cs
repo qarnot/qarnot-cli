@@ -63,6 +63,7 @@ namespace QarnotCLI
                 pool.ElasticResizePeriod = config.ElasticResizePeriod ?? pool.ElasticResizePeriod;
                 pool.ElasticResizeFactor = config.ElasticResizeFactor ?? pool.ElasticResizeFactor;
                 pool.ElasticMinimumIdlingTime = config.ElasticMinimumIdlingTime ?? pool.ElasticMinimumIdlingTime;
+                pool.Scaling = config.Scaling;
 
                 if (config.ExportApiAndStorageCredentialsInEnvironment.HasValue)
                 {
@@ -72,6 +73,12 @@ namespace QarnotCLI
                 if (config.DefaultResourcesCacheTTLSec.HasValue)
                 {
                     pool.DefaultResourcesCacheTTLSec = config.DefaultResourcesCacheTTLSec.Value;
+                }
+
+                if (config.MaxTotalRetries.HasValue || config.MaxRetriesPerInstance.HasValue) {
+                    pool.DefaultRetrySettings = new();
+                    pool.DefaultRetrySettings.MaxTotalRetries = config.MaxTotalRetries.Value;
+                    pool.DefaultRetrySettings.MaxPerInstanceRetries = config.MaxRetriesPerInstance.Value;
                 }
 
                 CLILogs.Info("create pool");
@@ -209,8 +216,17 @@ namespace QarnotCLI
                 task.ResultsWhitelist = config.Whitelist;
                 task.ResultsBlacklist = config.Blacklist;
 
-                if (config.MaxRetriesPerInstance.HasValue) {
-                    task.MaxRetriesPerInstance = config.MaxRetriesPerInstance.Value;
+                if (config.MaxTotalRetries.HasValue || config.MaxRetriesPerInstance.HasValue) {
+                    if (config.MaxRetriesPerInstance.HasValue) {
+                        task.MaxRetriesPerInstance = config.MaxRetriesPerInstance.Value;
+                    }
+                    task.RetrySettings = new();
+                    if (config.MaxTotalRetries.HasValue) {
+                        task.RetrySettings.MaxTotalRetries = config.MaxTotalRetries.Value;
+                    }
+                    if (config.MaxRetriesPerInstance.HasValue) {
+                        task.RetrySettings.MaxPerInstanceRetries = config.MaxRetriesPerInstance.Value;
+                    }
                 }
 
                 if (config.ExportApiAndStorageCredentialsInEnvironment.HasValue)

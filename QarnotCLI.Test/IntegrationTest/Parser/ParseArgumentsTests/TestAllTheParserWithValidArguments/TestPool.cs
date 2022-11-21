@@ -1,3 +1,4 @@
+using System.Linq;
 namespace QarnotCLI.Test
 {
     using System;
@@ -32,12 +33,14 @@ namespace QarnotCLI.Test
             string[] constraints = new[] { "CONSTRAINTS" };
             uint defaultTTL = 36000;
             string[] argv = null;
+            uint maxRetriesPerInstance = 23;
+            uint maxTotalRetries = 23;
             var commandLineParser = new CommandLine.Parser();
             CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
             IConfiguration iConfSet = null;
 
             argv = new string[] { "pool", "create", "--name", name, "--shortname", shortname, "--instanceNodes", instance, "--profile", profile, "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0], "--tasks-wait-for-synchronization", "false"  };
-            argv = new string[] { "pool", "create", "--name=" + name, "--shortname=" + shortname, "--instanceNodes=" + instance, "--profile=" + profile, "--tags=" + tags[0], tags[1], tags[2], "--constants=" + constants[0], "--constraints=" + constraints[0], "--tasks-wait-for-synchronization", "true", "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString()  };
+            argv = new string[] { "pool", "create", "--name=" + name, "--shortname=" + shortname, "--instanceNodes=" + instance, "--profile=" + profile, "--tags=" + tags[0], tags[1], tags[2], "--constants=" + constants[0], "--constraints=" + constraints[0], "--tasks-wait-for-synchronization", "true", "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(), "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString() };
             iConfSet = parser.Parse(argv);
 
             if (!(iConfSet is CreateConfiguration))
@@ -57,6 +60,8 @@ namespace QarnotCLI.Test
             Assert.AreEqual(confset.TasksDefaultWaitForPoolResourcesSynchronization, true);
             Assert.AreEqual(true, confset.ExportApiAndStorageCredentialsInEnvironment);
             Assert.AreEqual(defaultTTL, confset.DefaultResourcesCacheTTLSec);
+            Assert.AreEqual((maxRetriesPerInstance), confset.MaxRetriesPerInstance);
+            Assert.AreEqual(maxTotalRetries, confset.MaxTotalRetries);
 
             argv = new string[] { "pool", "create", "-n", name, "-s", shortname, "-i", instance, "-p", profile, "-t", tags[0], tags[1], tags[2], "-c", constants[0] };
             iConfSet = parser.Parse(argv);
@@ -99,6 +104,127 @@ namespace QarnotCLI.Test
             {
                 throw new Exception("return value is not CreateConfiguration ");
             }
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void CreatePoolWithScalingPoliciesShouldBeCorrectlyDeserialized(bool useJsonFile)
+        {
+            string name = "NAME";
+            string shortname = "SHORT";
+            string profile = "PROFILE";
+            string[] argv = null;
+            var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+
+            string scalingJsonFileName = "scaling_test.json";
+            if (useJsonFile)
+            {
+                File.WriteAllText(scalingJsonFileName, HttpPoolObject.ScalingPolicy1);
+            }
+
+            argv = new string[] { "pool", "create", "--name", name, "--shortname", shortname, "--profile", profile, "--scaling", useJsonFile ? string.Format("@{0}", scalingJsonFileName): HttpPoolObject.ScalingPolicy1};
+            var iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is CreateConfiguration config))
+            {
+                throw new Exception("return value is not CreateConfiguration ");
+            }
+
+            Assert.IsNotNull(config.Scaling);
+            CollectionAssert.IsNotEmpty(config.Scaling.Policies);
+            Assert.AreEqual(2, config.Scaling.Policies.Count);
+
+            var firstPolicy = config.Scaling.Policies.FirstOrDefault();
+            Assert.IsNotNull(firstPolicy);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.ManagedTasksQueueScalingPolicy), firstPolicy);
+
+            var managedPolicy = firstPolicy as QarnotSDK.ManagedTasksQueueScalingPolicy;
+            Assert.AreEqual("managed-policy", managedPolicy.Name);
+            CollectionAssert.IsNotEmpty(managedPolicy.EnabledPeriods);
+            Assert.AreEqual(2, managedPolicy.EnabledPeriods.Count);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.TimePeriodWeeklyRecurring), managedPolicy.EnabledPeriods.First());
+
+            var firstWeekly = (managedPolicy.EnabledPeriods.First() as QarnotSDK.TimePeriodWeeklyRecurring);
+            Assert.AreEqual("thursday-evening", firstWeekly.Name);
+            CollectionAssert.Contains(firstWeekly.Days, DayOfWeek.Thursday);
+            Assert.AreEqual("19:30:00", firstWeekly.StartTimeUtc);
+            Assert.AreEqual("22:00:00", firstWeekly.EndTimeUtc);
+            Assert.AreEqual(0, managedPolicy.MinTotalSlots);
+            Assert.AreEqual(10, managedPolicy.MaxTotalSlots);
+            Assert.AreEqual(1, managedPolicy.MinIdleSlots);
+            Assert.AreEqual(90, managedPolicy.MinIdleTimeSeconds);
+            Assert.AreEqual(0.5, managedPolicy.ScalingFactor);
+
+            var fixedPolicy = config.Scaling.Policies.Except(new List<QarnotSDK.ScalingPolicy>(){managedPolicy}).FirstOrDefault();
+            Assert.IsNotNull(fixedPolicy);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.FixedScalingPolicy), fixedPolicy);
+            Assert.AreEqual("fixed-policy", fixedPolicy.Name);
+            CollectionAssert.IsNotEmpty(fixedPolicy.EnabledPeriods);
+            Assert.AreEqual(1, fixedPolicy.EnabledPeriods.Count);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.TimePeriodAlways), fixedPolicy.EnabledPeriods.First());
+            Assert.AreEqual("really-always", fixedPolicy.EnabledPeriods.First().Name);
+            Assert.AreEqual(4, (fixedPolicy as QarnotSDK.FixedScalingPolicy).SlotsCount);
+        }
+
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void UpdatePoolWithScalingPoliciesShouldBeCorrectlyDeserialized(bool useJsonFile)
+        {
+            string shortname = "SHORT";
+            string[] argv = null;
+            var commandLineParser = new CommandLine.Parser();
+            CommandLineParser parser = new CommandLineParser(new OptionConverter(new JsonDeserializer()), commandLineParser, new ParserUsage(), new VerbFormater());
+
+            string scalingJsonFileName = "scaling_test.json";
+            if (useJsonFile)
+            {
+                File.WriteAllText(scalingJsonFileName, HttpPoolObject.ScalingPolicy2);
+            }
+
+            argv = new string[] { "pool", "set-scaling", "--id", shortname, "--scaling", useJsonFile ? string.Format("@{0}", scalingJsonFileName): HttpPoolObject.ScalingPolicy2};
+            var iConfSet = parser.Parse(argv);
+
+            if (!(iConfSet is PoolSetScalingConfiguration config))
+            {
+                throw new Exception($"return value is not {nameof(PoolSetScalingConfiguration)} ");
+            }
+
+            Assert.IsNotNull(config.Scaling);
+            CollectionAssert.IsNotEmpty(config.Scaling.Policies);
+            Assert.AreEqual(2, config.Scaling.Policies.Count);
+
+            var fixedPolicy = config.Scaling.Policies.First();
+            Assert.IsNotNull(fixedPolicy);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.FixedScalingPolicy), fixedPolicy);
+            Assert.AreEqual("fixed-policy", fixedPolicy.Name);
+            CollectionAssert.IsNotEmpty(fixedPolicy.EnabledPeriods);
+            Assert.AreEqual(1, fixedPolicy.EnabledPeriods.Count);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.TimePeriodAlways), fixedPolicy.EnabledPeriods.First());
+            Assert.AreEqual("really-always", fixedPolicy.EnabledPeriods.First().Name);
+            Assert.AreEqual(4, (fixedPolicy as QarnotSDK.FixedScalingPolicy).SlotsCount);
+
+
+
+            var secondPolicy = config.Scaling.Policies.LastOrDefault();
+            Assert.IsNotNull(secondPolicy);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.ManagedTasksQueueScalingPolicy), secondPolicy);
+            var managedPolicy = secondPolicy as QarnotSDK.ManagedTasksQueueScalingPolicy;
+            Assert.AreEqual("managed-policy", managedPolicy.Name);
+            CollectionAssert.IsNotEmpty(managedPolicy.EnabledPeriods);
+            Assert.AreEqual(1, managedPolicy.EnabledPeriods.Count);
+            Assert.IsAssignableFrom(typeof(QarnotSDK.TimePeriodWeeklyRecurring), managedPolicy.EnabledPeriods.First());
+            var firstWeekly = (managedPolicy.EnabledPeriods.First() as QarnotSDK.TimePeriodWeeklyRecurring);
+            Assert.AreEqual("monday-mornings", firstWeekly.Name);
+            CollectionAssert.Contains(firstWeekly.Days, DayOfWeek.Monday);
+            Assert.AreEqual("00:00:00", firstWeekly.StartTimeUtc);
+            Assert.AreEqual("12:00:00", firstWeekly.EndTimeUtc);
+            Assert.AreEqual(16, managedPolicy.MinTotalSlots);
+            Assert.AreEqual(32, managedPolicy.MaxTotalSlots);
+            Assert.AreEqual(8, managedPolicy.MinIdleSlots);
+            Assert.AreEqual(90, managedPolicy.MinIdleTimeSeconds);
+            Assert.That(managedPolicy.ScalingFactor, Is.EqualTo(0.6).Within(0.001));  // stupid decimal vs float
         }
 
         [Test]
@@ -205,6 +331,7 @@ namespace QarnotCLI.Test
         [TestCase("update-constant", CommandApi.UpdateConstant)]
         [TestCase("set", CommandApi.Set)]
         [TestCase("set-elastic-settings", CommandApi.Set)]
+        [TestCase("set-scaling", CommandApi.SetScaling)]
         [TestCase("delete", CommandApi.Delete)]
         public void PoolBasicSubverbCanHaveAllTheBasicFlags(string subverb, CommandApi commandEnum)
         {
@@ -253,6 +380,7 @@ namespace QarnotCLI.Test
         [TestCase("update-resources")]
         [TestCase("set")]
         [TestCase("set-elastic-settings")]
+        [TestCase("set-scaling")]
         [TestCase("delete")]
         public void PoolSubverbCannotHaveTagsAndTagIntersect(string subverb)
         {

@@ -32,6 +32,7 @@ namespace QarnotCLI
             public virtual bool Fresh { get; set; } = false;
             public virtual bool Stdout { get; set; } = false;
             public virtual bool Stderr { get; set; } = false;
+            public virtual uint? InstanceId { get; set; } = null;
         }
     }
 }

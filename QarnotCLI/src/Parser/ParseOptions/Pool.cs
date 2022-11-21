@@ -18,6 +18,7 @@ namespace QarnotCLI
                 get
                 {
                     yield return new Example("Classic usage", new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly() }, new CreatePoolOptions { Name = "Pool name", Profile = "docker-batch", InstanceCount = 4 });
+                    yield return new Example("Create a pool with scaling policies defined in a file", new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly() }, new CreatePoolOptions { Name = "Pool name", Profile = "docker-batch", Scaling = "@scaling_file.json" });
                     yield return new Example("File config usage", UnParserSettings.WithGroupSwitchesOnly(), new CreatePoolOptions { FileConf = "FileName.json" });
                     yield return new Example("Logging errors (missing instanceNodes)", new CreatePoolOptions { Name = "Pool name", Profile = "docker-batch" });
                 }
@@ -76,6 +77,15 @@ namespace QarnotCLI
 
             [Option("ttl", Required = false, HelpText = "Default TTL for the pool resources cache (in seconds). Default is 7776000s.")]
             public override uint? DefaultResourcesCacheTTLSec { get; set; }
+
+            [Option("max-total-retries", Required = false, HelpText = "Default maximum number of retries for the pool's tasks")]
+            public override uint? MaxTotalRetries { get; set; }
+
+            [Option("max-retries-per-instance", Required = false, HelpText = "Default number of retries for each instance of the pool's tasks")]
+            public override uint? MaxRetriesPerInstance { get; set; }
+
+            [Option("scaling", Required = false, HelpText = "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'")]
+            public override string Scaling { get; set; }
         }
 
         [Verb("pool list", HelpText = "List the running pools.")]
@@ -205,6 +215,25 @@ namespace QarnotCLI
                         new SetPoolElasticSettingsOptions { Id = "Pool Uuid", ElasticMinimumTotalSlots = 2, ElasticMaximumTotalSlots = 10});
                 }
             }
+        }
+
+
+        [Verb("pool set-scaling", HelpText = "Update the pool's scaling options")]
+        public class SetPoolScalingOptions : APoolGetOptions, IScalingOptions
+        {
+            [Usage(ApplicationAlias = "qarnot")]
+            public static IEnumerable<Example> Examples
+            {
+                get
+                {
+                    yield return new Example("Update scaling with scaling policies defined in a file",
+                                             new[] { UnParserSettings.WithGroupSwitchesOnly(), UnParserSettings.WithUseEqualTokenOnly() },
+                                             new SetPoolScalingOptions { Scaling = "@scaling_file.json" });
+                }
+            }
+
+            [Option("scaling", Required = false, HelpText = "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'")]
+            public string Scaling { get; set; }
         }
 
         public class PoolElasticSettingsOptions : APoolGetOptions, IElasticityOptions

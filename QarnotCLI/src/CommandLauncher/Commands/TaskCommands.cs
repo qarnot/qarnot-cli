@@ -101,11 +101,11 @@ namespace QarnotCLI
             string message = "";
             if (config.Fresh)
             {
-                message = await task?.FreshStdoutAsync(ct);
+                message = await task?.FreshStdoutAsync(config.InstanceId, ct);
             }
             else
             {
-                message = await task?.StdoutAsync(ct);
+                message = await task?.StdoutAsync(config.InstanceId, ct);
             }
 
             return string.Join(Environment.NewLine, message?.Split("\\n", StringSplitOptions.RemoveEmptyEntries));
@@ -122,11 +122,11 @@ namespace QarnotCLI
             string message = "";
             if (config.Fresh)
             {
-                message = await task?.FreshStderrAsync(ct);
+                message = await task?.FreshStderrAsync(config.InstanceId, ct);
             }
             else
             {
-                message = await task?.StderrAsync(ct);
+                message = await task?.StderrAsync(config.InstanceId, ct);
             }
 
             return string.Join(Environment.NewLine, message?.Split("\\n", StringSplitOptions.RemoveEmptyEntries));

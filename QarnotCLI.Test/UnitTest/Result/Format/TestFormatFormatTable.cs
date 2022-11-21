@@ -107,5 +107,40 @@ namespace QarnotCLI.Test
 
             Assert.AreEqual(retString, format.FormatCollection<TestTableCommandValues>(test));
         }
+
+        private static TestCaseData[] ObjectsWithConnection =
+        {
+            new TestCaseData(
+                new QarnotSDK.QTask(new("someToken"), "ConnectionOutputTaskTest")
+            ),
+            new TestCaseData(
+                new QarnotSDK.QPool(new("someToken"), "ConnectionOutputPoolTest")
+            ),
+            new TestCaseData(
+                new QarnotSDK.QJob(new("someToken"), "ConnectionOutputJobTest")
+            ),
+        };
+
+        [TestCaseSource(nameof(ObjectsWithConnection))]
+        public void CheckTableFormatHidesConnectionInfo(object objectWithConnection)
+        {
+            var format = FormatterFactory.CreateFormat("TABLE");
+            var connection = (QarnotSDK.Connection) objectWithConnection
+                .GetType()
+                .GetProperty("Connection")
+                .GetGetMethod(nonPublic: true)
+                .Invoke(objectWithConnection, null);
+            var name = (string) objectWithConnection
+                .GetType()
+                .GetProperty("Name")
+                .GetGetMethod(nonPublic: true)
+                .Invoke(objectWithConnection, null);
+            var formattedObject = format.Format(objectWithConnection);
+            //TestContext.Progress.WriteLine(formattedObject);
+            Assert.IsNotNull(formattedObject);
+            StringAssert.Contains($"\"Name\": \"{name}\"", formattedObject);
+            StringAssert.DoesNotContain("\"Connection\": ", formattedObject);
+            StringAssert.DoesNotContain(connection.Token, formattedObject);
+        }
     }
 }

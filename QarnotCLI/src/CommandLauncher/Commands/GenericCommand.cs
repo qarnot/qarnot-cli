@@ -11,20 +11,13 @@ namespace QarnotCLI
     public class GenericCommand<T1, T2> : ICommand<T1, T2>
                                                 where T1 : T2
     {
-        public GenericCommand(IObjectTransformer transformer = null)
+        public GenericCommand()
         {
-            objectTransformer = transformer;
         }
-        IObjectTransformer objectTransformer;
 
         public virtual Task<T2> ExecuteAsync(T1 obj, IConfiguration iconfig = null, CancellationToken ct = default(CancellationToken))
         {
             CLILogs.Debug("print info");
-            if (objectTransformer != null)
-            {
-                objectTransformer.Transform(obj);
-            }
-
             return Task.FromResult<T2>(obj);
         }
     }

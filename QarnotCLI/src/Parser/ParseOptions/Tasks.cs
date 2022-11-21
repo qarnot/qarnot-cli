@@ -69,6 +69,9 @@ namespace QarnotCLI
             [Option("wait-for-resources-synchronization", Required = false, HelpText = "Wait for the pool resources to synchronized before launching the task (set to true or false, default: null).")]
             public override bool? WaitForPoolResourcesSynchronization { get; set; }
 
+            [Option("max-total-retries", Required = false, HelpText = "Total number of times the task can have its instances retried in case of failure")]
+            public override uint? MaxTotalRetries { get; set; }
+
             [Option("max-retries-per-instance", Required = false, HelpText = "Total number of times each task instance will be allowed to retry in case of failure")]
             public override uint? MaxRetriesPerInstance { get; set; }
 
@@ -137,13 +140,16 @@ namespace QarnotCLI
                 {
                     yield return new Example("Task stdout", new[] { UnParserSettings.WithGroupSwitchesOnly(), new UnParserSettings() { PreferShortName = true } },
                         new StdoutTaskOptions { Name = "Task name" });
-                    yield return new Example("Task stderr", new[] { UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
-                        new StdoutTaskOptions { Name = "Task name", Fresh = true });
+                    yield return new Example("Task instance stderr", new[] { UnParserSettings.WithUseEqualTokenOnly(), new UnParserSettings() { PreferShortName = true } },
+                        new StdoutTaskOptions { Name = "Task name", Fresh = true, InstanceId = 0 });
                 }
             }
 
             [Option('f', "fresh", Required = false, HelpText = "get the last stdout dump.")]
             public override bool Fresh { get; set; }
+
+            [Option("instance-id", Required = false, HelpText = "get the stdout of a specific instance")]
+            public override uint? InstanceId { get; set; }
         }
 
         [Verb("task stderr", HelpText = "Get the stderr of the task selected.")]
@@ -165,6 +171,9 @@ namespace QarnotCLI
 
             [Option('f', "fresh", Required = false, HelpText = "get the last stderr dump.")]
             public override bool Fresh { get; set; }
+
+            [Option("instance-id", Required = false, HelpText = "get the stderr of a specific instance")]
+            public override uint? InstanceId { get; set; }
         }
 
         [Verb("task update-resources", HelpText = "Update resources for a running task.")]

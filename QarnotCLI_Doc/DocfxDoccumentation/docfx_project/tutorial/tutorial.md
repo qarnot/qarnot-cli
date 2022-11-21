@@ -128,28 +128,25 @@ qarnot job info --id 77951c5b-7c63-4525-a270-c62bbe0ca476
 ]
 ```
 
-Get all the information of a job in XML Format
+Get all the information of a job in JSON Format
 ```bash
-qarnot job info --id 77951c5b-7c63-4525-a270-c62bbe0ca476 --format XML
+qarnot job info --id 77951c5b-7c63-4525-a270-c62bbe0ca476 --format JSON
 ```
-```xml
-<Information>
-  <Values>
-    <Connection>
-        ...
-    </Connection>
-    <Uuid>77951c5b-7c63-4525-a270-c62bbe0ca476</Uuid>
-    <Name>name</Name>
-    <Shortname>77951c5b-7c63-4525-a270-c62bbe0ca476</Shortname>
-    <PoolUuid>00000000-0000-0000-0000-000000000000</PoolUuid>
-    <State>Active</State>
-    <CreationDate>2020-02-28T08:55:45Z</CreationDate>
-    <LastModified>2020-02-28T08:55:45Z</LastModified>
-    <UseDependencies>false</UseDependencies>
-    <MaximumWallTime>00:00:00</MaximumWallTime>
-    <Pool />
-  </Values>
-</Information>
+```json
+[
+  {
+    "Uuid": "77951c5b-7c63-4525-a270-c62bbe0ca476",
+    "Name": "name",
+    "Shortname": "77951c5b-7c63-4525-a270-c62bbe0ca476",
+    "PoolUuid": "00000000-0000-0000-0000-000000000000",
+    "State": "Active",
+    "CreationDate": "2020-02-28T08:55:45Z",
+    "LastModified": "2020-02-28T08:55:45Z",
+    "UseDependencies": false,
+    "MaximumWallTime": "00:00:00",
+    "Pool" : null
+  }
+]
 ```
 
 ### Abort a resource

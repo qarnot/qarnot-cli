@@ -135,5 +135,10 @@ namespace QarnotCLI
         /// Type Snapshot the task results
         /// </summary>
         Snapshot,
+
+        /// <summary>
+        /// Type Set Scaling specification
+        /// </summary>
+        SetScaling,
     }
 }

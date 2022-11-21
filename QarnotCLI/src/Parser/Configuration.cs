@@ -289,6 +289,7 @@ namespace QarnotCLI
         public virtual bool Stdout { get; set; }
         public virtual bool Stderr { get; set; }
         public virtual bool Fresh { get; set; }
+        public virtual uint? InstanceId { get; set; }
 
     }
 
@@ -314,6 +315,21 @@ namespace QarnotCLI
 
         public uint? ElasticMinimumIdlingTime { get; set; }
     }
+
+
+    /// <summary>
+    /// Configuration for the QPool Scaling info.
+    /// </summary>
+    public class PoolSetScalingConfiguration : DefaultRunConfiguration
+    {
+        public PoolSetScalingConfiguration(ConfigType type, CommandApi command)
+            : base(type, command)
+        {
+        }
+
+        public QarnotSDK.Scaling Scaling { get; set; }
+    }
+
 
     /// <summary>
     /// Configuration for the QConstant info.
@@ -422,10 +438,14 @@ namespace QarnotCLI
 
         public List<string> Labels { get; set; }
 
+        public uint? MaxTotalRetries { get; set; }
+
         public uint? MaxRetriesPerInstance { get; set; }
 
         public bool? ExportApiAndStorageCredentialsInEnvironment { get; set; }
 
         public uint? DefaultResourcesCacheTTLSec { get; set; }
+
+        public QarnotSDK.Scaling Scaling { get; set; }
     }
 }

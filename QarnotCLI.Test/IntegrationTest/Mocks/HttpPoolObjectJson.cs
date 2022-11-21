@@ -8,6 +8,82 @@ namespace QarnotCLI.Test
 
         public const string PoolsListUuid = "796a5321-0001-4a5c-2f42-54cce169dff8,796a5321-0002-4a5c-2f42-54cce169dff8,796a5321-0003-4a5c-2f42-54cce169dff8";
 
+        public const string ScalingPolicy1 = @"{
+            ""policies"": [
+                {
+                    ""type"": ""ManagedTasksQueue"",
+                    ""name"": ""managed-policy"",
+                    ""enabledPeriods"": [
+                        {
+                            ""type"": ""Weekly"",
+                            ""name"": ""thursday-evening"",
+                            ""days"": [ ""Thursday"" ],
+                            ""startTimeUtc"": ""19:30:00"",
+                            ""endTimeUtc"": ""22:00:00""
+                        },
+                        {
+                            ""type"": ""Weekly"",
+                            ""name"": ""wednesdays"",
+                            ""days"": [""Wednesday""],
+                            ""startTimeUtc"": ""00:00:00"",
+                            ""endTimeUtc"": ""23:59:59.9999999""
+                        }
+                    ],
+                    ""minTotalSlots"": 0,
+                    ""maxTotalSlots"": 10,
+                    ""minIdleSlots"": 1,
+                    ""minIdleTimeSeconds"": 90,
+                    ""scalingFactor"": 0.5
+                },
+                {
+                    ""type"": ""Fixed"",
+                    ""name"": ""fixed-policy"",
+                    ""enabledPeriods"": [
+                        {
+                            ""type"": ""Always"",
+                            ""name"": ""really-always""
+                        }
+                    ],
+                    ""slotsCount"": 4
+                }
+            ]
+        }";
+
+
+        public const string ScalingPolicy2 = @"{
+            ""policies"": [
+                {
+                    ""type"": ""Fixed"",
+                    ""name"": ""fixed-policy"",
+                    ""enabledPeriods"": [
+                        {
+                            ""type"": ""Always"",
+                            ""name"": ""really-always""
+                        }
+                    ],
+                    ""slotsCount"": 4
+                },
+                {
+                    ""type"": ""ManagedTasksQueue"",
+                    ""name"": ""managed-policy"",
+                    ""enabledPeriods"": [
+                        {
+                            ""type"": ""Weekly"",
+                            ""name"": ""monday-mornings"",
+                            ""days"": [""Monday""],
+                            ""startTimeUtc"": ""00:00:00"",
+                            ""endTimeUtc"": ""12:00:00""
+                        }
+                    ],
+                    ""minTotalSlots"": 16,
+                    ""maxTotalSlots"": 32,
+                    ""minIdleSlots"": 8,
+                    ""minIdleTimeSeconds"": 90,
+                    ""scalingFactor"": 0.6
+                }
+            ]
+        }";
+
         public const string PoolResponseBody = @"{
             ""elasticProperty"": {},
             ""constants"": [],
