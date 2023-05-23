@@ -49,11 +49,14 @@ test_script:
 artifacts:
   - path: artifacts/**/*
     name: qarnot
+  - path: artifacts/
+    name: binaries-zip
+    type: zip
 
 deploy:
   # Deploy to GitHub Releases
   - provider: GitHub
-    artifact: qarnot
+    artifact: qarnot,binaries-zip
     description: "Cli to use Qarnot's computing service"
     draft: false
     prerelease: false
