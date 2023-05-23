@@ -35,12 +35,13 @@ after_build:
   - sh: mv ./artifacts/osx/qarnot ./artifacts/qarnot-osx-x64
   - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/linux
   - sh: mv ./artifacts/linux/qarnot ./artifacts/qarnot-linux-x64
-  - cmd: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win10-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/windows
+  - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/windows
+  - sh: mv ./artifacts/windows/qarnot.exe ./artifacts/qarnot-windows-x64.exe
   - rm artifacts/*/*.pdb
 
 test_script:
-  - sh: dotnet test ./*.Test
-  - cmd: dotnet test
+  - sh: dotnet test ./*.Test   # Will run in Ubuntu image
+  - cmd: dotnet test           # Will run in Windows image
 
 #---------------------------------#
 #     deployment configuration    #

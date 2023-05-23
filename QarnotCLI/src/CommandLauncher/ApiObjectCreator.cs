@@ -77,8 +77,12 @@ namespace QarnotCLI
 
                 if (config.MaxTotalRetries.HasValue || config.MaxRetriesPerInstance.HasValue) {
                     pool.DefaultRetrySettings = new();
-                    pool.DefaultRetrySettings.MaxTotalRetries = config.MaxTotalRetries.Value;
-                    pool.DefaultRetrySettings.MaxPerInstanceRetries = config.MaxRetriesPerInstance.Value;
+                    if (config.MaxTotalRetries.HasValue) {
+                        pool.DefaultRetrySettings.MaxTotalRetries = config.MaxTotalRetries.Value;
+                    }
+                    if (config.MaxRetriesPerInstance.HasValue) {
+                        pool.DefaultRetrySettings.MaxPerInstanceRetries = config.MaxRetriesPerInstance.Value;
+                    }
                 }
 
                 CLILogs.Info("create pool");
@@ -217,9 +221,6 @@ namespace QarnotCLI
                 task.ResultsBlacklist = config.Blacklist;
 
                 if (config.MaxTotalRetries.HasValue || config.MaxRetriesPerInstance.HasValue) {
-                    if (config.MaxRetriesPerInstance.HasValue) {
-                        task.MaxRetriesPerInstance = config.MaxRetriesPerInstance.Value;
-                    }
                     task.RetrySettings = new();
                     if (config.MaxTotalRetries.HasValue) {
                         task.RetrySettings.MaxTotalRetries = config.MaxTotalRetries.Value;
