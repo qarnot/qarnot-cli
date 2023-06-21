@@ -59,6 +59,8 @@ namespace QarnotCLI
                     return this.ParseJob(argv);
                 case "bucket":
                     return this.ParseBucket(argv);
+                case "secrets":
+                    return this.ParseSecrets(argv);
                 default:
                     return this.ParseGeneral(argv);
             }
@@ -89,7 +91,8 @@ namespace QarnotCLI
                                             Options.DefaultBucket,
                                             Options.AllObjectsOptions,
                                             Options.ConfigOptions,
-                                            Options.AccountOptions
+                                            Options.AccountOptions,
+                                            Options.DefaultSecrets
                                             >(argv);
 
             checkHelpFlag(argv, parser);
@@ -312,6 +315,29 @@ namespace QarnotCLI
                 (Options.ListBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.List, o),
                 (Options.TerminateBucketOptions o) => result = this.CreateConfig.ConvertBucketOption(ConfigType.Bucket, CommandApi.Delete, o),
                 err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv)));
+
+            return result;
+        }
+
+        private IConfiguration ParseSecrets(string[] argv)
+        {
+            IConfiguration result = null;
+            argv = this.SubVerbFormater.ConcatSubverbArgv(argv);
+
+            var parser = this.Parser.ParseArguments<
+                Options.GetSecretOptions,
+                Options.CreateSecretOptions,
+                Options.UpdateSecretOptions,
+                Options.DeleteSecretOptions,
+                Options.ListSecretsOptions
+            >(argv);
+
+            checkHelpFlag(argv, parser);
+
+            parser.MapResult(
+                (Options.ISecretsOptions o) => result = this.CreateConfig.ConvertSecretsOption(o),
+                err => throw new ParseException(this.Usage.PrintHelp(parser, err, argv))
+            );
 
             return result;
         }

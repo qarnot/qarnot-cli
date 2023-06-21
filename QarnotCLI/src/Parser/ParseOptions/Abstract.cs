@@ -76,6 +76,9 @@ namespace QarnotCLI
 
             public virtual uint? DefaultResourcesCacheTTLSec { get; set; }
 
+            public virtual IEnumerable<string> SecretsAccessRightsByKey { get; set; }
+
+            public virtual IEnumerable<string> SecretsAccessRightsByPrefix { get; set; }
         }
 
         public abstract class AGetOptions : AOptions, IGetOptions
@@ -94,6 +97,34 @@ namespace QarnotCLI
         public abstract class ABucketGetOptions : AOptions, IBucketGetOptions
         {
             public virtual string Name { get; set; }
+        }
+
+        public abstract class ASecretsGetOptions : AOptions, ISecretsGetOptions
+        {
+            public virtual string Key { get; set; }
+        }
+
+        public abstract class ASecretsCreateOptions : AOptions, ISecretsCreateOptions
+        {
+            public virtual string Key { get; set; }
+            public virtual string Value { get; set; }
+        }
+
+        public abstract class ASecretsUpdateOptions : AOptions, ISecretsUpdateOptions
+        {
+            public virtual string Key { get; set; }
+            public virtual string Value { get; set; }
+        }
+
+        public abstract class ASecretsDeleteOptions : AOptions, ISecretsDeleteOptions
+        {
+            public virtual string Key { get; set; }
+        }
+
+        public abstract class ASecretsListOptions : AOptions, ISecretsListOptions
+        {
+            public virtual string Prefix { get; set; }
+            public virtual bool Recursive { get; set; }
         }
     }
 }

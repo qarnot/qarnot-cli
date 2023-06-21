@@ -65,3 +65,8 @@ When you use the CLI for the first time you need to set the configuration :
 |all||`./qarnot all --list`|
 |account||`./qarnot account`|
 |config||`./qarnot  -t abcd -u "https://api.qarnot.com" -s "https://storage.qarnot.com"`|
+|secrets|create|`./qarnot secrets create "key" "value"`|
+|secrets|get|`./qarnot secrets get "key"`|
+|secrets|update|`./qarnot secrets update "key" "value"`|
+|secrets|delete|`./qarnot secrets delete "key"`|
+|secrets|list|`./qarnot secrets list [--recursive] ["prefix"]`|

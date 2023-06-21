@@ -447,5 +447,88 @@ namespace QarnotCLI
         public uint? DefaultResourcesCacheTTLSec { get; set; }
 
         public QarnotSDK.Scaling Scaling { get; set; }
+
+        public List<string> SecretsAccessRightsByKey { get; set; }
+        public List<string> SecretsAccessRightsByPrefix { get; set; }
+    }
+
+    public abstract class ASecretsConfiguration : IConfiguration
+    {
+        public ASecretsConfiguration(CommandApi command)
+        {
+            this.Command = command;
+            this.ApiConnection = new APIConnectionInformation();
+        }
+
+        public ConfigType Type { get; set; } = ConfigType.Secrets;
+        public virtual CommandApi Command { get; set; }
+
+        public APIConnectionInformation ApiConnection { get; set; }
+
+        public bool HumanReadable { get; set; }
+        public bool UnsafeSslCertificate { get; set; }
+        public string CustomSslCertificate { get; set; }
+        public string ResultFormat { get; set; }
+    }
+
+    public class GetSecretConfiguration : ASecretsConfiguration
+    {
+        public GetSecretConfiguration(string key)
+            : base(CommandApi.Download)
+        {
+            Key = key;
+        }
+
+        public string Key { get; set; }
+    }
+
+    public class CreateSecretConfiguration : ASecretsConfiguration
+    {
+        public CreateSecretConfiguration(string key, string value)
+            : base(CommandApi.Create)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class UpdateSecretConfiguration : ASecretsConfiguration
+    {
+        public UpdateSecretConfiguration(string key, string value)
+            : base(CommandApi.Set)
+        {
+            Key = key;
+            Value = value;
+        }
+
+        public string Key { get; set; }
+        public string Value { get; set; }
+    }
+
+    public class DeleteSecretConfiguration : ASecretsConfiguration
+    {
+        public DeleteSecretConfiguration(string key)
+            : base(CommandApi.Delete)
+        {
+            Key = key;
+        }
+
+        public string Key { get; }
+    }
+
+    public class ListSecretsConfiguration : ASecretsConfiguration
+    {
+        public ListSecretsConfiguration(string prefix, bool recursive)
+            : base(CommandApi.List)
+        {
+            Prefix = prefix;
+            Recursive = recursive;
+        }
+
+        public string Prefix { get; set; }
+        public bool Recursive { get; set; }
     }
 }

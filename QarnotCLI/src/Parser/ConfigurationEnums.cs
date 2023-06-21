@@ -39,6 +39,10 @@ namespace QarnotCLI
         /// Type Accont
         /// </summary>
         Account,
+
+        /// <summary>
+        /// </summary>
+        Secrets,
     }
 
     /// <summary>

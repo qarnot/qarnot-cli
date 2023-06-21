@@ -93,6 +93,10 @@ namespace QarnotCLI
             uint? MaxRetriesPerInstance { get; set; }
 
             uint? DefaultResourcesCacheTTLSec { get; set; }
+
+            IEnumerable<string> SecretsAccessRightsByKey { get; set; }
+
+            IEnumerable<string> SecretsAccessRightsByPrefix { get; set; }
         }
 
         public interface IElasticityOptions
@@ -189,6 +193,49 @@ namespace QarnotCLI
         {
             [Option("scaling", Required = false, HelpText = "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'")]
             string Scaling { get; set; }
+        }
+
+        public interface ISecretsOptions : IOptions
+        {
+        }
+
+        public interface ISecretsGetOptions : ISecretsOptions
+        {
+            [Value(0, MetaName = "key", Required = true, HelpText = "Key of the secret to retrieve.")]
+            string Key { get; set; }
+        }
+
+        public interface ISecretsCreateOptions : ISecretsOptions
+        {
+            [Value(0, MetaName = "key", Required = true, HelpText = "Key of the secret to create.")]
+            string Key { get; set; }
+
+            [Value(1, MetaName = "value", Required = true, HelpText = "Value of the secret to create.")]
+            string Value { get; set; }
+        }
+
+        public interface ISecretsUpdateOptions : ISecretsOptions
+        {
+            [Value(0, MetaName = "key", Required = true, HelpText = "Key of the secret to update.")]
+            string Key { get; set; }
+
+            [Value(1, MetaName = "value", Required = true, HelpText = "Value of the secret to update.")]
+            string Value { get; set; }
+        }
+
+        public interface ISecretsDeleteOptions : ISecretsOptions
+        {
+            [Value(0, MetaName = "key", Required = true, HelpText = "Key of the secret to delete.")]
+            string Key { get; set; }
+        }
+
+        public interface ISecretsListOptions : ISecretsOptions
+        {
+            [Value(0, MetaName = "prefix", Default = "", Required = false, HelpText = "Prefix of the secrets to list.")]
+            string Prefix { get; set; }
+
+            [Option('r', "recursive", Required = false, HelpText = "Perform a recursive listing. When performing a non-recursive listing, only entries right below `prefix` will be returned: `prefix/a` but not `prefix/a/b`. Subsequent prefixes can be identified by their trailing `/`.")]
+            bool Recursive { get; set; }
         }
     }
 }

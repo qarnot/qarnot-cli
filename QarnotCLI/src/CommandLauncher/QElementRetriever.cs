@@ -214,4 +214,38 @@ namespace QarnotCLI
             return await connection.RetrieveApiSettingsAsync(cancellationToken: ct);
         }
     }
+
+    /// <summary>
+    /// This class extracts the Secrets client out of a Connection
+    /// </summary>
+    public class SecretsClientRetriever : IQElementRetriever<QarnotSDK.Secrets>
+    {
+        public Task<Secrets> RetrieveAsync(IConfiguration configuration, Connection connection, CancellationToken ct) =>
+            Task.FromResult(connection.Secrets);
+    }
+
+    /// <summary>
+    /// This class retrieves the value of a secret.
+    /// </summary>
+    public class SecretsValueRetriever : IQElementRetriever<string>
+    {
+        public async Task<string> RetrieveAsync(IConfiguration configuration, QarnotSDK.Connection connection, CancellationToken ct)
+        {
+            var config = configuration as GetSecretConfiguration;
+            return await connection.Secrets.GetSecretRawAsync(config.Key, ct);
+        }
+    }
+
+    /// <summary>
+    /// This class retrieves the list of secret keys.
+    /// </summary>
+    public class SecretsKeysRetriever : IQCollectionRetriever<string>
+    {
+        public async Task<List<string>> RetrieveAsync(IConfiguration configuration, Connection connection, CancellationToken ct)
+        {
+            var config = configuration as ListSecretsConfiguration;
+            var keys = await connection.Secrets.ListSecretsAsync(config.Prefix ?? "", config.Recursive);
+            return keys.ToList();
+        }
+    }
 }

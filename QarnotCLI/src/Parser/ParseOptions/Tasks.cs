@@ -87,6 +87,12 @@ namespace QarnotCLI
 
             [Option("ttl", Required = false, HelpText = "Default TTL for the task resources cache (in seconds). Default is 7776000s.")]
             public override uint? DefaultResourcesCacheTTLSec { get; set; }
+
+            [Option("secrets-access-rights-by-key", Required = false, HelpText = "Give the task access to secrets described by their keys. Only available to standalone task, use `--secrets-access-rights-by-key` on the pool for tasks running within a pool.")]
+            public override IEnumerable<string> SecretsAccessRightsByKey { get; set; }
+
+            [Option("secrets-access-rights-by-prefix", Required = false, HelpText = "Give the task access to secrets described by their prefixes. Only available to standalone task, use `--secrets-access-rights-by-prefix` on the pool for tasks running within a pool.")]
+            public override IEnumerable<string> SecretsAccessRightsByPrefix { get; set; }
         }
 
         [Verb("task list", HelpText = "List the running tasks.")]

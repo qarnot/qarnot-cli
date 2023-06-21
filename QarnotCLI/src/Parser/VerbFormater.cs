@@ -22,6 +22,7 @@ namespace QarnotCLI
                 "pool",
                 "job",
                 "bucket",
+                "secrets"
             };
 
             string[] whiteListSubCommand =
@@ -42,6 +43,7 @@ namespace QarnotCLI
                 "stderr",
                 "sync-from",
                 "sync-to",
+                "update",
                 "update-resources",
                 "update-constant",
             };

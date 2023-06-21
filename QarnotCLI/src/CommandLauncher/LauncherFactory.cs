@@ -40,6 +40,8 @@ namespace QarnotCLI
                     return this.CreateConfigurationCommandLauncher(command);
                 case ConfigType.Account:
                     return this.CreateAccountCommandLauncher(command);
+                case ConfigType.Secrets:
+                    return this.CreateSecretsCommandLauncher(command);
                 default:
                     throw new NotImplementedException("Not implemented command : " + Enum.GetName(typeof(ConfigType), type));
             }
@@ -206,5 +208,39 @@ namespace QarnotCLI
                     throw new NotImplementedException("Not implemented command for Account");
             }
         }
+
+        private ICommandLauncher CreateSecretsCommandLauncher(CommandApi command) =>
+            command switch {
+                CommandApi.Download => new CommandGenericOneElem<string, string>(
+                    new SecretsValueRetriever(),
+                    new GenericCommand<string, string>(),
+                    this.Formatter,
+                    this.ConnectionWrapper
+                ),
+                CommandApi.Create => new CreateCommandLauncher(
+                    new ApiObjectCreator.SecretsCreator(new CreateHelper()),
+                    this.Formatter,
+                    this.ConnectionWrapper
+                ),
+                CommandApi.Set => new CommandGenericOneElem<QarnotSDK.Secrets, CommandValues.GenericInfoCommandValue>(
+                    new SecretsClientRetriever(),
+                    new UpdateSecretCommand(),
+                    this.Formatter,
+                    this.ConnectionWrapper
+                ),
+                CommandApi.Delete => new CommandGenericOneElem<QarnotSDK.Secrets, CommandValues.GenericInfoCommandValue>(
+                    new SecretsClientRetriever(),
+                    new DeleteSecretCommand(),
+                    this.Formatter,
+                    this.ConnectionWrapper
+                ),
+                CommandApi.List => new CommandGeneric<string, string>(
+                    new SecretsKeysRetriever(),
+                    new GenericCommand<string, string>(),
+                    this.Formatter,
+                    this.ConnectionWrapper
+                ),
+                _ => throw new NotImplementedException($"Not implemented {command} for Secrets"),
+            };
     }
 }

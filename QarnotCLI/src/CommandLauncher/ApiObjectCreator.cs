@@ -85,6 +85,24 @@ namespace QarnotCLI
                     }
                 }
 
+                if (config.SecretsAccessRightsByKey is not null)
+                {
+                    pool.SecretAccessRights ??= new();
+                    pool.SecretAccessRights.BySecret = config
+                        .SecretsAccessRightsByKey
+                        .Select(k => new QSecretAccessRightBySecret() { Key = k })
+                        .ToList();
+                }
+
+                if (config.SecretsAccessRightsByPrefix is not null)
+                {
+                    pool.SecretAccessRights ??= new();
+                    pool.SecretAccessRights.ByPrefix = config
+                        .SecretsAccessRightsByPrefix
+                        .Select(p => new QSecretAccessRightByPrefix() { Prefix = p })
+                        .ToList();
+                }
+
                 CLILogs.Info("create pool");
                 return pool;
             }
@@ -240,6 +258,23 @@ namespace QarnotCLI
                     task.DefaultResourcesCacheTTLSec = config.DefaultResourcesCacheTTLSec.Value;
                 }
 
+                if (config.SecretsAccessRightsByKey is not null)
+                {
+                    task.SecretAccessRights ??= new();
+                    task.SecretAccessRights.BySecret = config
+                        .SecretsAccessRightsByKey
+                        .Select(k => new QSecretAccessRightBySecret() { Key = k })
+                        .ToList();
+                }
+
+                if (config.SecretsAccessRightsByPrefix is not null)
+                {
+                    task.SecretAccessRights ??= new();
+                    task.SecretAccessRights.ByPrefix = config
+                        .SecretsAccessRightsByPrefix
+                        .Select(p => new QSecretAccessRightByPrefix() { Prefix = p })
+                        .ToList();
+                }
 
                 CLILogs.Info("create task");
                 return task;
@@ -384,6 +419,29 @@ namespace QarnotCLI
                 await Task.WhenAll(listOfTask);
 
                 return this.PrintBucketInformation(bucket);
+            }
+        }
+
+        public class SecretsCreator : AApiObjectCreator
+        {
+            public SecretsCreator(ICreateHelper tool)
+                : base(tool)
+            {
+            }
+
+            public override async Task<CommandValues.GenericInfoCommandValue> Create(
+                IConfiguration iconfig,
+                Connection connect,
+                CancellationToken ct
+            )
+            {
+                var config = iconfig as CreateSecretConfiguration;
+                var key = await connect.Secrets.CreateSecretRawAsync(config.Key, config.Value, ct);
+
+                return new CommandValues.GenericInfoCommandValue()
+                {
+                    Message = $"Created secret with key {key}",
+                };
             }
         }
     }

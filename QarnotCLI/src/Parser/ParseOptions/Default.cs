@@ -38,5 +38,10 @@ namespace QarnotCLI
         public class DefaultJob : AOptions
         {
         }
+
+        [Verb("secrets", HelpText = "Secrets commands.")]
+        public class DefaultSecrets : AOptions
+        {
+        }
     }
 }

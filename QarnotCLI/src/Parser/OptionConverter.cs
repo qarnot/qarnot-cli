@@ -30,6 +30,8 @@ namespace QarnotCLI
         CreateConfiguration ConvertGenericCreationOption(ConfigType type, Options.ICreateOptions option);
 
         CreateConfiguration ConvertTaskCreationOption(ConfigType type, Options.CreateTaskOptions option);
+
+        ASecretsConfiguration ConvertSecretsOption(Options.ISecretsOptions option);
     }
 
     public class OptionConverter : IOptionToConfigConverter
@@ -504,6 +506,14 @@ namespace QarnotCLI
                 config.ElasticMinimumIdlingTime = elasticOption.ElasticMinimumIdlingTime;
             }
 
+            config.SecretsAccessRightsByKey = (option.SecretsAccessRightsByKey?.Any() ?? false)
+                ? option.SecretsAccessRightsByKey?.ToList()
+                : config.SecretsAccessRightsByKey;
+
+            config.SecretsAccessRightsByPrefix = (option.SecretsAccessRightsByPrefix?.Any() ?? false)
+                ? option.SecretsAccessRightsByPrefix?.ToList()
+                : config.SecretsAccessRightsByPrefix;
+
             Options.IPrivilegesOptions privilegesOption = option as Options.IPrivilegesOptions;
             if (privilegesOption != null)
             {
@@ -522,6 +532,23 @@ namespace QarnotCLI
         {
             var config = ConvertGenericCreationOption(type, option);
             HydrateSnapOption(config, option);
+            return config;
+        }
+
+        public ASecretsConfiguration ConvertSecretsOption(Options.ISecretsOptions option)
+        {
+            ASecretsConfiguration config = option switch {
+                Options.ISecretsGetOptions o => new GetSecretConfiguration(o.Key),
+                Options.ISecretsCreateOptions o => new CreateSecretConfiguration(o.Key, o.Value),
+                Options.ISecretsUpdateOptions o => new UpdateSecretConfiguration(o.Key, o.Value),
+                Options.ISecretsDeleteOptions o => new DeleteSecretConfiguration(o.Key),
+                Options.ListSecretsOptions o => new ListSecretsConfiguration(o.Prefix, o.Recursive),
+                _ => throw new ParseException($"Unsupported option type: {option.GetType().Name}"),
+            };
+
+            GetDefaultOptions(config, option);
+            ConfigGetGlobalOptions(option);
+
             return config;
         }
     }

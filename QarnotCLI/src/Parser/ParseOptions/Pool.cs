@@ -86,6 +86,12 @@ namespace QarnotCLI
 
             [Option("scaling", Required = false, HelpText = "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'")]
             public override string Scaling { get; set; }
+
+            [Option("secrets-access-rights-by-key", Required = false, HelpText = "Give the pool access to secrets described by their keys")]
+            public override IEnumerable<string> SecretsAccessRightsByKey { get; set; }
+
+            [Option("secrets-access-rights-by-prefix", Required = false, HelpText = "Give the pool access to secrets described by their prefixes")]
+            public override IEnumerable<string> SecretsAccessRightsByPrefix { get; set; }
         }
 
         [Verb("pool list", HelpText = "List the running pools.")]
