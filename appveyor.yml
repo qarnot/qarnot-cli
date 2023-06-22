@@ -37,7 +37,9 @@ after_build:
   - sh: mv ./artifacts/linux/qarnot ./artifacts/qarnot-linux-x64
   - sh: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/windows
   - sh: mv ./artifacts/windows/qarnot.exe ./artifacts/qarnot-windows-x64.exe
-  - rm artifacts/*/*.pdb
+  - sh: rm -f artifacts/*/*.pdb
+  - sh: rm -f artifacts/windows/qarnot.xml  # only keep one version of this, otherwise it'll fail to upload to Github (duplicate)
+  - sh: rm -f artifacts/osx/qarnot.xml  # only keep one version of this, otherwise it'll fail to upload to Github (duplicate)
 
 test_script:
   - sh: dotnet test ./*.Test   # Will run in Ubuntu image
