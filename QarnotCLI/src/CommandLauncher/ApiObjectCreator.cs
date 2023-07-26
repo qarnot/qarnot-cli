@@ -87,8 +87,8 @@ namespace QarnotCLI
 
                 if (config.SecretsAccessRightsByKey is not null)
                 {
-                    pool.SecretAccessRights ??= new();
-                    pool.SecretAccessRights.BySecret = config
+                    pool.SecretsAccessRights ??= new();
+                    pool.SecretsAccessRights.BySecret = config
                         .SecretsAccessRightsByKey
                         .Select(k => new QSecretAccessRightBySecret() { Key = k })
                         .ToList();
@@ -96,8 +96,8 @@ namespace QarnotCLI
 
                 if (config.SecretsAccessRightsByPrefix is not null)
                 {
-                    pool.SecretAccessRights ??= new();
-                    pool.SecretAccessRights.ByPrefix = config
+                    pool.SecretsAccessRights ??= new();
+                    pool.SecretsAccessRights.ByPrefix = config
                         .SecretsAccessRightsByPrefix
                         .Select(p => new QSecretAccessRightByPrefix() { Prefix = p })
                         .ToList();
@@ -260,8 +260,8 @@ namespace QarnotCLI
 
                 if (config.SecretsAccessRightsByKey is not null)
                 {
-                    task.SecretAccessRights ??= new();
-                    task.SecretAccessRights.BySecret = config
+                    task.SecretsAccessRights ??= new();
+                    task.SecretsAccessRights.BySecret = config
                         .SecretsAccessRightsByKey
                         .Select(k => new QSecretAccessRightBySecret() { Key = k })
                         .ToList();
@@ -269,8 +269,8 @@ namespace QarnotCLI
 
                 if (config.SecretsAccessRightsByPrefix is not null)
                 {
-                    task.SecretAccessRights ??= new();
-                    task.SecretAccessRights.ByPrefix = config
+                    task.SecretsAccessRights ??= new();
+                    task.SecretsAccessRights.ByPrefix = config
                         .SecretsAccessRightsByPrefix
                         .Select(p => new QSecretAccessRightByPrefix() { Prefix = p })
                         .ToList();
