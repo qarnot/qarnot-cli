@@ -12,6 +12,7 @@
 artifacts
 */coverage.json
 */coverage/
+*/report.xml
 artifacts/
 dest/
-
+ubuntu/

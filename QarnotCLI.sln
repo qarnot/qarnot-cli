@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QarnotCLI", "QarnotCLI\Qarn
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QarnotCLI.Test", "QarnotCLI.Test\QarnotCLI.Test.csproj", "{5FA1E27D-49DE-4628-97EB-5A33CFC1B794}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "QarnotCLI_Doc", "QarnotCLI_Doc", "{229F6E41-AE0A-46A1-9D81-99BD530D78C1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CreateDoc", "QarnotCLI_Doc\CreateDoc\CreateDoc.csproj", "{8CB00478-7B31-4825-8737-357644DFECEA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -44,5 +48,20 @@ Global
 		{5FA1E27D-49DE-4628-97EB-5A33CFC1B794}.Release|x64.Build.0 = Release|Any CPU
 		{5FA1E27D-49DE-4628-97EB-5A33CFC1B794}.Release|x86.ActiveCfg = Release|Any CPU
 		{5FA1E27D-49DE-4628-97EB-5A33CFC1B794}.Release|x86.Build.0 = Release|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Debug|x64.Build.0 = Debug|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Debug|x86.Build.0 = Debug|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Release|x64.ActiveCfg = Release|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Release|x64.Build.0 = Release|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Release|x86.ActiveCfg = Release|Any CPU
+		{8CB00478-7B31-4825-8737-357644DFECEA}.Release|x86.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8CB00478-7B31-4825-8737-357644DFECEA} = {229F6E41-AE0A-46A1-9D81-99BD530D78C1}
 	EndGlobalSection
 EndGlobal

@@ -1,0 +1,212 @@
+image:
+  mcr.microsoft.com/dotnet/sdk:6.0
+
+stages:
+  - build
+  - test
+  - trigger
+  - prepare_doc
+  - doc
+  - package
+
+variables:
+  MAKEFILE_PATH: $CI_PROJECT_DIR/build/Makefile
+  AVAILABLE_RUNTIME_IDENTIFIERS: "ubuntu-x64;win-x64;osx-x64"
+  CLI_BIN_DIR: $CI_PROJECT_DIR/QarnotCLI/bin/ubuntu/debug
+  CLI_BIN_PATH: $CLI_BIN_DIR/qarnot
+  GEN_DOC_BIN_DIR: $CI_PROJECT_DIR/QarnotCLI_Doc/CreateDoc/ubuntu/debug
+  GEN_DOC_BIN_PATH: $GEN_DOC_BIN_DIR/CreateDoc
+  SAMPLES_BRANCH: "master"
+
+# Other possible variables:
+# * for samples:
+#   - TRIGGER_SAMPLES should be set to "true" when triggering the pipeline from the web UI when you want to trigger the samples
+#   - CLI_SAMPLES_WHITELIST to specify only a set of python samples to run
+#   - CLI_SAMPLES_BLACKLIST to specify set of python samples that should not be run run
+#   - API_ENDPOINT for the compute api endpoint
+#   - API_TOKEN for the compute api user token
+#   - STORAGE_ENDPOINT for the storage api endpoint
+
+workflow:
+  rules:
+    # Run pipelines triggered from the web UI
+    - if: $CI_PIPELINE_SOURCE == "web"
+    # Do not run pipelines on *-nocheck branches, even in a MR
+    - if: $CI_MERGE_REQUEST_SOURCE_BRANCH_NAME =~ /-nocheck$/
+      when: never
+    # Run pipelines on MR
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Run pipelines only on master branch
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    # Run pipelines on tags
+    - if: $CI_COMMIT_TAG
+
+cache:
+  key: dotnet-env
+  untracked: true
+  paths:
+    - QarnotCLI/bin
+    - QarnotCLI/obj
+
+.samples_rules:
+  rules:
+    # Run pipelines triggered from the web UI
+    - if: $CI_PIPELINE_SOURCE == "web" && $TRIGGER_SAMPLES == "true"
+    # Run pipelines on tags
+    - if: $CI_COMMIT_TAG
+    # If files changed in commit or MR
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event" || ($CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH)
+      changes:
+        paths:
+          - QarnotCLI/src/**/*
+          - QarnotCLI/CLI.cs
+          - QarnotCLI/QarnotCLI.csproj
+
+
+# --- Building & Linting --- #
+
+build_release_cli:
+  stage: build
+  script:
+    - dotnet restore
+    - dotnet build -c Release
+
+prepare_doc_env:
+  stage: build
+  before_script:
+    - mkdir -p $CLI_BIN_DIR
+    - mkdir -p $GEN_DOC_BIN_DIR
+  script:
+    - dotnet publish QarnotCLI -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o $CLI_BIN_DIR --use-current-runtime --self-contained
+    - dotnet publish QarnotCLI_Doc/CreateDoc -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o $GEN_DOC_BIN_DIR --use-current-runtime --self-contained
+  artifacts:
+    paths:
+      - $CLI_BIN_DIR
+      - $GEN_DOC_BIN_DIR
+    untracked: true
+
+# --- Testing & Coverage --- #
+
+junit_tests_cli:
+  stage: test
+  needs:
+    - job: build_release_cli
+  variables:
+    EXTRA_REQUIREMENTS_FILE: requirements-test.txt
+  script:
+    - dotnet test -c Release --logger:"junit;LogFilePath=report.xml" QarnotCLI.Test/QarnotCLI.Test.csproj || export EXIT_CODE=$?;
+    - export TEST_REPORT_FILE_PATH=$(find QarnotCLI.Test -name "report.xml")
+    - echo "$TEST_REPORT_FILE_PATH"
+    - cp "$TEST_REPORT_FILE_PATH" report-cli-test.xml
+    - exit $EXIT_CODE
+  artifacts:
+    when: always
+    expire_in: 1hour
+    paths:
+      - ./report-cli-test.xml
+    reports:
+      junit: ./report-cli-test.xml
+
+cobertura_coverage_tests_cli:
+  stage: test
+  needs:
+    - job: build_release_cli
+  variables:
+    EXTRA_REQUIREMENTS_FILE: requirements-test.txt
+  script:
+    - export existing_report=$(find QarnotCLI.Test -name "*coverage.cobertura.xml")
+    - '[[ $existing_report ]] && [ -f $existing_report ] && rm $existing_report || echo no existing report to remove'
+    - dotnet test -c Release --collect:"XPlat Code Coverage" QarnotCLI.Test/QarnotCLI.Test.csproj || export EXIT_CODE=$?;
+    - export TEST_REPORT_FILE_PATH=$(find QarnotCLI.Test -name "*coverage.cobertura.xml" | tail -n 1)
+    - echo "$TEST_REPORT_FILE_PATH"
+    - cp "$TEST_REPORT_FILE_PATH" cobertura-report-cli-test.xml
+    - exit $EXIT_CODE
+  artifacts:
+    when: always
+    expire_in: 1hour
+    paths:
+      - ./cobertura-report-cli-test.xml
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: 'cobertura-report-cli-test.xml'
+
+
+# Trigger samples if cli changed
+
+trigger_samples:
+  stage: trigger
+  needs:
+    - job: build_release_cli
+  rules:
+    - !reference [.samples_rules, rules]
+  variables:
+    TRIGGER_SOURCE: "qarnot-cli"
+    CLI_BRANCH_OR_COMMIT: "$CI_COMMIT_SHA"
+    SAMPLES_CONF_API_URL: $API_ENDPOINT
+    SAMPLES_CONF_TOKEN: $API_TOKEN
+    SAMPLES_CONF_STORAGE_URL: $STORAGE_ENDPOINT
+  trigger:
+    project: sdk/sdks-samples
+    branch: $SAMPLES_BRANCH
+    strategy: depend
+
+
+# --- CLI Documentation generation --- #
+
+build_doc_markdowns:
+  stage: prepare_doc
+  needs:
+    - job: prepare_doc_env
+      artifacts: true
+  before_script:
+    - cd  QarnotCLI_Doc
+    - mkdir -p DocfxDocumentation/docfx_project/man
+    - cd CreateDoc
+    - test -e $GEN_DOC_BIN_PATH
+  script:
+    - $GEN_DOC_BIN_PATH $CLI_BIN_PATH
+    - cp manMarkDown/* ../DocfxDocumentation/docfx_project/man
+  artifacts:
+    paths:
+      - QarnotCLI_Doc/DocfxDocumentation/docfx_project/man
+    untracked: true
+
+generate_doc_cli:
+  stage: doc
+  needs:
+    - job: build_doc_markdowns
+      artifacts: true
+  script:
+    - /bin/bash ./QarnotCLI_Doc/build_doc.sh $DOCFX_VERSION
+  artifacts:
+    paths:
+      - QarnotCLI_Doc/DocfxDocumentation/docfx_project/_site
+    expire_in: 1hour
+
+
+# --- Packaging --- #
+
+publish_cli:
+  stage: package
+  rules:
+    # Run pipelines on tags
+    - if: $CI_COMMIT_TAG
+  needs:
+    - job: junit_tests_cli
+    - job: cobertura_coverage_tests_cli
+  variables:
+    BINARY_FOLDER: cli_binary
+  script:
+    - |
+      IFS=';' read -ra runtimeId <<< "$AVAILABLE_RUNTIME_IDENTIFIERS"
+      for key in "${runtimeId[@]}"
+      do
+        echo "Building $key version of the CLI binary"
+        dotnet publish QarnotCLI -c Release -o ./$BINARY_FOLDER/$key -r '$key' /p:PublishSingleFile=true
+      done
+  artifacts:
+    paths:
+      - $BINARY_FOLDER
+    expire_in: 1hour
+

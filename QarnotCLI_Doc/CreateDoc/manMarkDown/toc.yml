@@ -1,5 +1,3 @@
-- name: All The Commands
-  href: ManIndex.md
 - name: Command
   href: Commands.md
   items:

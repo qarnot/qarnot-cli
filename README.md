@@ -17,11 +17,11 @@ dotnet publish -c Release -r win10-x64 --self-contained true /p:PublishSingleFil
 ./QarnotCLI_Doc/build_doc.sh
 ```
 
-The built documentation is thet in `QarnotCLI_Doc/DocfxDoccumentation/docfx_project/_site/`, you can view
+The built documentation will be in `QarnotCLI_Doc/DocfxDocumentation/docfx_project/_site/`, you can view
 it for instance by calling
 
 ```bash
-firefox QarnotCLI_Doc/DocfxDoccumentation/docfx_project/_site/index.html
+firefox QarnotCLI_Doc/DocfxDocumentation/docfx_project/_site/index.html
 ```
 
 
@@ -70,3 +70,7 @@ When you use the CLI for the first time you need to set the configuration :
 |secrets|update|`./qarnot secrets update "key" "value"`|
 |secrets|delete|`./qarnot secrets delete "key"`|
 |secrets|list|`./qarnot secrets list [--recursive] ["prefix"]`|
+
+### Contributing
+
+To find some guidelines on how to add new commands, have a look at `./QarnotCLI/README.md`.

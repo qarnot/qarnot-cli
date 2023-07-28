@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
-
     <IsPackable>false</IsPackable>
 
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,6 +17,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="JunitXml.TestLogger" Version="[3.0.124]" />
     <PackageReference Include="Moq" Version="4.13.1" />
     <PackageReference Include="NBuilder" Version="6.1.0" />
     <PackageReference Include="nunit" Version="3.12.0" />

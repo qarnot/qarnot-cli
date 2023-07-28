@@ -1,5 +1,7 @@
 CreateDoc/**/*.md
-DocfxDoccumentation/docfx/
-DocfxDoccumentation/docfx_project/*.tar.xz
-DocfxDoccumentation/docfx_project/templates/
+CreateDoc/bin
+CreateDoc/obj
+DocfxDocumentation/docfx/
+DocfxDocumentation/docfx_project/*.tar.xz
+DocfxDocumentation/docfx_project/templates/
 images/

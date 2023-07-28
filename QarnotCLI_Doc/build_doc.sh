@@ -1,12 +1,11 @@
 #!/bin/bash
 
-version="2.58.9"
+version="2.75.1" # last stable version when writing this
 
 if [ $# -ne 0 ]
 then
     version=$1
 fi
-echo $version
 
 set -e
 
@@ -17,27 +16,27 @@ pushd ..  # go back to repo toplevel
 
 pushd QarnotCLI
 mkdir -p ubuntu/debug
-dotnet build -c Debug;
-dotnet publish -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o ./bin/ubuntu/debug;
+dotnet publish -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o ./bin/ubuntu/debug --use-current-runtime --self-contained;
 popd  # back to toplevel
 
 pushd QarnotCLI_Doc
-mkdir -p DocfxDoccumentation/docfx_project/man
-pushd CreateDoc/
-python3 createDocMarkdown.py ../../QarnotCLI/bin/ubuntu/debug/qarnot
-cp manMarkDown/* ../DocfxDoccumentation/docfx_project/man
-popd  # back to QarnotCLI_Doc
-
-pushd DocfxDoccumentation
-if [ ! -d docfx/docfx.console.$version ]; then
-    if [ -d docfx ]; then
-        rm -r docfx  # remove older versions of docfx
-    fi
-    nuget install docfx.console -OutputDirectory docfx -Version $version
+if ! [ -d DocfxDocumentation/docfx_project/man ]
+then
+    mkdir -p DocfxDocumentation/docfx_project/man
+    pushd CreateDoc/
+    dotnet run
+    cp manMarkDown/* ../DocfxDocumentation/docfx_project/man
+    popd  # back to QarnotCLI_Doc
 fi
-chmod 755 docfx/docfx.console.$version/tools/docfx.exe
-mono docfx/docfx.console.$version/tools/docfx.exe metadata docfx_project/docfx.json
-mono docfx/docfx.console.$version/tools/docfx.exe build docfx_project/docfx.json
+
+pushd DocfxDocumentation
+# N.B.: docfx update as a dotnet tool is available only from version 2.60.0 so if force with previous version it will not work
+# N.B.B: it is not possible to downgrade an existing version of a dotnet tool
+# So if versionning is not working, do not force version and use latest release of the tool
+dotnet tool update -g docfx --version $version || dotnet tool update -g docfx
+docfx="$(find / -name docfx  2> /dev/null | grep tools/docfx)"
+$docfx metadata docfx_project/docfx.json
+$docfx build docfx_project/docfx.json
 pushd docfx_project/_site
 cp images/Q\ -\ white.svg logo.svg && cp images/Q\ -\ black.png favicon.ico
 
