@@ -25,6 +25,17 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
     private readonly Option<uint?> MaxRetriesPerInstanceOpt;
     private readonly Option<List<string>> DependentsOpt;
     private readonly Option<uint?> TtlOpt;
+    private readonly Option<uint?> HardwareConstraintMinimumCoreCountOpt;
+    private readonly Option<uint?> HardwareConstraintMaximumCoreCountOpt;
+    private readonly Option<decimal?> HardwareConstraintMinimumRamCoreRatioOpt;
+    private readonly Option<decimal?> HardwareConstraintMaximumRamCoreRatioOpt;
+    private readonly Option<List<string>?> HardwareConstraintSpecificHardware;
+    private readonly Option<bool?> HardwareConstraintGpuHardware;
+    private readonly Option<bool?> HardwareConstraintSsdHardware;
+    private readonly Option<bool?> HardwareConstraintNoSsdHardware;
+    private readonly Option<decimal?> HardwareConstraintMinimumRamHardware;
+    private readonly Option<decimal?> HardwareConstraintMaximumRamHardware;
+    private readonly Option<string?> HardwareConstraintCpuModelHardware;
     private readonly Option<List<string>> SecretsAccessRightsByKeyOpt;
     private readonly Option<List<string>> SecretsAccessRightsByPrefixOpt;
     private readonly Option<string> SchedulingTypeOpt;
@@ -54,6 +65,17 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         Option<uint?> maxRetriesPerInstanceOpt,
         Option<List<string>> dependentsOpt,
         Option<uint?> ttlOpt,
+        Option<uint?> hardwareConstraintMinimumCoreCount,
+        Option<uint?> hardwareConstraintMaximumCoreCount,
+        Option<decimal?> hardwareConstraintMinimumRamCoreRatio,
+        Option<decimal?> hardwareConstraintMaximumRamCoreRatio,
+        Option<List<string>?> hardwareConstraintSpecificHardware,
+        Option<bool?> hardwareConstraintGpuHardware,
+        Option<bool?> hardwareConstraintSsdHardware,
+        Option<bool?> hardwareConstraintNoSsdHardware,
+        Option<decimal?> hardwareConstraintMinimumRamHardware,
+        Option<decimal?> hardwareConstraintMaximumRamHardware,
+        Option<string?> hardwareConstraintCpuModelHardware,
         Option<List<string>> secretsAccessRightsByKeyOpt,
         Option<List<string>> secretsAccessRightsByPrefixOpt,
         Option<string> schedulingTypeOpt,
@@ -84,6 +106,17 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         MaxRetriesPerInstanceOpt = maxRetriesPerInstanceOpt;
         DependentsOpt = dependentsOpt;
         TtlOpt = ttlOpt;
+        HardwareConstraintMinimumCoreCountOpt = hardwareConstraintMinimumCoreCount;
+        HardwareConstraintMaximumCoreCountOpt = hardwareConstraintMaximumCoreCount;
+        HardwareConstraintMinimumRamCoreRatioOpt = hardwareConstraintMinimumRamCoreRatio;
+        HardwareConstraintMaximumRamCoreRatioOpt = hardwareConstraintMaximumRamCoreRatio;
+        HardwareConstraintSpecificHardware = hardwareConstraintSpecificHardware;
+        HardwareConstraintGpuHardware = hardwareConstraintGpuHardware;
+        HardwareConstraintSsdHardware = hardwareConstraintSsdHardware;
+        HardwareConstraintNoSsdHardware = hardwareConstraintNoSsdHardware;
+        HardwareConstraintMinimumRamHardware = hardwareConstraintMinimumRamHardware;
+        HardwareConstraintMaximumRamHardware = hardwareConstraintMaximumRamHardware;
+        HardwareConstraintCpuModelHardware = hardwareConstraintCpuModelHardware;
         SecretsAccessRightsByKeyOpt = secretsAccessRightsByKeyOpt;
         SecretsAccessRightsByPrefixOpt = secretsAccessRightsByPrefixOpt;
         SchedulingTypeOpt = schedulingTypeOpt;
@@ -100,6 +133,20 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         var model = file is not null
             ? JsonConvert.DeserializeObject<CreateTaskModel>(File.ReadAllText(file))!
             : new CreateTaskModel();
+
+        QarnotSDK.HardwareConstraints? hardwareConstraints = Helpers.BuildHardwareConstraints(
+            minimumCoreCount: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumCoreCountOpt),
+            maximumCoreCount: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumCoreCountOpt),
+            minimumRamCoreRatio: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumRamCoreRatioOpt),
+            maximumRamCoreRatio: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumRamCoreRatioOpt),
+            specificHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintSpecificHardware),
+            gpuHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintGpuHardware),
+            ssdHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintSsdHardware),
+            noSsdHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintNoSsdHardware),
+            minimumRamHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumRamHardware),
+            maximumRamHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumRamHardware),
+            cpuModelHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintCpuModelHardware)
+        );
 
         model = new(
             Job: bindingContext.ParseResult.GetValueForOption(JobOpt) ?? model.Job,
@@ -120,6 +167,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
             MaxRetriesPerInstance: bindingContext.ParseResult.GetValueForOption(MaxRetriesPerInstanceOpt) ?? model.MaxRetriesPerInstance,
             Dependents: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(DependentsOpt), model.Dependents),
             Ttl: bindingContext.ParseResult.GetValueForOption(TtlOpt) ?? model.Ttl,
+            HardwareConstraints: hardwareConstraints ?? model.HardwareConstraints,
             SecretsAccessRightsByKey: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByKeyOpt), model.SecretsAccessRightsByKey),
             SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),
             SchedulingType: bindingContext.ParseResult.GetValueForOption(SchedulingTypeOpt) ?? model.SchedulingType,

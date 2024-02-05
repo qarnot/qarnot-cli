@@ -17,7 +17,11 @@ public class SecretsUseCases : ISecretsUseCases
     private readonly ILogger Logger;
     private readonly IFormatter Formatter;
 
-    public SecretsUseCases(Connection qarnotAPI, IFormatter formatter, ILogger logger)
+    public SecretsUseCases(
+        Connection qarnotAPI,
+        IFormatter formatter,
+        IStateManager _,
+        ILogger logger)
     {
         QarnotAPI = qarnotAPI;
         Formatter = formatter;

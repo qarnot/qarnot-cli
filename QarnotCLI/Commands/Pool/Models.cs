@@ -46,6 +46,8 @@ public record CreatePoolModel(
     uint? MaxRetriesPerInstance,
     [property: JsonProperty("Scaling")]
     QarnotSDK.Scaling? Scaling,
+    [property: JsonProperty("HardwareConstraints")]
+    QarnotSDK.HardwareConstraints? HardwareConstraints,
     [property: JsonProperty("SecretsAccessRightsByKey")]
     List<string> SecretsAccessRightsByKey,
     [property: JsonProperty("SecretsAccessRightsByPrefix")]
@@ -81,6 +83,7 @@ public record CreatePoolModel(
             MaxTotalRetries: null,
             MaxRetriesPerInstance: null,
             Scaling: null,
+            HardwareConstraints: null,
             SecretsAccessRightsByKey: new(),
             SecretsAccessRightsByPrefix: new(),
             SchedulingType: null,

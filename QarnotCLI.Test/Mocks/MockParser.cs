@@ -14,6 +14,7 @@ public class MockParser
     public Mock<IConfigUseCases> ConfigUseCases { get; }
     public Mock<ITaskUseCases> TaskUseCases { get; }
     public Mock<IPoolUseCases> PoolUseCases { get; }
+    public Mock<IHardwareConstraintsUseCases> HardwareConstraintsUseCase { get; }
     public Mock<IJobUseCases> JobUseCases { get; }
     public Mock<ISecretsUseCases> SecretsUseCases { get; }
 
@@ -29,12 +30,14 @@ public class MockParser
         ConfigUseCases = new Mock<IConfigUseCases>();
         TaskUseCases = new Mock<ITaskUseCases>();
         PoolUseCases = new Mock<IPoolUseCases>();
+        HardwareConstraintsUseCase = new Mock<IHardwareConstraintsUseCases>();
         JobUseCases = new Mock<IJobUseCases>();
         SecretsUseCases = new Mock<ISecretsUseCases>();
 
         Parser = new CommandLineBuilderFactory(
             _ => TaskUseCases.Object,
             _ => PoolUseCases.Object,
+            _ => HardwareConstraintsUseCase.Object,
             _ => JobUseCases.Object,
             _ => BucketUseCases.Object,
             _ => AllUseCases.Object,

@@ -44,6 +44,7 @@ public record GlobalModel
         Token = token;
         ApiUri = apiUri;
         StorageUri = storageUri;
+        AccountEmail = accountEmail;
         UnsafeSsl = unsafeSsl;
         StorageUnsafeSsl = storageUnsafeSsl;
         CustomSslCertificat = customSslCertificat;

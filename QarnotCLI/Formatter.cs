@@ -8,7 +8,8 @@ namespace QarnotCLI;
 public interface IFormatter
 {
     string Format<T>(T tObj);
-    string FormatCollection<T>(List<T> tObjList);
+    string FormatCollection<T>(ICollection<T> tObjList);
+    string FormatCollectionPage<T>(ResourcesPageModel<T> tObjList);
 }
 
 public interface IFormatterFactory
@@ -36,14 +37,14 @@ public class TableFormatter : IFormatter
         JsonFormatter = new();
     }
 
-    public string FormatCollection<T>(List<T> obj)
+    public string FormatCollection<T>(ICollection<T> obj)
     {
         if (IsQarnotSDKType<T>())
         {
             return JsonFormatter.Format(obj);
         }
 
-        if (typeof(T).IsAssignableFrom(typeof(string)))
+        if (typeof(string).IsAssignableFrom(typeof(T)))
         {
             return obj.Aggregate(
                 new StringBuilder(),
@@ -105,6 +106,32 @@ public class TableFormatter : IFormatter
 
     private static bool IsQarnotSDKType<T>() =>
         typeof(T).Namespace?.Contains(nameof(QarnotSDK)) ?? false;
+
+    public string FormatCollectionPage<T>(ResourcesPageModel<T> obj)
+    {
+        if (IsQarnotSDKType<T>())
+        {
+            return JsonFormatter.Format(obj);
+        }
+
+        if (typeof(T).IsAssignableFrom(typeof(string)))
+        {
+            return obj.Items.Aggregate(
+                new StringBuilder(),
+                (b, o) => b.AppendLine(o?.ToString() ?? "")
+            ).ToString();
+        }
+
+        var consoleTable = ConsoleTable.From<T>(obj.Items);
+        var formattedTable = consoleTable.ToString();
+
+        if (!string.IsNullOrWhiteSpace(obj.NextPageToken))
+        {
+            formattedTable += $"{Environment.NewLine} Next page token: {obj.NextPageToken}";
+        }
+
+        return formattedTable;
+    }
 }
 
 public class JsonFormatter : IFormatter
@@ -118,7 +145,10 @@ public class JsonFormatter : IFormatter
         };
     }
 
-    public virtual string FormatCollection<T>(List<T> obj) =>
+    public virtual string FormatCollection<T>(ICollection<T> obj) =>
+        Format(obj);
+
+    public virtual string FormatCollectionPage<T>(ResourcesPageModel<T> obj) =>
         Format(obj);
 
     public virtual string Format<T>(T obj)

@@ -5,6 +5,8 @@ QarnotCLI is the Command Line Interface to interact with the Qarnot Computing pl
 
 ### Build the CLI Binaries
 
+Launch in `QarnotCLI` directory :
+
 ```
 dotnet publish -c Release -r ubuntu-x64 --self-contained true /p:PublishSingleFile=true -o ./dest/bin
 ```

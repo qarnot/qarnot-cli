@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Builder;
+using QarnotSDK;
 
 namespace QarnotCLI;
 
@@ -7,6 +8,7 @@ public class CommandLineBuilderFactory
 {
     private readonly Func<GlobalModel, ITaskUseCases> TaskUseCasesFactory;
     private readonly Func<GlobalModel, IPoolUseCases> PoolUseCasesFactory;
+    private readonly Func<GlobalModel, IHardwareConstraintsUseCases> HardwareConstraintsUseCasesFactory;
     private readonly Func<GlobalModel, IJobUseCases> JobUseCasesFactory;
     private readonly Func<GlobalModel, IBucketUseCases> BucketUseCasesFactory;
     private readonly Func<GlobalModel, IAllUseCases> AllUseCasesFactory;
@@ -18,6 +20,7 @@ public class CommandLineBuilderFactory
         : this(
             useCasesFactory.Create<TaskUseCases>,
             useCasesFactory.Create<PoolUseCases>,
+            useCasesFactory.Create<HardwareConstraintsUseCases>,
             useCasesFactory.Create<JobUseCases>,
             useCasesFactory.Create<BucketUseCases>,
             options =>
@@ -38,6 +41,7 @@ public class CommandLineBuilderFactory
     public CommandLineBuilderFactory(
         Func<GlobalModel, ITaskUseCases> taskUseCasesFactory,
         Func<GlobalModel, IPoolUseCases> poolUseCasesFactory,
+        Func<GlobalModel, IHardwareConstraintsUseCases> hardwareConstraintsUseCasesFactory,
         Func<GlobalModel, IJobUseCases> jobUseCasesFactory,
         Func<GlobalModel, IBucketUseCases> bucketUseCasesFactory,
         Func<GlobalModel, IAllUseCases> allUseCasesFactory,
@@ -48,6 +52,7 @@ public class CommandLineBuilderFactory
     {
         TaskUseCasesFactory = taskUseCasesFactory;
         PoolUseCasesFactory = poolUseCasesFactory;
+        HardwareConstraintsUseCasesFactory = hardwareConstraintsUseCasesFactory;
         JobUseCasesFactory = jobUseCasesFactory;
         BucketUseCasesFactory = bucketUseCasesFactory;
         AllUseCasesFactory = allUseCasesFactory;
@@ -69,6 +74,7 @@ public class CommandLineBuilderFactory
         {
             new TaskCommand(globalOptions, TaskUseCasesFactory),
             new PoolCommand(globalOptions, PoolUseCasesFactory),
+            new HardwareConstraintsCommand(globalOptions, HardwareConstraintsUseCasesFactory),
             new JobCommand(globalOptions, JobUseCasesFactory),
             new BucketCommand(globalOptions, BucketUseCasesFactory),
             new AllCommand(globalOptions, AllUseCasesFactory),
@@ -86,6 +92,20 @@ public class CommandLineBuilderFactory
                 _3 = null;
                 return false;
             })
-            .UseCustomHelp(assemblyDetails);
+            .UseCustomHelp(assemblyDetails)
+            .UseExceptionHandler((exc, ctx) =>
+            {
+                if (exc is QarnotApiException)
+                {
+                    logger.Error(exc,"An error occurred while connecting to Qarnot API :");
+                    ctx.ExitCode = 1;
+                }
+                else
+                {
+                    logger.Error(exc, "An error occured :");
+                    ctx.ExitCode = 1;
+                }
+            })
+            .UseParseErrorReporting(errorExitCode: 1);
     }
 }

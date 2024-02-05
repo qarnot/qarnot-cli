@@ -13,7 +13,12 @@ public class AccountUseCases : IAccountUseCases
     private readonly IFormatter Formatter;
     private readonly ILogger Logger;
 
-    public AccountUseCases(Connection api, IFormatter formatter, ILogger logger)
+    public AccountUseCases(
+        Connection api,
+        IFormatter formatter,
+        IStateManager _,
+        ILogger logger
+    )
     {
         QarnotAPI = api;
         Formatter = formatter;
@@ -25,7 +30,7 @@ public class AccountUseCases : IAccountUseCases
         Logger.Debug("Retrieving account information");
         var account = await QarnotAPI.RetrieveUserInformationAsync();
         var bytesFormatter = new ByteValueFormatter(model.HumanReadable);
-        Logger.Result(Formatter.Format(new Dictionary<string, string>
+        Logger.Result(Formatter.FormatCollection(new Dictionary<string, string>
         {
             { "Email", account.Email },
             { "MaxInstances", account.MaxInstances.ToString() },

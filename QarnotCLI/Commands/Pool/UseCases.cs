@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using QarnotSDK;
 using Newtonsoft.Json;
 
@@ -20,9 +21,14 @@ public class PoolUseCases : IPoolUseCases
     private readonly ILogger Logger;
     private readonly Connection QarnotAPI;
     private readonly IFormatter Formatter;
+    private readonly IStateManager StateManager;
     private readonly JsonConverter[] Converters;
 
-    public PoolUseCases(Connection qarnotAPI, IFormatter formatter, ILogger logger)
+    public PoolUseCases(
+        Connection qarnotAPI,
+        IFormatter formatter,
+        IStateManager stateManager,
+        ILogger logger)
     {
         QarnotAPI = qarnotAPI;
         Logger = logger;
@@ -31,6 +37,7 @@ public class PoolUseCases : IPoolUseCases
             new TimePeriodSpecificationJsonConverter(),
             new ScalingPolicyConverter(),
         };
+        StateManager = stateManager;
     }
 
     public async Task Create(CreatePoolModel model)
@@ -87,6 +94,7 @@ public class PoolUseCases : IPoolUseCases
         pool.ElasticResizeFactor = model.ElasticResizeFactor ?? pool.ElasticResizeFactor;
         pool.ElasticMinimumIdlingTime = model.ElasticMinIdlingTime ?? pool.ElasticMinimumIdlingTime;
         pool.Scaling = model.Scaling ?? pool.Scaling;
+        pool.HardwareConstraints = model.HardwareConstraints ?? pool.HardwareConstraints;
 
         if (model.ExportCredentialsToEnv.HasValue)
         {
@@ -139,21 +147,75 @@ public class PoolUseCases : IPoolUseCases
     public async Task List(GetPoolsOrTasksModel model)
     {
         Logger.Debug("Listing pools' summaries");
-        var pools = await GetPools(model);
-        Logger.Result(Formatter.FormatCollection(
-            pools
-                .Select(p =>
-                    new PoolSummary(
-                        p.Name,
-                        p.Shortname,
-                        p.Profile,
-                        p.State,
-                        p.CreationDate,
-                        p.QueuedOrRunningTaskInstancesCount,
-                        p.TaskDefaultWaitForPoolResourcesSynchronization
-                    )
-                ).ToList()
-        ));
+        string listPoolsOutput;
+
+        if(model.IsTargetingSingleResource())
+        {
+            QPool pool = null;
+            if (!string.IsNullOrEmpty(model.Shortname))
+            {
+                Logger.Debug($"Retrieving pool by shortname: {model.Shortname}");
+                pool = await QarnotAPI.RetrievePoolByShortnameAsync(model.Shortname);
+            }
+            else if (!string.IsNullOrEmpty(model.Id))
+            {
+                Logger.Debug($"Retrieving pool by UUID: {model.Id}");
+                pool = await QarnotAPI.RetrievePoolByUuidAsync(model.Id);
+            }
+
+            listPoolsOutput = Formatter
+                .FormatCollection(pool == null ?
+                    new PoolSummary[] {} :
+                    new [] {new PoolSummary(
+                        pool.Name,
+                        pool.Shortname,
+                        pool.Profile,
+                        pool.State,
+                        pool.CreationDate,
+                        pool.QueuedOrRunningTaskInstancesCount,
+                        pool.TaskDefaultWaitForPoolResourcesSynchronization)});
+        }
+
+        else if (model.NoPaginate)
+        {
+            var tasks = await GetPools(model);
+            listPoolsOutput = Formatter
+                .FormatCollection(tasks
+                    .Select(p =>
+                        new PoolSummary(
+                            p.Name,
+                            p.Shortname,
+                            p.Profile,
+                            p.State,
+                            p.CreationDate,
+                            p.QueuedOrRunningTaskInstancesCount,
+                            p.TaskDefaultWaitForPoolResourcesSynchronization))
+                    .ToList());
+        }
+        else
+        {
+            var tasksPage = await GetPoolsPage(model);
+            var pageResponse = new ResourcesPageModel<PoolSummary>(
+                Items: tasksPage
+                    .Data
+                    .Select(p =>
+                        new PoolSummary(
+                            p.Name,
+                            p.Shortname,
+                            p.Profile,
+                            p.State,
+                            p.CreationDate,
+                            p.QueuedOrRunningTaskInstancesCount,
+                            TaskDefaultWaitForPoolResourcesSynchronization: p.TaskDefaultWaitForPoolResourcesSynchronization))
+                    .ToList(),
+                MaxPageSize: model.MaxPageSize,
+                NextPageToken: tasksPage.IsTruncated ? tasksPage.NextToken : string.Empty);
+
+            listPoolsOutput = Formatter
+                .FormatCollectionPage(pageResponse);
+        }
+
+        Logger.Result(listPoolsOutput);
     }
 
     public async Task Info(GetPoolsOrTasksModel model)
@@ -247,33 +309,119 @@ public class PoolUseCases : IPoolUseCases
 
     private async Task<List<QPool>> GetPools(GetPoolsOrTasksModel model)
     {
-        if (!string.IsNullOrEmpty(model.Name))
+        Logger.Debug("Retrieving all the pools");
+        var allPools = new List<QPool>();
+        var pageDetails = GeneratePageRequest(
+            model.Name,
+            model.CreatedBefore,
+            model.CreatedAfter,
+            model.NamePrefix,
+            exclusiveTags: model?.ExclusiveTags,
+            tags: model?.Tags);
+        PaginatedResponse<QPool> page;
+        do
         {
-            Logger.Debug($"Retrieving pool by shortname: {model.Name}");
-            return new() { await QarnotAPI.RetrievePoolByShortnameAsync(model.Name) };
-        }
-        else if (!string.IsNullOrEmpty(model.Id))
+            page = await QarnotAPI.RetrievePaginatedPoolAsync(pageDetails);
+            allPools.AddRange(page.Data);
+        } while (pageDetails.PrepareNextPage(page));
+
+        return allPools;
+    }
+
+    private PaginatedRequest<QPool> GeneratePageRequest(
+        string? name,
+        string? createdBefore,
+        string? createdAfter,
+        string? namePrefix,
+        int? maxPageSize = null,
+        string? nextPageToken = null,
+        List<string> exclusiveTags = default,
+        List<string> tags = default)
+    {
+        var filters = new List<QFilter<QPool>>();
+        if (!string.IsNullOrWhiteSpace(name))
         {
-            Logger.Debug($"Retrieving pool by UUID: {model.Id}");
-            return new() { await QarnotAPI.RetrievePoolByUuidAsync(model.Id) };
+            filters.Add(QFilter<QPool>.Eq(
+                x => x.Name,
+                name));
         }
-        else if (model.ExclusiveTags?.Any() ?? false)
+
+        if (!string.IsNullOrWhiteSpace(createdBefore))
         {
-            Logger.Debug($"Retrieving pools by tags intersection: {string.Join(", ", model.ExclusiveTags)}");
-            var filters = new QDataDetail<QPool>();
-            var filtersList = model.ExclusiveTags.Select(tag => QFilter<QPool>.Contains(t => t.Tags, tag));
-            filters.Filter = QFilter<QPool>.And(filtersList.ToArray());
-            return await QarnotAPI.RetrievePoolsAsync(filters);
+            filters.Add(QFilter<QPool>.Lt(
+                x => x.CreationDate,
+                DateTime.Parse(createdBefore)));
         }
-        else if (model.Tags?.Any() ?? false)
+
+        if (!string.IsNullOrWhiteSpace(createdAfter))
         {
-            Logger.Debug($"Retrieving pools by tags union: {string.Join(", ", model.Tags)}");
-            return await QarnotAPI.RetrievePoolsByTagsAsync(model.Tags);
+            filters.Add(QFilter<QPool>.Gt(
+                x => x.CreationDate,
+                DateTime.Parse(createdAfter)));
         }
-        else
+
+        if (!string.IsNullOrWhiteSpace(namePrefix))
         {
-            Logger.Debug($"Retrieving all the pools");
-            return await QarnotAPI.RetrievePoolsAsync();
+            var prefixRegex = $"/^{Regex.Escape(namePrefix)}/";
+
+            filters.Add(QFilter<QPool>.Like(
+                x => x.Name,
+                prefixRegex));
         }
+
+        if (exclusiveTags?.Any() ?? false)
+        {
+            var filtersList = exclusiveTags.Select(tag => QFilter<QPool>.Contains(t => t.Tags, tag));
+            filters.Add(QFilter<QPool>.And(filtersList.ToArray()));
+        }
+
+        if (tags?.Any() ?? false)
+        {
+            var filtersList = tags.Select(tag => QFilter<QPool>.Contains(t => t.Tags, tag));
+            filters.Add(QFilter<QPool>.Or(filtersList.ToArray()));
+        }
+
+        var pageRequest = new PaginatedRequest<QPool>();
+        if (maxPageSize != default)
+        {
+            pageRequest.MaximumResults = maxPageSize;
+        }
+
+        if (nextPageToken != default)
+        {
+            pageRequest.Token = nextPageToken;
+        }
+
+        if (filters.Any())
+        {
+            pageRequest.Filter = QFilter<QPool>.And(filters.ToArray());
+        }
+
+        return pageRequest;
+    }
+
+    private async Task<PaginatedResponse<QPool>> GetPoolsPage(GetPoolsOrTasksModel model)
+    {
+        Logger.Debug("Retrieving a pools page");
+        var nextPageToken = model.NextPageToken;
+        if (model.NextPage && string.IsNullOrWhiteSpace(nextPageToken))
+        {
+            nextPageToken = StateManager.GetNextPageToken()?.Token;
+        }
+
+        var pageDetails = GeneratePageRequest(
+            model.Name,
+            model.CreatedBefore,
+            model.CreatedAfter,
+            model.NamePrefix,
+            model.MaxPageSize,
+            nextPageToken,
+            exclusiveTags: model?.ExclusiveTags,
+            tags: model?.Tags);
+
+        var page = await QarnotAPI.RetrievePaginatedPoolAsync(pageDetails);
+        StateManager.SaveNextPageToken(
+            new PageToken(page.IsTruncated ? page.NextToken : string.Empty));
+        return page;
     }
 }

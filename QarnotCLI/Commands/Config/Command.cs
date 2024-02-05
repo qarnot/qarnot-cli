@@ -22,6 +22,10 @@ public class ConfigCommand : CommandWithExamples
             ),
         };
 
+        // It's not possible to add `-t` as an alias for all the commands because it's also
+        // used for tags when searching for tasks and pools. We add it here.
+        globalOptions.TokenOpt.AddAlias("-t");
+
         var globalOpt = new Option<bool>(
             aliases: new[] { "--global", "-g" },
             description: "Set the configuration in the global default file ($HOME/.Qarnot/) to use it outside the binary path."

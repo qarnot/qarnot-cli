@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using QarnotSDK;
 
 namespace QarnotCLI;
@@ -22,11 +23,17 @@ public class TaskUseCases : ITaskUseCases
     private readonly ILogger Logger;
     private readonly Connection QarnotAPI;
     private readonly IFormatter Formatter;
+    private readonly IStateManager StateManager;
 
-    public TaskUseCases(Connection qarnotAPI, IFormatter formatter, ILogger logger)
+    public TaskUseCases(
+        Connection qarnotAPI,
+        IFormatter formatter,
+        IStateManager stateManager,
+        ILogger logger)
     {
         QarnotAPI = qarnotAPI;
         Formatter = formatter;
+        StateManager = stateManager;
         Logger = logger;
     }
 
@@ -106,6 +113,7 @@ public class TaskUseCases : ITaskUseCases
 
          task.Privileges.ExportApiAndStorageCredentialsInEnvironment = model.ExportCredentialsToEnv;
          task.DefaultResourcesCacheTTLSec = model.Ttl;
+         task.HardwareConstraints = model.HardwareConstraints;
 
          task.SecretsAccessRights = new();
          task.SecretsAccessRights.BySecret = model
@@ -144,8 +152,8 @@ public class TaskUseCases : ITaskUseCases
             }
 
             return ranges is null
-                ? new QTask(QarnotAPI, model.Name, job, model.Instance, model.ShortName)
-                : new QTask(QarnotAPI, model.Name, job, ranges, model.ShortName);
+                ? new QTask(QarnotAPI, model.Name, job, model.Instance, model.ShortName, model.Profile!)
+                : new QTask(QarnotAPI, model.Name, job, ranges, model.ShortName, model.Profile!);
         }
         else if (!string.IsNullOrEmpty(model.Pool))
         {
@@ -169,22 +177,75 @@ public class TaskUseCases : ITaskUseCases
             : new QTask(QarnotAPI, model.Name, model.Profile!, ranges, model.ShortName);
     }
 
+
     public async Task List(GetPoolsOrTasksModel model)
     {
         Logger.Debug("Listing tasks summaries");
-        var tasks = await GetTasks(model);
-        Logger.Result(Formatter.FormatCollection(tasks
-            .Select(t =>
-                new TaskSummary(
-                    Name: t.Name,
-                    State: t.State,
-                    Uuid: t.Uuid.ToString(),
-                    Shortname: t.Shortname,
-                    Profile: t.Profile,
-                    InstanceCount: t.InstanceCount
-                )
-            ).ToList()
-        ));
+        string listTasksOutput;
+
+        if(model.IsTargetingSingleResource())
+        {
+            QTask task = null;
+            if (!string.IsNullOrEmpty(model.Shortname))
+            {
+                Logger.Debug($"Retrieving task by shortname: {model.Shortname}");
+                task = await QarnotAPI.RetrieveTaskByShortnameAsync(model.Shortname);
+            }
+            else if (!string.IsNullOrEmpty(model.Id))
+            {
+                Logger.Debug($"Retrieving task by UUID: {model.Id}");
+                task = await QarnotAPI.RetrieveTaskByUuidAsync(model.Id);
+            }
+
+            listTasksOutput = Formatter
+                .FormatCollection(task == null ?
+                    new TaskSummary[] {} :
+                    new [] { new TaskSummary(
+                        Name: task.Name,
+                        State: task.State,
+                        Uuid: task.Uuid.ToString(),
+                        Shortname: task.Shortname,
+                        Profile: task.Profile,
+                        InstanceCount: task.InstanceCount)});
+        }
+        else if (model.NoPaginate)
+        {
+            var tasks = await GetTasks(model);
+            listTasksOutput = Formatter
+                .FormatCollection(tasks
+                    .Select(t =>
+                        new TaskSummary(
+                            Name: t.Name,
+                            State: t.State,
+                            Uuid: t.Uuid.ToString(),
+                            Shortname: t.Shortname,
+                            Profile: t.Profile,
+                            InstanceCount: t.InstanceCount))
+                    .ToList());
+        }
+        else
+        {
+            var tasksPage = await GetTasksPage(model);
+            var pageResponse = new ResourcesPageModel<TaskSummary>(
+                Items: tasksPage
+                    .Data
+                    .Select(t =>
+                        new TaskSummary(
+                            Name: t.Name,
+                            State: t.State,
+                            Uuid: t.Uuid.ToString(),
+                            Shortname: t.Shortname,
+                            Profile: t.Profile,
+                            InstanceCount: t.InstanceCount))
+                    .ToList(),
+                MaxPageSize: model.MaxPageSize,
+                NextPageToken: tasksPage.IsTruncated ? tasksPage.NextToken : string.Empty);
+
+            listTasksOutput = Formatter
+                .FormatCollectionPage(pageResponse);
+        }
+
+        Logger.Result(listTasksOutput);
     }
 
     public async Task Info(GetPoolsOrTasksModel model)
@@ -279,7 +340,7 @@ public class TaskUseCases : ITaskUseCases
 
     public async Task UpdateConstant(UpdatePoolsOrTasksConstantModel model)
     {
-        Logger.Debug("Updating tasks contant");
+        Logger.Debug("Updating tasks constant");
         var tasks = await GetTasks(model);
         var updates = await Task.WhenAll(tasks.Select(async task => {
             task.SetConstant(model.ConstantName, model.ConstantValue);
@@ -368,33 +429,120 @@ public class TaskUseCases : ITaskUseCases
 
     private async Task<List<QTask>> GetTasks(GetPoolsOrTasksModel model)
     {
-        if (!string.IsNullOrEmpty(model.Name))
+        Logger.Debug("Retrieving all the tasks");
+        var allTasks = new List<QTask>();
+        var pageDetails = GeneratePageRequest(
+            model.Name,
+            model.CreatedBefore,
+            model.CreatedAfter,
+            model.NamePrefix,
+            exclusiveTags: model?.ExclusiveTags,
+            tags: model?.Tags);
+        PaginatedResponse<QTask> page;
+        do
         {
-            Logger.Debug($"Retrieving task by shortname: {model.Name}");
-            return new() { await QarnotAPI.RetrieveTaskByShortnameAsync(model.Name) };
-        }
-        else if (!string.IsNullOrEmpty(model.Id))
+            page = await QarnotAPI.RetrievePaginatedTaskAsync(pageDetails);
+            allTasks.AddRange(page.Data);
+        } while (pageDetails.PrepareNextPage(page));
+
+        return allTasks;
+    }
+
+
+    private PaginatedRequest<QTask> GeneratePageRequest(
+        string? name,
+        string? createdBefore,
+        string? createdAfter,
+        string? namePrefix,
+        int? maxPageSize = null,
+        string? nextPageToken = null,
+        List<string> exclusiveTags = default,
+        List<string> tags = default)
+    {
+        var filters = new List<QFilter<QTask>>();
+        if (!string.IsNullOrWhiteSpace(name))
         {
-            Logger.Debug($"Retrieving task by UUID: {model.Id}");
-            return new() { await QarnotAPI.RetrieveTaskByUuidAsync(model.Id) };
+            filters.Add(QFilter<QTask>.Eq(
+                x => x.Name,
+                name));
         }
-        else if (model.ExclusiveTags?.Any() ?? false)
+
+        if (!string.IsNullOrWhiteSpace(createdBefore))
         {
-            Logger.Debug($"Retrieving tasks by tags intersection: {string.Join(", ", model.ExclusiveTags)}");
-            var filters = new QDataDetail<QTask>();
-            var filtersList = model.ExclusiveTags.Select(tag => QFilter<QTask>.Contains(t => t.Tags, tag));
-            filters.Filter = QFilter<QTask>.And(filtersList.ToArray());
-            return await QarnotAPI.RetrieveTasksAsync(filters);
+            filters.Add(QFilter<QTask>.Lt(
+                x => x.CreationDate,
+                DateTime.Parse(createdBefore)));
         }
-        else if (model.Tags?.Any() ?? false)
+
+        if (!string.IsNullOrWhiteSpace(createdAfter))
         {
-            Logger.Debug($"Retrieving tasks by tags union: {string.Join(", ", model.Tags)}");
-            return await QarnotAPI.RetrieveTasksByTagsAsync(model.Tags);
+            filters.Add(QFilter<QTask>.Gt(
+                x => x.CreationDate,
+                DateTime.Parse(createdAfter)));
         }
-        else
+
+        if (!string.IsNullOrWhiteSpace(namePrefix))
         {
-            Logger.Debug("Retrieving all the tasks");
-            return await QarnotAPI.RetrieveTasksAsync();
+            var prefixRegex = $"/^{Regex.Escape(namePrefix)}/";
+
+            filters.Add(QFilter<QTask>.Like(
+                x => x.Name,
+                prefixRegex));
         }
+
+        if (exclusiveTags?.Any() ?? false)
+        {
+            var filtersList = exclusiveTags.Select(tag => QFilter<QTask>.Contains(t => t.Tags, tag));
+            filters.Add(QFilter<QTask>.And(filtersList.ToArray()));
+        }
+
+        if (tags?.Any() ?? false)
+        {
+            var filtersList = tags.Select(tag => QFilter<QTask>.Contains(t => t.Tags, tag));
+            filters.Add(QFilter<QTask>.Or(filtersList.ToArray()));
+        }
+
+        var pageRequest = new PaginatedRequest<QTask>();
+        if (maxPageSize != default)
+        {
+            pageRequest.MaximumResults = maxPageSize;
+        }
+
+        if (nextPageToken != default)
+        {
+            pageRequest.Token = nextPageToken;
+        }
+
+        if (filters.Any())
+        {
+            pageRequest.Filter = QFilter<QTask>.And(filters.ToArray());
+        }
+
+        return pageRequest;
+    }
+
+    private async Task<PaginatedResponse<QTask>> GetTasksPage(GetPoolsOrTasksModel model)
+    {
+        Logger.Debug("Retrieving a tasks page");
+        var nextPageToken = model.NextPageToken;
+        if (model.NextPage && string.IsNullOrWhiteSpace(nextPageToken))
+        {
+            nextPageToken = StateManager.GetNextPageToken()?.Token;
+        }
+
+        var pageDetails = GeneratePageRequest(
+            model.Name,
+            model.CreatedBefore,
+            model.CreatedAfter,
+            model.NamePrefix,
+            model.MaxPageSize,
+            nextPageToken,
+            exclusiveTags: model?.ExclusiveTags,
+            tags: model?.Tags);
+
+        var page = await QarnotAPI.RetrievePaginatedTaskAsync(pageDetails);
+        StateManager.SaveNextPageToken(
+            new PageToken(page.IsTruncated ? page.NextToken : string.Empty));
+        return page;
     }
 }

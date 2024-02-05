@@ -17,7 +17,11 @@ public class JobUseCases : IJobUseCases
     private readonly IFormatter Formatter;
     private readonly ILogger Logger;
 
-    public JobUseCases(Connection api, IFormatter formatter, ILogger logger)
+    public JobUseCases(
+        Connection api,
+        IFormatter formatter,
+        IStateManager _,
+        ILogger logger)
     {
         QarnotAPI = api;
         Formatter = formatter;

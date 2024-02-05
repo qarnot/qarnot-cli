@@ -19,9 +19,17 @@ public class GetPoolsOrTasksBinder : GlobalBinder<GetPoolsOrTasksModel>
     {
         var model = new GetPoolsOrTasksModel(
             bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NameOpt),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.ShortnameOpt),
             bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.IdOpt),
             bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.TagsOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.ExclusiveTagsOpt) ?? new()
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.ExclusiveTagsOpt) ?? new(),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NoPaginateOpt),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NextPageTokenOpt),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NextPageOpt),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.MaxPageSizeOpt),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.CreatedBeforeOpt),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.CreatedAfterOpt),
+            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NamePrefixOpt)
         );
 
         if (model.Tags.Any() && model.ExclusiveTags.Any())
@@ -66,9 +74,17 @@ public static class GetTasksModelExtension
         {
             model.Initialize(
                 bindingContext.ParseResult.GetValueForOption(opts.NameOpt),
+                bindingContext.ParseResult.GetValueForOption(opts.ShortnameOpt),
                 bindingContext.ParseResult.GetValueForOption(opts.IdOpt),
                 bindingContext.ParseResult.GetValueForOption(opts.TagsOpt) ?? new(),
-                bindingContext.ParseResult.GetValueForOption(opts.ExclusiveTagsOpt) ?? new()
+                bindingContext.ParseResult.GetValueForOption(opts.ExclusiveTagsOpt) ?? new(),
+                bindingContext.ParseResult.GetValueForOption(opts.NoPaginateOpt),
+                bindingContext.ParseResult.GetValueForOption(opts.NextPageTokenOpt),
+                bindingContext.ParseResult.GetValueForOption(opts.NextPageOpt),
+                bindingContext.ParseResult.GetValueForOption(opts.MaxPageSizeOpt),
+                bindingContext.ParseResult.GetValueForOption(opts.CreatedBeforeOpt),
+                bindingContext.ParseResult.GetValueForOption(opts.CreatedAfterOpt),
+                bindingContext.ParseResult.GetValueForOption(opts.NamePrefixOpt)
             );
 
             if (model.Tags.Any() && model.ExclusiveTags.Any())

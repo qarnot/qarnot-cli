@@ -9,6 +9,7 @@ var releasesService = new ReleasesService();
 var parser = new CommandLineBuilderFactory(
     _ => new Mock<ITaskUseCases>().Object,
     _ => new Mock<IPoolUseCases>().Object,
+    _ => new Mock<IHardwareConstraintsUseCases>().Object,
     _ => new Mock<IJobUseCases>().Object,
     _ => new Mock<IBucketUseCases>().Object,
     _ => new Mock<IAllUseCases>().Object,

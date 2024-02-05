@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using QarnotSDK;
 
 namespace QarnotCLI;
 
@@ -122,6 +123,55 @@ public static class Helpers
         }
 
         throw new Exception();
+    }
+
+    public static QarnotSDK.HardwareConstraints? BuildHardwareConstraints(
+        uint? minimumCoreCount,
+        uint? maximumCoreCount,
+        decimal? minimumRamCoreRatio,
+        decimal? maximumRamCoreRatio,
+        List<string>? specificHardware,
+        bool? gpuHardware,
+        bool? ssdHardware,
+        bool? noSsdHardware,
+        decimal? minimumRamHardware,
+        decimal? maximumRamHardware,
+        string? cpuModelHardware
+    )
+    {
+        var hardwareConstraints = new QarnotSDK.HardwareConstraints();
+
+        if (minimumCoreCount is not null) 
+            hardwareConstraints.Add(new MinimumCoreHardware((int)minimumCoreCount.Value));
+        if (maximumCoreCount is not null)
+            hardwareConstraints.Add(new MaximumCoreHardware((int)maximumCoreCount.Value));
+
+        if (minimumRamCoreRatio is not null)
+            hardwareConstraints.Add(new MinimumRamCoreRatioHardware(minimumRamCoreRatio.Value));
+        if (maximumRamCoreRatio is not null)
+            hardwareConstraints.Add(new MaximumRamCoreRatioHardware(maximumRamCoreRatio.Value));
+
+        if (specificHardware is not null)
+        {
+            foreach (var s in specificHardware)
+            {
+                hardwareConstraints.Add(new SpecificHardware(s));
+            }
+        }
+        if (ssdHardware ?? false)
+            hardwareConstraints.Add(new SSDHardware());
+        if (noSsdHardware ?? false)
+            hardwareConstraints.Add(new NoSSDHardware());
+        if (gpuHardware ?? false)
+            hardwareConstraints.Add(new GpuHardware());
+        if (minimumRamHardware is not null)
+            hardwareConstraints.Add(new MinimumRamHardware(minimumRamHardware.Value));
+        if (maximumRamHardware is not null)
+            hardwareConstraints.Add(new MaximumRamHardware(maximumRamHardware.Value));
+        if (cpuModelHardware is not null)
+            hardwareConstraints.Add(new CpuModelHardware(cpuModelHardware));
+
+        return hardwareConstraints;
     }
 
     public static List<T> CoalesceEmpty<T>(List<T>? lhs, List<T> rhs) =>

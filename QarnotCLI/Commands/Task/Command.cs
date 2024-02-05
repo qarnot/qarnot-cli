@@ -152,6 +152,61 @@ public class TaskCommand : Command
             description: "Default TTL for the task resources cache (in seconds)"
         );
 
+        var hardwareConstraintMinimumCoreCountOpt = new Option<uint?>(
+            name: "--min-core-count",
+            description: "Minimum number of cores that tasks in the pool will have access to"
+        );
+
+        var hardwareConstraintMaximumCoreCountOpt = new Option<uint?>(
+            name: "--max-core-count",
+            description: "Maximum number of cores that the task will have access to"
+        );
+
+        var hardwareConstraintMinimumRamCoreRatioOpt = new Option<decimal?>(
+            name: "--min-ram-core-ratio",
+            description: "Minimum ratio of RAM per number of cores that the task will have access to"
+        );
+
+        var hardwareConstraintMaximumRamCoreRatioOpt = new Option<decimal?>(
+            name: "--max-ram-core-ratio",
+            description: "Maximum ratio of RAM per number of cores that task will have access to"
+        );
+
+        var hardwareConstraintSpecificHardwareOpt = new Option<List<string>?>(
+            name: "--specific-hardware-constraints",
+            description: "List of constraints for specific hardware, described by specification keys. Specification keys are to be separated by spaces. Make sure to quote specification keys if they contain spaces (example : qarnot pool create --name thename --profile theprofile --specific-hardware-constraints \"Amd Ryzen 7\" \"Another hardware constraint\") "
+        ) { AllowMultipleArgumentsPerToken = true };
+
+        var hardwareConstraintGpuHardwareOpt = new Option<bool?>(
+            name: "--gpu-hardware",
+            description: "Force the task to run on GPU powered machines" 
+        );
+
+        var hardwareConstraintSsdOpt = new Option<bool?>(
+            name: "--ssd-hardware",
+            description: "Force the task to run on machines that have SSDs" 
+        ){Arity = ArgumentArity.ZeroOrOne};
+
+        var hardwareConstraintNoSsdOpt = new Option<bool?>(
+            name: "--no-ssd-hardware",
+            description: "Force the tasks to run on machines that don't have SSDs" 
+        ){Arity = ArgumentArity.ZeroOrOne};
+
+        var hardwareConstraintMinimumRamOpt = new Option<decimal?>(
+            name: "--min-ram",
+            description: "Minimum amount of RAM (in MB) that the task will have access to"
+        );
+
+        var hardwareConstraintMaximumRamOpt = new Option<decimal?>(
+            name: "--max-ram",
+            description: "Maximum amount of RAM (in MB) that the task will have access to"
+        );
+
+        var hardwareConstraintCpuModelHardwareOpt = new Option<string?>(
+            name: "--cpu-model",
+            description: "Target a specific CPU model to use when running the task"
+        );
+
         var secretsAccessRightsByKeyOpt = new Option<List<string>>(
             name: "--secrets-access-rights-by-key",
             description: "Give the task access to secrets described by their keys. Only available to standalone task, use `--secrets-access-rights-by-key` on the pool for tasks running within a pool"
@@ -217,6 +272,17 @@ public class TaskCommand : Command
             maxRetriesPerInstanceOpt,
             dependentsOpt,
             ttlOpt,
+            hardwareConstraintMinimumCoreCountOpt,
+            hardwareConstraintMaximumCoreCountOpt,
+            hardwareConstraintMinimumRamCoreRatioOpt,
+            hardwareConstraintMaximumRamCoreRatioOpt,
+            hardwareConstraintSpecificHardwareOpt,
+            hardwareConstraintGpuHardwareOpt,
+            hardwareConstraintSsdOpt,
+            hardwareConstraintNoSsdOpt,
+            hardwareConstraintMinimumRamOpt,
+            hardwareConstraintMaximumRamOpt,
+            hardwareConstraintCpuModelHardwareOpt,
             secretsAccessRightsByKeyOpt,
             secretsAccessRightsByPrefixOpt,
             schedulingTypeOpt,
@@ -249,6 +315,17 @@ public class TaskCommand : Command
                 maxRetriesPerInstanceOpt,
                 dependentsOpt,
                 ttlOpt,
+                hardwareConstraintMinimumCoreCountOpt,
+                hardwareConstraintMaximumCoreCountOpt,
+                hardwareConstraintMinimumRamCoreRatioOpt,
+                hardwareConstraintMaximumRamCoreRatioOpt,
+                hardwareConstraintSpecificHardwareOpt,
+                hardwareConstraintGpuHardwareOpt,
+                hardwareConstraintSsdOpt,
+                hardwareConstraintNoSsdOpt,
+                hardwareConstraintMinimumRamOpt,
+                hardwareConstraintMaximumRamOpt,
+                hardwareConstraintCpuModelHardwareOpt,
                 secretsAccessRightsByKeyOpt,
                 secretsAccessRightsByPrefixOpt,
                 schedulingTypeOpt,
@@ -260,6 +337,14 @@ public class TaskCommand : Command
                 GlobalOptions
             )
         );
+
+        cmd.AddValidator(result =>
+        {
+            if (result.Children.Count(s => s.Symbol == hardwareConstraintSsdOpt || s.Symbol == hardwareConstraintNoSsdOpt) >= 2)
+            {
+                result.ErrorMessage = $"--{hardwareConstraintSsdOpt.Name} and --{hardwareConstraintNoSsdOpt.Name} are mutually exclusive.";
+            }
+        });
 
         return cmd;
     }

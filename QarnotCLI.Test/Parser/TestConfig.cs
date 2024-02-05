@@ -18,7 +18,7 @@ public class TestConfigCommand
         var email = Guid.NewGuid().ToString();
 
         await mock.Parser.InvokeAsync(
-            new[] { "config", "--global", "--token", token, "--api-uri", uri, "--storage-uri", storageUri, "--account-email", email }
+            new[] { "config", "--global", "-t", token, "--api-uri", uri, "--storage-uri", storageUri, "--account-email", email }
         );
 
         mock.ConfigUseCases.Verify(useCases => useCases.Run(It.Is<RunConfigModel>(model =>

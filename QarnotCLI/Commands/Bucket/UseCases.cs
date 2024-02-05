@@ -20,7 +20,11 @@ public class BucketUseCases : IBucketUseCases
     private readonly Connection QarnotAPI;
     private readonly IFormatter Formatter;
 
-    public BucketUseCases(Connection qarnotAPI, IFormatter formatter, ILogger logger)
+    public BucketUseCases(
+        Connection qarnotAPI,
+        IFormatter formatter,
+        IStateManager _,
+        ILogger logger)
     {
         QarnotAPI = qarnotAPI;
         Logger = logger;
@@ -208,14 +212,11 @@ public class BucketUseCases : IBucketUseCases
         var buckets = await QarnotAPI.RetrieveBucketsAsync();
         var bytesFormatter = new ByteValueFormatter(model.HumanReadable);
         Logger.Result(Formatter.FormatCollection(
-            buckets.Select(b =>
-                new BucketSummary(
-                    Shortname: b.Shortname,
-                    TotalFileCount: (uint)b.FileCount,
-                    TotalBytes: bytesFormatter.Format(b.UsedSpaceBytes),
-                    Entries: new()
-                )
-            ).ToList()
+            buckets.Select(b =>new {
+                Shortname = b.Shortname,
+                TotalFileCount= (uint)b.FileCount,
+                TotalBytes= bytesFormatter.Format(b.UsedSpaceBytes),
+            }).ToList()
         ));
     }
 

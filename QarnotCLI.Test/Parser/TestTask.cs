@@ -1,5 +1,7 @@
+using Microsoft.VisualBasic;
 using Moq;
 using NUnit.Framework;
+using QarnotSDK;
 using System.CommandLine.Parsing;
 
 namespace QarnotCLI.Test;
@@ -94,6 +96,122 @@ public class TestTaskCommand
     }
 
     [Test]
+    public async Task CreateTaskWithHardwareConstraints()
+    {
+        var mock = new MockParser();
+
+        var name1 = "NAME1";
+        var shortname = "SHORT";
+        var instance = 42;
+        var profile = "PROFILE";
+        var tags = new[] { "TAG1", "TAG2", "TAG3" };
+        var constants = new[] { "CONSTANT" };
+        var constraints = new[] { "CONSTRAINTS" };
+        var periodic = 5;
+        var whitelist = "white*";
+        var blacklist = "black*";
+        var maxRetriesPerInstance = 23;
+        var maxTotalRetries = 24;
+        var hardwareConstraints = new HardwareConstraints()
+        {
+            new MinimumCoreHardware(2),
+            new MaximumCoreHardware(4),
+            new MinimumRamCoreRatioHardware(0.1m),
+            new MaximumRamCoreRatioHardware(1.5m),
+            new SpecificHardware("the-hardware-key"),
+            new MinimumRamHardware(0.2m),
+            new MaximumRamHardware(3.1m),
+            new GpuHardware(),
+            new CpuModelHardware("the-cpu-model"),
+        };
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "create", "--name", name1, "--shortname", shortname, "--instance", instance.ToString(), "--profile", profile,
+                "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
+                "--wait-for-resources-synchronization", "true" , "--periodic", periodic.ToString(), "--whitelist",  whitelist,
+
+                "--min-core-count", "2", "--max-core-count", "4",
+                "--min-ram-core-ratio", "0.1", "--max-ram-core-ratio", "1.5",
+                "--specific-hardware-constraints", "the-hardware-key",
+                "--cpu-model", "the-cpu-model", "--gpu-hardware", "--max-ram" , "3.1", "--min-ram", "0.2",
+
+                "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString()
+            }
+        );
+
+        Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+        mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+            model.Name == name1 &&
+            model.ShortName == shortname &&
+            model.Profile == profile &&
+            model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
+            model.Constants.Zip(constants).All(pair => pair.First == pair.Second) &&
+            model.Constraints.Zip(constraints).All(pair => pair.First == pair.Second) &&
+            model.Instance == instance &&
+            model.WaitForResourcesSynchronization &&
+            model.Periodic == periodic &&
+            model.Whitelist == whitelist &&
+            model.Blacklist == blacklist &&
+            model.MaxRetriesPerInstance == maxRetriesPerInstance &&
+            model.MaxTotalRetries == maxTotalRetries &&
+            model.ExportCredentialsToEnv == null &&
+            model.Ttl == null &&
+            model.SchedulingType == null &&
+            model.MachineTarget == null &&
+            model.HardwareConstraints != null &&
+            model.HardwareConstraints.Count == hardwareConstraints.Count &&
+            hardwareConstraints.All(constraint => model.HardwareConstraints.Contains(constraint))
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateTaskWithBothSsdAndNoSsd()
+    {
+        try
+        {
+            using var sw = new StringWriter();
+            Console.SetError(sw);
+            var mock = new MockParser();
+
+            var name1 = "NAME1";
+            var shortname = "SHORT";
+            var instance = 42;
+            var profile = "PROFILE";
+            var tags = new[] { "TAG1", "TAG2", "TAG3" };
+            var constants = new[] { "CONSTANT" };
+            var constraints = new[] { "CONSTRAINTS" };
+            var periodic = 5;
+            var whitelist = "white*";
+            var blacklist = "black*";
+            var maxRetriesPerInstance = 23;
+            var maxTotalRetries = 24;
+
+            var res = await mock.Parser.InvokeAsync(
+                new[] {
+                "task", "create", "--name", name1, "--shortname", shortname, "--instance", instance.ToString(), "--profile", profile,
+                "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
+                "--wait-for-resources-synchronization", "true" , "--periodic", periodic.ToString(), "--whitelist",  whitelist,
+
+                "--ssd-hardware", "--no-ssd-hardware",
+
+                "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString()
+                }
+            );
+
+            Assert.That(res, Is.EqualTo(1), "parsing should fail");
+
+
+            Assert.That(sw.ToString(), Does.Contain("--ssd-hardware and --no-ssd-hardware are mutually exclusive."));
+        }
+        finally 
+        {
+            Console.SetError(new StreamWriter(Console.OpenStandardError()));
+        }
+    }
+
+    [Test]
     public async Task ListTasks()
     {
         var mock = new MockParser();
@@ -103,22 +221,64 @@ public class TestTaskCommand
             model.Name == null &&
             model.Id == null &&
             !model.Tags.Any() &&
-            !model.ExclusiveTags.Any()
+            !model.ExclusiveTags.Any() &&
+            !model.NoPaginate
         )), Times.Once);
 
 
         var name = "NAME1";
+        var shortname = "shortname1";
         var uuid = Guid.NewGuid().ToString();
         var tags = new List<string> { "TAG1", "TAG2" };
         await mock.Parser.InvokeAsync(
-            new[] { "task", "list", "--name", name, "--id", uuid, "--tags", tags[0], tags[1] }
+            new[] { "task", "list", "--name", name, "--shortname", shortname, "--id", uuid, "--tags", tags[0], tags[1] }
         );
 
         mock.TaskUseCases.Verify(useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model =>
             model.Name == name &&
+            model.Shortname == shortname &&
             model.Id == uuid &&
             model.Tags.Zip(tags).All(pair => pair.First == pair.Second)
         )), Times.Once);
+    }
+
+    [Test]
+    public async Task ListTasksPage()
+    {
+        var mock = new MockParser();
+
+        await mock.Parser.InvokeAsync(new[] { "task", "list", "--no-paginate" });
+        mock.TaskUseCases.Verify(useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model =>
+            model.Name == null &&
+            model.Id == null &&
+            !model.Tags.Any() &&
+            !model.ExclusiveTags.Any() &&
+            model.NoPaginate
+        )), Times.Once);
+
+        var token = "zefabuloustoken";
+        await mock.Parser.InvokeAsync(new[] { "task", "list", "--next-page-token", token });
+        mock
+            .TaskUseCases
+            .Verify(
+                useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model => model.NextPageToken == token)),
+                Times.Once);
+
+        var maxPageSize = 42;
+        var namePrefix = "zeprefix";
+        var createdBefore = "01-01-2022";
+        var createdAfter = "02-01-2022";
+        await mock.Parser.InvokeAsync(new[] { "task", "list", "--max-page-size", $"{maxPageSize}", "--next-page", "--name-prefix", namePrefix, "--created-before", createdBefore, "--created-after", createdAfter });
+        mock
+            .TaskUseCases
+            .Verify(
+                useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model =>
+                    model.MaxPageSize == maxPageSize
+                    && model.NextPage
+                    && model.NamePrefix == namePrefix
+                    && model.CreatedAfter == createdAfter
+                    && model.CreatedBefore == createdBefore)),
+                Times.Once);
     }
 
     [TestCase("list")]

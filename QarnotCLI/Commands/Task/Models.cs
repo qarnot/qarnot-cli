@@ -40,6 +40,8 @@ public record CreateTaskModel(
     List<string> Dependents,
     [property: JsonProperty("DefaultResourcesCacheTTLSec")]
     uint? Ttl,
+    [property: JsonProperty("HardwareConstraints")]
+    QarnotSDK.HardwareConstraints? HardwareConstraints,
     [property: JsonProperty("SecretsAccessRightsByKey")]
     List<string> SecretsAccessRightsByKey,
     [property: JsonProperty("SecretsAccessRightsByPrefix")]
@@ -78,6 +80,7 @@ public record CreateTaskModel(
             MaxRetriesPerInstance: null,
             Dependents: new(),
             Ttl: null,
+            HardwareConstraints: null,
             SecretsAccessRightsByKey: new(),
             SecretsAccessRightsByPrefix: new(),
             SchedulingType: null,

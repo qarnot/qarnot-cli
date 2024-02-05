@@ -1,5 +1,6 @@
 using Moq;
 using NUnit.Framework;
+using QarnotSDK;
 using System.CommandLine.Parsing;
 
 namespace QarnotCLI.Test;
@@ -78,6 +79,122 @@ public class TestPoolCommand
             model.SchedulingType == null &&
             model.MachineTarget == null
         )), Times.Once);
+    }
+
+    [Test]
+    public async Task CreatePoolWithHardwareConstraints()
+    {
+        var mock = new MockParser();
+
+        var name1 = "NAME1";
+        var shortname = "SHORT";
+        var instance = 42;
+        var profile = "PROFILE";
+        var tags = new[] { "TAG1", "TAG2", "TAG3" };
+        var constants = new[] { "CONSTANT" };
+        var constraints = new[] { "CONSTRAINTS" };
+        var maxRetriesPerInstance = 23;
+        var maxTotalRetries = 24;
+        var defaultTTL = 36000;
+        var reservedMachine = "some-reserved-machine";
+        var hardwareConstraints = new HardwareConstraints()
+        {
+            new MinimumCoreHardware(2),
+            new MaximumCoreHardware(4),
+            new MinimumRamCoreRatioHardware(1m),
+            new MaximumRamCoreRatioHardware(1.5m),
+            new SpecificHardware("the-hardware-key"),
+            new MinimumRamHardware(0.2m),
+            new MaximumRamHardware(3.1m),
+            new GpuHardware(),
+            new CpuModelHardware("the-cpu-model"),
+        };
+
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "pool", "create", "--name", name1, "--shortname", shortname, "--instanceNodes", instance.ToString(), "--profile", profile,
+                "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
+                "--tasks-wait-for-synchronization", "true" , "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(),
+
+                "--min-core-count", "2", "--max-core-count", "4",
+                "--min-ram-core-ratio", "1", "--max-ram-core-ratio", "1.5",
+                "--specific-hardware-constraints", "the-hardware-key",
+
+                "--cpu-model", "the-cpu-model", "--gpu-hardware", "--max-ram" , "3.1", "--min-ram", "0.2",
+                "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString(),
+                "--scheduling-type", "Flex", "--machine-target", reservedMachine
+            }
+        );
+
+        Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+        mock.PoolUseCases.Verify(useCases => useCases.Create(It.Is<CreatePoolModel>(model =>
+            model.Name == name1 &&
+            model.Shortname == shortname &&
+            model.Profile == profile &&
+            model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
+            model.Constants.Zip(constants).All(pair => pair.First == pair.Second) &&
+            model.Constraints.Zip(constraints).All(pair => pair.First == pair.Second) &&
+            model.InstanceCount == instance &&
+            model.TasksWaitForSynchronization &&
+            model.MaxRetriesPerInstance == maxRetriesPerInstance &&
+            model.MaxTotalRetries == maxTotalRetries &&
+            model.ExportCredentialsToEnv == true &&
+            model.Ttl == defaultTTL &&
+            model.SchedulingType == "Flex" &&
+            model.MachineTarget == reservedMachine &&
+            model.HardwareConstraints != null &&
+            model.HardwareConstraints.Count == hardwareConstraints.Count &&
+            hardwareConstraints.All(constraint => model.HardwareConstraints.Contains(constraint))
+        )), Times.Once);
+
+    }
+
+
+    [Test]
+    public async Task CreatePoolWithBothSsdAndNoSsd()
+    {
+        try
+        {
+            using var sw = new StringWriter();
+            Console.SetError(sw);
+            var mock = new MockParser();
+
+            var name1 = "NAME1";
+            var shortname = "SHORT";
+            var instance = 42;
+            var profile = "PROFILE";
+            var tags = new[] { "TAG1", "TAG2", "TAG3" };
+            var constants = new[] { "CONSTANT" };
+            var constraints = new[] { "CONSTRAINTS" };
+            var maxRetriesPerInstance = 23;
+            var maxTotalRetries = 24;
+            var defaultTTL = 36000;
+            var reservedMachine = "some-reserved-machine";
+
+
+            var res = await mock.Parser.InvokeAsync(
+                new[] {
+                "pool", "create", "--name", name1, "--shortname", shortname, "--instanceNodes", instance.ToString(), "--profile", profile,
+                "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
+                "--tasks-wait-for-synchronization", "true" , "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(),
+
+                "--ssd-hardware", "--no-ssd-hardware",
+
+                "--cpu-model", "the-cpu-model", "--gpu-hardware-constraint", "--max-ram" , "3.1", "--min-ram", "0.2",
+                "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString(),
+                "--scheduling-type", "Flex", "--machine-target", reservedMachine
+                }
+            );
+
+            Assert.That(res, Is.EqualTo(1), "parsing should fail");
+            Assert.That(sw.ToString(), Does.Contain("--ssd-hardware and --no-ssd-hardware are mutually exclusive."));
+        }
+        finally 
+        {
+            Console.SetError(new StreamWriter(Console.OpenStandardError()));
+        }
     }
 
     [Test]
@@ -245,15 +362,56 @@ public class TestPoolCommand
 
         var uuid = Guid.NewGuid().ToString();
         var name = "NAME";
+        var shortname = "shortname";
         var tags = new List<string> { "TAG1", "TAG2" };
 
-        await mock.Parser.InvokeAsync(new[] { "pool", "list", "--name", name, "--id", uuid, "--tags", tags[0], tags[1] });
+        await mock.Parser.InvokeAsync(new[] { "pool", "list", "--name", name, "--shortname", shortname, "--id", uuid, "--tags", tags[0], tags[1] });
         mock.PoolUseCases.Verify(useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model =>
             model.Name == name &&
+            model.Shortname == shortname &&
             model.Id == uuid &&
             model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
             !model.ExclusiveTags.Any()
         )), Times.Once);
+    }
+
+    [Test]
+    public async Task ListPoolsPage()
+    {
+        var mock = new MockParser();
+
+        await mock.Parser.InvokeAsync(new[] { "pool", "list", "--no-paginate" });
+        mock.PoolUseCases.Verify(useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model =>
+            model.Name == null &&
+            model.Id == null &&
+            !model.Tags.Any() &&
+            !model.ExclusiveTags.Any() &&
+            model.NoPaginate
+        )), Times.Once);
+
+        var token = "zefabuloustoken";
+        await mock.Parser.InvokeAsync(new[] { "pool", "list", "--next-page-token", token });
+        mock
+            .PoolUseCases
+            .Verify(
+                useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model => model.NextPageToken == token)),
+                Times.Once);
+
+        var maxPageSize = 42;
+        var namePrefix = "zeprefix";
+        var createdBefore = "01-01-2022";
+        var createdAfter = "02-01-2022";
+        await mock.Parser.InvokeAsync(new[] { "pool", "list", "--max-page-size", $"{maxPageSize}", "--next-page", "--name-prefix", namePrefix, "--created-before", createdBefore, "--created-after", createdAfter });
+        mock
+            .PoolUseCases
+            .Verify(
+                useCases => useCases.List(It.Is<GetPoolsOrTasksModel>(model =>
+                    model.MaxPageSize == maxPageSize
+                    && model.NextPage
+                    && model.NamePrefix == namePrefix
+                    && model.CreatedAfter == createdAfter
+                    && model.CreatedBefore == createdBefore)),
+                Times.Once);
     }
 
     [Test]

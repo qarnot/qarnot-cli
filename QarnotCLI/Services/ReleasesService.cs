@@ -76,39 +76,8 @@ public class ReleasesService : IReleasesService
                 .Value ?? new DateTime().ToString()
         );
 
-    private Version GetAssemblyVersion()
-    {
-        // The format we retrieve for releases looks like this:
-        // ┌ to discard
-        // │  ┌ minor
-        // │  │    ┌ revision (number of commits since tag)
-        // v1.17.0-1-ge632ba3
-        //  │    │   └ to discard
-        //  │    └ patch
-        //  └ major
-        // or like this on any other branch:
-        // bb78c0b-dirty
-        var gitHash = Assembly.GetExecutingAssembly()
-            .GetCustomAttributes<AssemblyMetadataAttribute>()
-            .FirstOrDefault(attr => attr.Key == "GitHash")?
-            .Value;
-
-        if (string.IsNullOrEmpty(gitHash))
-        {
-            throw new Exception("Version information absent from assembly");
-        }
-
-        var versionAndRevision = gitHash.Split('-');
-        if (versionAndRevision.Length != 3)
-        {
-            // We are not on the release branch, we can't really parse the version.
-            // Use a placeholder.
-            return new Version("9999.9999.9999.9999");
-        }
-
-        versionAndRevision[0] = versionAndRevision[0].TrimStart('v');
-        return new Version($"{versionAndRevision[0]}.{versionAndRevision[1]}");
-     }
+    private Version GetAssemblyVersion() =>
+        new Version($"{ThisAssembly.Git.SemVer.Major}.{ThisAssembly.Git.SemVer.Minor}.{ThisAssembly.Git.SemVer.Patch}");
 
     private async Task<Version> GetNewestPublicReleaseVersion()
     {

@@ -10,6 +10,7 @@ public class ConnectionConfiguration
     public bool DisableBucketPathsSanitization { get; set; }
     public bool UnsafeSsl { get; set; }
     public bool StorageUnsafeSsl { get; set; }
+    public bool NoPersistedNextPageToken { get; set; } = false;
     public string ConfigurationFile { get; set; } = "";
 }
 
@@ -79,6 +80,8 @@ public class ConnectionConfigurationParser
                 case "storage-unsafe-ssl":
                     cc.StorageUnsafeSsl = SafeParseBool(value);
                     break;
+                case "next-page-token":
+                    break;
                 default:
                     Logger.Warning($"Unknown configuration option in configuration: {option}");
                     break;
@@ -124,6 +127,11 @@ public class ConnectionConfigurationParser
         if (Environment.GetEnvironmentVariable("QARNOT_USE_STORAGE_UNSAFE_SSL") is string storageUnsafeSsl)
         {
             cc.StorageUnsafeSsl = SafeParseBool(storageUnsafeSsl);
+        }
+
+        if (Environment.GetEnvironmentVariable("QARNOT_NO_PERSISTED_NEXT_PAGE_TOKEN") is string noPersistedNextPageToken)
+        {
+            cc.NoPersistedNextPageToken = SafeParseBool(noPersistedNextPageToken);
         }
 
         return cc;

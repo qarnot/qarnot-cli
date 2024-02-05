@@ -8,6 +8,7 @@ var loggerFactory = new LoggerFactory();
 var useCasesFactory = new UseCasesFactory(
     new QarnotAPIFactory(),
     new FormatterFactory(),
+    new StateManagerFactory(),
     loggerFactory
 );
 
@@ -24,11 +25,12 @@ var parser = new CommandLineBuilderFactory(useCasesFactory)
 
 try
 {
-    await parser.InvokeAsync(args);
+    var exitCode = await parser.InvokeAsync(args);
+    Environment.Exit(exitCode);
 }
 catch (QarnotApiException e)
 {
-    topLevelLogger.Error(e, "An error occurred while connection to Qarnot API");
+    topLevelLogger.Error(e, "An error occurred while connecting to Qarnot API");
     Environment.Exit(1);
 }
 catch (Exception e)
