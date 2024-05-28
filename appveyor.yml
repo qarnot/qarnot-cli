@@ -63,7 +63,6 @@ deploy:
     description: "Cli to use Qarnot's computing service"
     draft: false
     prerelease: false
-    auth_token:
-      secure: BjDHLTlj5/37u7j3aMubt/8BMCgS4vzY3w82StMf7edYYerpVdcs1uIdL79wbCF5
+    auth_token:  $(github_token)
     on:
       APPVEYOR_REPO_TAG: true
