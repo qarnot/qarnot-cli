@@ -1,0 +1,120 @@
+name: Qarnot CLI release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 6.0.x
+    - name: Env Info
+      run: dotnet --info
+    - name: Build
+      run: dotnet build -c Release
+    - name: Test
+      run: dotnet test --no-build --verbosity normal -c Release
+
+    # OSX
+    - name: Release OSX x64
+      if: runner.os != 'Windows'
+      run: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r osx-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/osx
+    - name: Move OSX artifacts
+      if: runner.os != 'Windows'
+      run: mv ./artifacts/osx/qarnot ./artifacts/qarnot-osx-x64
+
+    # Linux
+    - name: Release Linux x64
+      if: runner.os != 'Windows'
+      run: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/linux
+    - name: Move Linux artifacts
+      if: runner.os != 'Windows'
+      run: mv ./artifacts/linux/qarnot ./artifacts/qarnot-linux-x64
+
+    # Win
+    - name: Release win x64
+      if: runner.os != 'Windows'
+      run: dotnet publish QarnotCLI/QarnotCLI.csproj -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true -o ./artifacts/windows
+    - name: Move win artifacts
+      if: runner.os != 'Windows'
+      run: mv ./artifacts/windows/qarnot.exe ./artifacts/qarnot-windows-x64.exe
+
+    - name: Clean artifacts
+      if: runner.os != 'Windows'
+      # only keep one version of this, otherwise it'll fail to upload to Github (duplicate)
+      run: |
+        rm -f artifacts/*/*.pdb
+        rm -f artifacts/windows/qarnot.xml
+        rm -f artifacts/osx/qarnot.xml
+
+    - name: Compress Artifacts
+      if: runner.os != 'Windows'
+      run: zip -r binaries.zip ./artifacts
+
+    - name: Create GitHub Release
+      if: runner.os != 'Windows'
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: ${{ github.ref }}
+        body: Cli to use Qarnot's computing service
+        draft: false
+        prerelease: false
+
+    - name: Upload Artifacts zip
+      if: runner.os != 'Windows'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./binaries.zip
+        asset_name: binaries.zip
+        asset_content_type: application/zip
+
+    - name: Upload Artifacts win
+      if: runner.os != 'Windows'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/qarnot-windows-x64.exe
+        asset_name: qarnot-windows-x64.exe
+        asset_content_type: application/octet-stream
+
+    - name: Upload Artifacts linux
+      if: runner.os != 'Windows'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/qarnot-linux-x64
+        asset_name: qarnot-linux-x64
+        asset_content_type: application/octet-stream
+
+    - name: Upload Artifacts osx
+      if: runner.os != 'Windows'
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./artifacts/qarnot-osx-x64
+        asset_name: qarnot-osx-x64
+        asset_content_type: application/octet-stream
