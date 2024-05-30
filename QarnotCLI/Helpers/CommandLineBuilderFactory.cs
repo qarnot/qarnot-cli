@@ -1,5 +1,7 @@
 using System.CommandLine;
 using System.CommandLine.Builder;
+using System.CommandLine.Help;
+using System.CommandLine.IO;
 using QarnotSDK;
 
 namespace QarnotCLI;
@@ -84,8 +86,27 @@ public class CommandLineBuilderFactory
             new VersionCommand(assemblyDetails, logger),
         }.AddGlobalOptions(globalOptions);
 
+        var versionOpt = new Option<bool>(
+            name: "--version",
+            description: "The current version"
+        );
+        rootCommand.SetHandler(
+            version => {
+                if (version) {
+                    Console.WriteLine(assemblyDetails.ToString());
+                } else {
+                    throw new DisplayHelpException(rootCommand);
+                }
+            },
+            versionOpt
+        );
+        rootCommand.Add(versionOpt);
+
         return new CommandLineBuilder(rootCommand)
-            .UseDefaults()
+            .RegisterWithDotnetSuggest()
+            .UseTypoCorrections()
+            .UseParseErrorReporting()
+            .CancelOnProcessTermination()
             // Disable the default handling for `@` on the command line.
             .UseTokenReplacer((string _1, out IReadOnlyList<string>? _2, out string? _3) => {
                 _2 = null;
@@ -99,6 +120,13 @@ public class CommandLineBuilderFactory
                 {
                     logger.Error(exc,"An error occurred while connecting to Qarnot API :");
                     ctx.ExitCode = 1;
+                }
+                else if (exc is DisplayHelpException displayHelpException)
+                {
+                    ctx.HelpBuilder.Write(
+                        displayHelpException.Command,
+                        ctx.Console.Out.CreateTextWriter()
+                    );
                 }
                 else
                 {

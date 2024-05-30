@@ -2,6 +2,7 @@ using System.Text;
 using System.Reflection;
 using ConsoleTables;
 using Newtonsoft.Json;
+using QarnotSDK;
 
 namespace QarnotCLI;
 
@@ -39,6 +40,12 @@ public class TableFormatter : IFormatter
 
     public string FormatCollection<T>(ICollection<T> obj)
     {
+        if (typeof(T).Equals(typeof(HardwareConstraint)))
+        {
+            var summary = BindHardwareConstraints((ICollection<HardwareConstraint>) obj);
+            return ConsoleTable.From(summary).ToString();
+        }
+
         if (IsQarnotSDKType<T>())
         {
             return JsonFormatter.Format(obj);
@@ -131,6 +138,20 @@ public class TableFormatter : IFormatter
         }
 
         return formattedTable;
+    }
+
+    private static IEnumerable<ListHardwareConstraintsSummaryItem> BindHardwareConstraints(IEnumerable<HardwareConstraint> constraints)
+    {
+        return constraints
+                .Where(cons => cons is not null)
+                .Select(constraint => new ListHardwareConstraintsSummaryItem(
+                    Name: constraint.Discriminator,
+                    Options: string.Join(", ",
+                                    constraint.GetType()
+                                        .GetProperties()
+                                        .Where(prop => prop.Name != nameof(HardwareConstraint.Discriminator))
+                                        .Select(prop => $"{prop.Name}: {prop.GetValue(constraint)}"))
+                ));
     }
 }
 

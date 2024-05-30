@@ -23,7 +23,8 @@ public class HardwareConstraintsUseCases : IHardwareConstraintsUseCases
     public async Task List(GlobalModel model)
     {
         Logger.Debug("Retrieving hardware constraints");
-        var res = await QarnotAPI.RetrieveUserHardwareConstraintsAsync();
-        Logger.Result(Formatter.Format(res));
+        var constraints = await QarnotAPI.RetrieveUserHardwareConstraintsAsync();
+
+        Logger.Result(Formatter.FormatCollection(constraints.ToList()));
     }
 }

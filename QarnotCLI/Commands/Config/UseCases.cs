@@ -17,11 +17,9 @@ public class ConfigUseCases : IConfigUseCases
     public Task Run(RunConfigModel model)
     {
         var path = model.Global
-            // If the use of the global configuration file is used, then we should
-            // re-evaluate which file to use.
             ? Helpers.GetConnectionConfigurationPath(Logger, forceGlobal: model.Global)
-            // Otherwise we use the one we parsed the configuration from.
-            : model.ConfigurationFile;
+            // We need to recompute as model.ConfigurationFile was generated with forceExist == true
+            : Helpers.GetConnectionConfigurationPath(Logger, forceExist: false);
 
         Logger.Debug($"Updating configuration at {path}");
 
