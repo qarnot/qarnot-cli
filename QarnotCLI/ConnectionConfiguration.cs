@@ -25,8 +25,16 @@ public class ConnectionConfigurationParser
         ConfigurationFile = Helpers.GetConnectionConfigurationPath(Logger, forceExist: true);
     }
 
+    public ConnectionConfigurationParser(ILogger logger, bool forceExist, bool forceGlobal)
+    {
+        Logger = logger;
+        ConfigurationFile = Helpers.GetConnectionConfigurationPath(Logger, forceExist: forceExist, forceGlobal: forceGlobal);
+    }
     public ConnectionConfiguration Parse() =>
         ParseFromEnv(ParseFromFile(new ConnectionConfiguration(), ConfigurationFile));
+    
+    public ConnectionConfiguration ParseRawConfigFile() =>
+        ParseFromFile(new ConnectionConfiguration(), ConfigurationFile);
 
     private ConnectionConfiguration ParseFromFile(ConnectionConfiguration cc, string? path)
     {

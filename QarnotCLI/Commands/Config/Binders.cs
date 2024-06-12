@@ -3,9 +3,9 @@ using System.CommandLine.Binding;
 
 namespace QarnotCLI;
 
-public class RunConfigBinder : GlobalBinder<RunConfigModel>
+public class SetConfigBinder : GlobalBinder<SetConfigModel>
 {
-    private readonly Option<bool> GlobalOpt;
+    private readonly Option<bool> LocalOpt;
     private readonly Option<bool> ShowOpt;
     private readonly Option<string> ApiUriOpt;
     private readonly Option<string> StorageUriOpt;
@@ -14,8 +14,8 @@ public class RunConfigBinder : GlobalBinder<RunConfigModel>
     private readonly Option<bool?> NoSanitizeBucketPathOpt;
     private readonly Option<bool?> StorageUnsafeSslOpt;
 
-    public RunConfigBinder(
-        Option<bool> globalOpt,
+    public SetConfigBinder(
+        Option<bool> localOpt,
         Option<bool> showOpt,
         Option<string> apiUriOpt,
         Option<string> storageApiUriOpt,
@@ -26,7 +26,7 @@ public class RunConfigBinder : GlobalBinder<RunConfigModel>
         GlobalOptions globalOptions
     ) : base(globalOptions)
     {
-        GlobalOpt = globalOpt;
+        LocalOpt = localOpt;
         ShowOpt = showOpt;
         ApiUriOpt = apiUriOpt;
         StorageUriOpt = storageApiUriOpt;
@@ -36,13 +36,13 @@ public class RunConfigBinder : GlobalBinder<RunConfigModel>
         StorageUnsafeSslOpt = storageUnsafeSslOpt;
     }
 
-    protected override RunConfigModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override SetConfigModel GetBoundValueImpl(BindingContext bindingContext) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(GlobalOpt),
+            bindingContext.ParseResult.GetValueForOption(LocalOpt),
             bindingContext.ParseResult.GetValueForOption(ShowOpt)
         );
 
-    protected override RunConfigModel GetBoundValue(BindingContext bindingContext)
+    protected override SetConfigModel GetBoundValue(BindingContext bindingContext)
     {
         var model = base.GetBoundValue(bindingContext);
 
@@ -78,4 +78,26 @@ public class RunConfigBinder : GlobalBinder<RunConfigModel>
 
         return model;
     }
+}
+
+public class ShowConfigBinder : GlobalBinder<ShowConfigModel>
+{
+    private readonly Option<bool> ShowGlobalConfigOpt;
+    private readonly Option<bool> WithoutEnvOpt;
+
+    public ShowConfigBinder(
+        Option<bool> showGlobalConfigOpt,
+        Option<bool> withoutEnvOpt,
+        GlobalOptions globalOptions
+    ): base(globalOptions)
+    {
+        ShowGlobalConfigOpt = showGlobalConfigOpt;
+        WithoutEnvOpt = withoutEnvOpt;
+    }
+
+    protected override ShowConfigModel GetBoundValueImpl(BindingContext bindingContext) =>
+        new(
+            bindingContext.ParseResult.GetValueForOption(ShowGlobalConfigOpt),
+            bindingContext.ParseResult.GetValueForOption(WithoutEnvOpt)
+        );
 }

@@ -1,8 +1,11 @@
+using System.Text;
+
 namespace QarnotCLI;
 
 public interface IConfigUseCases
 {
-    Task Run(RunConfigModel model);
+    Task SetConfig(SetConfigModel model);
+    Task ShowConfig(ShowConfigModel model);
 }
 
 public class ConfigUseCases : IConfigUseCases
@@ -14,12 +17,9 @@ public class ConfigUseCases : IConfigUseCases
         Logger = logger;
     }
 
-    public Task Run(RunConfigModel model)
+    public Task SetConfig(SetConfigModel model)
     {
-        var path = model.Global
-            ? Helpers.GetConnectionConfigurationPath(Logger, forceGlobal: model.Global)
-            // We need to recompute as model.ConfigurationFile was generated with forceExist == true
-            : Helpers.GetConnectionConfigurationPath(Logger, forceExist: false);
+        var path = Helpers.GetConnectionConfigurationPath(Logger, forceGlobal: !model.Local, forceExist: false, warnWhenNotFound: false);
 
         Logger.Debug($"Updating configuration at {path}");
 
@@ -47,6 +47,30 @@ public class ConfigUseCases : IConfigUseCases
         {
             WriteConnectionConfiguration(cc, Console.Out);
         }
+
+        return Task.CompletedTask;
+    }
+
+    public Task ShowConfig(ShowConfigModel model)
+    {
+        var configParser = new ConnectionConfigurationParser(Logger, forceExist: true, forceGlobal: model.Global);
+        var cc = model.WithoutEnv ? configParser.ParseRawConfigFile() : configParser.Parse();
+
+        var sb = new StringBuilder();
+        sb.Append($"Showing {(model.Global ? "global " : "" )}configuration");
+        if (!string.IsNullOrWhiteSpace(cc.ConfigurationFile))
+            sb.Append($" located at {cc.ConfigurationFile}. ");
+        else
+            sb.Append(". ");
+        if (model.WithoutEnv)
+            sb.Append("Does not include parameters passed by environment variables.");
+        else
+            sb.Append("Includes parameters passed by environment variables.");
+
+        Logger.Info(sb.ToString());
+
+
+        WriteConnectionConfiguration(cc, Console.Out);
 
         return Task.CompletedTask;
     }

@@ -29,7 +29,7 @@ public static class Helpers
         return true;
     }
 
-    public static string? GetConnectionConfigurationPath(ILogger logger, bool forceGlobal = false, bool forceExist = false)
+    public static string? GetConnectionConfigurationPath(ILogger logger, bool forceGlobal = false, bool forceExist = false, bool warnWhenNotFound = true)
     {
         if (
             !forceGlobal
@@ -59,7 +59,7 @@ public static class Helpers
         }
         else
         {
-            logger.Warning("No configuration file found");
+            if (warnWhenNotFound) logger.Warning("No configuration file found");
             return null;
         }
     }

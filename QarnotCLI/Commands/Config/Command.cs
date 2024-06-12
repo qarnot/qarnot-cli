@@ -4,31 +4,48 @@ namespace QarnotCLI;
 
 public class ConfigCommand : CommandWithExamples
 {
+    private readonly Func<GlobalModel, IConfigUseCases> Factory;
+    private readonly GlobalOptions GlobalOptions;
     public ConfigCommand(GlobalOptions globalOptions, Func<GlobalModel, IConfigUseCases> factory)
         : base("config", "Configure the CLI options")
+    {
+        Factory = factory;
+        GlobalOptions = globalOptions;
+
+        AddCommand(BuildSetConfigCommand());
+        AddCommand(BuildShowConfigCommand());
+    }
+
+    private Command BuildSetConfigCommand()
     {
         var examples = new[] {
             new Example(
                 Title: "Regular usage",
                 CommandLines: new[] {
-                    "qarnot config --token ___TOKEN___"
+                    "qarnot config set --token ___TOKEN___"
                 }
             ),
             new Example(
                 Title: "Regular usage with a personal API URI",
                 CommandLines: new[] {
-                    "qarnot config --storage-uri=https://storage.qarnot.com --token=___TOKEN___ --api-uri=https://api.qarnot.com"
+                    "qarnot config set --storage-uri=https://storage.qarnot.com --token=___TOKEN___ --api-uri=https://api.qarnot.com"
                 }
             ),
+            new Example(
+                Title: "Set configuration in the local configuration file",
+                CommandLines: new[] {
+                    "qarnot config set --local -t ___TOKEN___"
+                }
+            )
         };
 
         // It's not possible to add `-t` as an alias for all the commands because it's also
         // used for tags when searching for tasks and pools. We add it here.
-        globalOptions.TokenOpt.AddAlias("-t");
+        GlobalOptions.TokenOpt.AddAlias("-t");
 
-        var globalOpt = new Option<bool>(
-            aliases: new[] { "--global", "-g" },
-            description: "Set the configuration in the global default file ($HOME/.Qarnot/) to use it outside the binary path."
+        var localOpt = new Option<bool>(
+            aliases: new[] { "--local", "-l" },
+            description: "Set the configuration file in the local folder ($PWD/.Qarnot/) to use it when inside the current folder."
         );
 
         var showOpt = new Option<bool>(
@@ -66,20 +83,24 @@ public class ConfigCommand : CommandWithExamples
             description: "Bypass SSL check for storage connection"
         );
 
-        AddExamples(examples);
-        AddOption(globalOpt);
-        AddOption(showOpt);
-        AddOption(apiUriOpt);
-        AddOption(storageUriOpt);
-        AddOption(accountEmailOpt);
-        AddOption(forceStoragePathStyleOpt);
-        AddOption(noSanitizeBucketPathOpt);
-        AddOption(storageUnsafeSslOpt);
+        var cmd = new CommandWithExamples("set", "Set configuration options")
+        {
+            examples
+        };
 
-        this.SetHandler(
-            model => factory(model).Run(model),
-            new RunConfigBinder(
-                globalOpt,
+        cmd.AddOption(localOpt);
+        cmd.AddOption(showOpt);
+        cmd.AddOption(apiUriOpt);
+        cmd.AddOption(storageUriOpt);
+        cmd.AddOption(accountEmailOpt);
+        cmd.AddOption(forceStoragePathStyleOpt);
+        cmd.AddOption(noSanitizeBucketPathOpt);
+        cmd.AddOption(storageUnsafeSslOpt);
+
+        cmd.SetHandler(
+            model => Factory(model).SetConfig(model),
+            new SetConfigBinder(
+                localOpt,
                 showOpt,
                 apiUriOpt,
                 storageUriOpt,
@@ -87,8 +108,56 @@ public class ConfigCommand : CommandWithExamples
                 forceStoragePathStyleOpt,
                 noSanitizeBucketPathOpt,
                 storageUnsafeSslOpt,
-                globalOptions
+                GlobalOptions
             )
         );
+
+        return cmd;
+    }
+
+    private Command BuildShowConfigCommand()
+    {
+        var examples = new[] {
+            new Example(
+                Title: "Regular usage",
+                CommandLines: new[] {
+                    "qarnot config show"
+                }
+            ),
+            new Example(
+                Title: "Show global configuration file",
+                CommandLines: new[] {
+                    "qarnot config show --global"
+                }
+            )
+        };
+
+        var showGlobalOpt = new Option<bool>(
+            aliases: new[] { "--global", "-g" },
+            description: "Show global configuration file"
+        );
+
+        var withoutEnvOpt = new Option<bool>(
+            aliases: new[] { "--without-env" },
+            description: "Show the raw configuration file without options passed down by environment variables"
+        );
+
+        var cmd = new CommandWithExamples("show", "Show configuration file")
+        {
+            examples
+        };
+        cmd.AddOption(showGlobalOpt);
+        cmd.AddOption(withoutEnvOpt);
+
+        cmd.SetHandler(
+            model => Factory(model).ShowConfig(model),
+            new ShowConfigBinder(
+                showGlobalOpt,
+                withoutEnvOpt,
+                GlobalOptions
+            )
+        );
+
+        return cmd;
     }
 }
