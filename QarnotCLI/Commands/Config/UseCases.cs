@@ -19,7 +19,7 @@ public class ConfigUseCases : IConfigUseCases
 
     public Task SetConfig(SetConfigModel model)
     {
-        var path = Helpers.GetConnectionConfigurationPath(Logger, forceGlobal: !model.Local, forceExist: false, warnWhenNotFound: false);
+        var path = Helpers.GetConnectionConfigurationPath(Logger, forceGlobal: !model.Local, forceExist: false);
 
         Logger.Debug($"Updating configuration at {path}");
 

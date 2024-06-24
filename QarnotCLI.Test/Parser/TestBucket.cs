@@ -12,26 +12,14 @@ public class TestBucketCommand
     {
         var mock = new MockParser();
 
-        var ttl = 36000u;
         var name = Guid.NewGuid().ToString();
 
         await mock.Parser.InvokeAsync(
-            new[] { "bucket", "create", "--name", name, "--ttl", ttl.ToString() }
+            new[] { "bucket", "create", "--name", name}
         );
 
         mock.BucketUseCases.Verify(useCases => useCases.Create(It.Is<CreateBucketModel>(model =>
-            model.Name == name &&
-            model.Ttl == ttl
-        )), Times.Once);
-
-
-        await mock.Parser.InvokeAsync(
-            new[] { "bucket", "create", "-n", name }
-        );
-
-        mock.BucketUseCases.Verify(useCases => useCases.Create(It.Is<CreateBucketModel>(model =>
-            model.Name == name &&
-            model.Ttl == null
+            model.Name == name
         )), Times.Once);
     }
 

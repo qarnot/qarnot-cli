@@ -24,12 +24,12 @@ __use the correct runtime identifier depending on your platform [runtime identif
 Your connection information are in : [https://tasq.qarnot.com/settings/access-token](https://tasq.qarnot.com/settings/access-token)
 Launch (with your token):
 ```bash
-qarnot config -t 0123456789__myAPIToken__9876543210
+qarnot config set -t 0123456789__myAPIToken__9876543210
 ```
 
 If you need to set a specific custom storage or compute uri :
 ```bash
-qarnot config -t 0123456789__myAPIToken__9876543210 -u https://api.qarnot.com -s https://storage.qarnot.com -f true
+qarnot config set -t 0123456789__myAPIToken__9876543210 -u https://api.qarnot.com -s https://storage.qarnot.com -f true
 ```
 
 #### Environment variable used to change the configuration
@@ -186,6 +186,35 @@ qarnot job delete --all
  -------------------------------------------------------
 
  Count: 4
+```
+
+### Get resources carbon facts
+
+Get all the information of a task
+```bash
+qarnot task carbon-facts --id 77951c5b-7c63-4525-a270-c62bbe0ca476 --datacenter european_dc
+```
+```json
+[
+  {
+    "Connection": {
+        ...
+    },
+    "total_consumed_energy_Wh": 0.163,
+    "qarnot_carbon_footprint": 10, // in gC02e
+    "total_reused_energy_Wh": 0.147,
+    "equivalent_datacenter_name": "european_dc",
+    "equivalent_DC_carbon_footprint": 45, // in gC02e
+    "saved_carbon_footprint_compute": 35, // in gC02e
+    "saved_carbon_footprint_heat": 9, // in gC02e
+    "saved_carbon_footprint_compute_heat": 44, // in gC02e
+    "saved_carbon_footprint_percent": 81.82,
+    "PUE": 1.004,
+    "ERF": 90.5,
+    "ERE": 0.096,
+    "WUE": 0,
+  }
+]
 ```
 
 ## Manage your account

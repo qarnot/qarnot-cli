@@ -550,4 +550,30 @@ public class TestTaskCommand
 
         Assert.That(res, Is.Not.EqualTo(0));
     }
+
+    [TestCase("-d")]
+    [TestCase("--datacenter")]
+    public async Task GetTaskCarbonFacts(string datacenterOption)
+    {
+        var mock = new MockParser();
+
+        var name = "NAME1";
+        var uuid = Guid.NewGuid().ToString();
+        var tags = new List<string> { "TAG1", "TAG2" };
+        var datacenterName = "SOME_DATACENTER";
+
+        await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "carbon-facts", "--name", name, "--id", uuid, "--tags", tags[0], tags[1],
+                datacenterOption,  datacenterName
+            }
+        );
+
+        mock.TaskUseCases.Verify(useCases => useCases.CarbonFacts(It.Is<GetCarbonFactsModel>(model =>
+            model.Name == name &&
+            model.Id == uuid &&
+            model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
+            model.EquivalentDataCenterName == datacenterName
+        )), Times.Once);
+    }
 }

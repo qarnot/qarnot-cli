@@ -30,8 +30,8 @@ firefox QarnotCLI_Doc/DocfxDocumentation/docfx_project/_site/index.html
 ### Set the connection
 When you use the CLI for the first time you need to set the configuration :
 ```bash
-./qarnot config -t [token] -u [qarnot.api] -s [storage.api] -f
-./qarnot config -t abcd -u "https://api.qarnot.com" -s "https://storage.qarnot.com"
+./qarnot config set -t [token] -u [qarnot.api] -s [storage.api] -f
+./qarnot config set -t abcd -u "https://api.qarnot.com" -s "https://storage.qarnot.com"
 ```
 
 ### qarnot commands
@@ -46,12 +46,14 @@ When you use the CLI for the first time you need to set the configuration :
 |task|wait|`./qarnot task --id bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3`|
 |task|abort|`./qarnot task abort --all`|
 |task|delete|`./qarnot task delete --tags TAG1`|
+|task|carbon-facts|`./qarnot task carbon-facts -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --datacenter DATACENTER_NAME`|
 |pool|create|`./qarnot task create --name "Pool name" --profile docker-batch --tags TAG1 --pool-is-elastic --min-slot 3 --max-slot 5 `|
 |pool|infos|`./qarnot pool infos --name "Pool name"`|
 |pool|list|`./qarnot pool list`|
 |pool|set|`./qarnot pool set --id bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --min-slot 2`|
 |pool|abort|`./qarnot pool abort --all`|
 |pool|delete|`./qarnot pool delete --tags TAG1`|
+|pool|carbon-facts|`./qarnot pool carbon-facts -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --datacenter DATACENTER_NAME`|
 |job|create|`./qarnot job create  --name "Job name"`|
 |job|infos|`./qarnot job infos --name "Job name"`|
 |job|list|`./qarnot job list`|
@@ -66,7 +68,8 @@ When you use the CLI for the first time you need to set the configuration :
 |bucket|delete|`./qarnot bucket delete --tags TAG1`|
 |all||`./qarnot all --list`|
 |account||`./qarnot account`|
-|config||`./qarnot  -t abcd -u "https://api.qarnot.com" -s "https://storage.qarnot.com"`|
+|config|set|`./qarnot config set -t abcd -u "https://api.qarnot.com" -s "https://storage.qarnot.com"`|
+|config|show|`./qarnot config show`|
 |secrets|create|`./qarnot secrets create "key" "value"`|
 |secrets|get|`./qarnot secrets get "key"`|
 |secrets|update|`./qarnot secrets update "key" "value"`|

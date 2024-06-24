@@ -2,7 +2,6 @@ namespace QarnotCLI;
 
 public record CreateBucketModel(
     string Name,
-    uint? Ttl,
     List<string> Files,
     List<string> Folders
 ) : GlobalModel;

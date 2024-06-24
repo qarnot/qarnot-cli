@@ -58,8 +58,7 @@ cache:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event" || ($CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH)
       changes:
         paths:
-          - QarnotCLI/src/**/*
-          - QarnotCLI/CLI.cs
+          - QarnotCLI/**/*
           - QarnotCLI/QarnotCLI.csproj
 
 
@@ -186,6 +185,26 @@ generate_doc_cli:
 
 
 # --- Packaging --- #
+
+publish_master_linux:
+  stage: package
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "web"
+    # Run when changes on master and no tag as publish_cli will build for all OSes when there's a tag/release
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CI_COMMIT_TAG =~ /^./
+  needs:
+    - job: junit_tests_cli
+    - job: cobertura_coverage_tests_cli
+  variables:
+    BINARY_FOLDER: cli_master_binary
+  script:
+    - dotnet publish QarnotCLI -c Release -r ubuntu-x64 /p:PublishSingleFile=true -o ./$BINARY_FOLDER --use-current-runtime --self-contained
+  artifacts:
+    paths:
+      - $BINARY_FOLDER/qarnot
+    expire_in: 1week
+    untracked: true
+
 
 publish_cli:
   stage: package

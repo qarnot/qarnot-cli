@@ -66,6 +66,27 @@ public class UpdatePoolsOrTasksConstantBinder : GlobalBinder<UpdatePoolsOrTasksC
         ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
 }
 
+public class GetPoolOrTaskCarbonFactsBinder : GlobalBinder<GetCarbonFactsModel>
+{
+    private readonly Option<string?> ComparisonDatacenterName;
+    private readonly GetPoolsOrTasksOptions GetTasksOptions;
+
+    public GetPoolOrTaskCarbonFactsBinder(
+        Option<string> datacenterName,
+        GetPoolsOrTasksOptions getTasksOptions,
+        GlobalOptions globalOptions
+    ) : base(globalOptions)
+    {
+        ComparisonDatacenterName = datacenterName;
+        GetTasksOptions = getTasksOptions;
+    }
+
+    protected override GetCarbonFactsModel GetBoundValueImpl(BindingContext bindingContext) =>
+        new GetCarbonFactsModel(
+            bindingContext.ParseResult.GetValueForOption(ComparisonDatacenterName)
+        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+}
+
 
 public static class GetTasksModelExtension
 {

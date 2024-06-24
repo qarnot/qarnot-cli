@@ -119,7 +119,7 @@ public class JobUseCases : IJobUseCases
 
             return new() { job };
         }
-        else if (!string.IsNullOrWhiteSpace(model.Id))
+        else if (!string.IsNullOrWhiteSpace(model.Id) && Guid.TryParse(model.Id, out var uuid))
         {
             Logger.Debug($"Retrieving job by UUID: {model.Id}");
             var job = await QarnotAPI.RetrieveJobByUuidAsync(model.Id);
@@ -132,6 +132,7 @@ public class JobUseCases : IJobUseCases
         }
         else
         {
+            Logger.Debug($"Retrieving all jobs");
             return await QarnotAPI.RetrieveJobsAsync();
         }
     }

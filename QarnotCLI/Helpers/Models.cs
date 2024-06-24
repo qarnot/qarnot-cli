@@ -115,3 +115,7 @@ public record ResourcesPageModel<T>(
     int MaxPageSize,
     string? NextPageToken = null
 );
+
+public record GetCarbonFactsModel(
+    string? EquivalentDataCenterName
+): GetPoolsOrTasksModel;

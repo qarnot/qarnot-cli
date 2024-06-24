@@ -14,6 +14,7 @@ public interface IPoolUseCases
     Task UpdateScaling(UpdatePoolScalingModel model);
     Task UpdateResources(GetPoolsOrTasksModel model);
     Task UpdateConstant(UpdatePoolsOrTasksConstantModel model);
+    Task CarbonFacts(GetCarbonFactsModel model);
 }
 
 public class PoolUseCases : IPoolUseCases
@@ -309,21 +310,41 @@ public class PoolUseCases : IPoolUseCases
 
     private async Task<List<QPool>> GetPools(GetPoolsOrTasksModel model)
     {
-        Logger.Debug("Retrieving all the pools");
         var allPools = new List<QPool>();
-        var pageDetails = GeneratePageRequest(
-            model.Name,
-            model.CreatedBefore,
-            model.CreatedAfter,
-            model.NamePrefix,
-            exclusiveTags: model?.ExclusiveTags,
-            tags: model?.Tags);
-        PaginatedResponse<QPool> page;
-        do
+        if(model.IsTargetingSingleResource())
         {
-            page = await QarnotAPI.RetrievePaginatedPoolAsync(pageDetails);
-            allPools.AddRange(page.Data);
-        } while (pageDetails.PrepareNextPage(page));
+            if (!string.IsNullOrEmpty(model.Shortname))
+            {
+                Logger.Debug($"Retrieving pool by shortname: {model.Shortname}");
+                allPools.Add(await QarnotAPI.RetrievePoolByShortnameAsync(model.Shortname));
+            }
+            else if (!string.IsNullOrEmpty(model.Id) && Guid.TryParse(model.Id, out var uuid))
+            {
+                Logger.Debug($"Retrieving pool by UUID: {model.Id}");
+                allPools.Add(await QarnotAPI.RetrievePoolByUuidAsync(model.Id));
+            }
+        }
+        else
+        {
+            Logger.Debug(string.Format("Retrieving all pools {0}{1}{2}{3}",
+                !string.IsNullOrWhiteSpace(model.Name)? $" with name {model.Name}": "",
+                model.Tags.Count != 0 || model.ExclusiveTags.Count != 0 ? $" with tags {string.Join(", ", model.ExclusiveTags.Union(model.Tags))}": "",
+                model.CreatedBefore != default ? $" created before {model.CreatedBefore}": "",
+                model.CreatedAfter != default ? $" created after {model.CreatedAfter}": ""));
+            var pageDetails = GeneratePageRequest(
+                model.Name,
+                model.CreatedBefore,
+                model.CreatedAfter,
+                model.NamePrefix,
+                exclusiveTags: model?.ExclusiveTags,
+                tags: model?.Tags);
+            PaginatedResponse<QPool> page;
+            do
+            {
+                page = await QarnotAPI.RetrievePaginatedPoolAsync(pageDetails);
+                allPools.AddRange(page.Data);
+            } while (pageDetails.PrepareNextPage(page));
+        }
 
         return allPools;
     }
@@ -423,5 +444,16 @@ public class PoolUseCases : IPoolUseCases
         StateManager.SaveNextPageToken(
             new PageToken(page.IsTruncated ? page.NextToken : string.Empty));
         return page;
+    }
+
+    public async Task CarbonFacts(GetCarbonFactsModel model)
+    {
+        Logger.Debug("Printing pools' Carbon Facts");
+        var pools = await GetPools(model);
+        var outputs = await Task.WhenAll(pools.Select(async pool => {
+            return await pool.GetCarbonFactsAsync(model.EquivalentDataCenterName);
+        }));
+
+        Logger.Result(Formatter.FormatCollection(outputs.ToList()));
     }
 }

@@ -21,6 +21,7 @@ public class PoolCommand : Command
         AddCommand(BuildDeleteCommand());
         AddCommand(BuildUpdateResourcesCommand());
         AddCommand(BuildUpdateConstantCommand());
+        AddCommand(BuildCarbonFactsCommand());
     }
 
     private Command BuildCreateCommand()
@@ -586,6 +587,42 @@ public class PoolCommand : Command
             new UpdatePoolsOrTasksConstantBinder(
                 constantNameOpt,
                 constantValueOpt,
+                getPoolsOptions,
+                GlobalOptions
+            )
+        );
+
+        return cmd;
+    }
+
+    private Command BuildCarbonFactsCommand()
+    {
+        var examples = new[] {
+            new Example(
+                Title: "Pool carbon-facts",
+                CommandLines: new[] {
+                  "qarnot pool carbon-facts --datacenter \"european_dc\" --name \"Pool name\"",
+                }
+            )
+        };
+
+        var getPoolsOptions = new GetPoolsOrTasksOptions(PoolOrTask.Pool);
+
+        var comparisonDatacenterOpt = new Option<string>(
+            aliases: new[] { "--datacenter", "-d" },
+            description: "Compare the carbon facts to a specific datacenter. By default use generic european datacenter 'european_dc'."
+        );
+
+        var cmd = new CommandWithExamples("carbon-facts", "Get the carbon facts of a pool")
+        {
+            examples,
+            comparisonDatacenterOpt,
+        }.AddGetPoolsOrTasksOptions(getPoolsOptions);
+
+        cmd.SetHandler(
+            model => Factory(model).CarbonFacts(model),
+            new GetPoolOrTaskCarbonFactsBinder(
+                comparisonDatacenterOpt,
                 getPoolsOptions,
                 GlobalOptions
             )

@@ -24,6 +24,7 @@ public class TaskCommand : Command
         AddCommand(BuildSnapshotCommand());
         AddCommand(BuildStdoutCommand());
         AddCommand(BuildStderrCommand());
+        AddCommand(BuildCarbonFactsCommand());
     }
 
     private Command BuildCreateCommand()
@@ -719,6 +720,42 @@ public class TaskCommand : Command
             new GetTasksOutputBinder(
                 instanceIdOpt,
                 freshOpt,
+                getTasksOptions,
+                GlobalOptions
+            )
+        );
+
+        return cmd;
+    }
+
+    private Command BuildCarbonFactsCommand()
+    {
+        var examples = new[] {
+            new Example(
+                Title: "Task carbon-facts",
+                CommandLines: new[] {
+                  "qarnot task carbon-facts --datacenter \"european_dc\" --name \"Task name\"",
+                }
+            )
+        };
+
+        var getTasksOptions = new GetPoolsOrTasksOptions(PoolOrTask.Task);
+
+        var comparisonDatacenterOpt = new Option<string>(
+            aliases: new[] { "--datacenter", "-d" },
+            description: "Compare the carbon facts to a specific datacenter. By default use generic european datacenter 'european_dc'."
+        );
+
+        var cmd = new CommandWithExamples("carbon-facts", "Get the carbon facts of a task")
+        {
+            examples,
+            comparisonDatacenterOpt,
+        }.AddGetPoolsOrTasksOptions(getTasksOptions);
+
+        cmd.SetHandler(
+            model => Factory(model).CarbonFacts(model),
+            new GetPoolOrTaskCarbonFactsBinder(
+                comparisonDatacenterOpt,
                 getTasksOptions,
                 GlobalOptions
             )

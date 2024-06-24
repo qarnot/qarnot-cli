@@ -48,11 +48,6 @@ public class BucketCommand : Command
             ),
         };
 
-        var ttlOpt = new Option<uint?>(
-            name: "--ttl",
-            description: "Time to live of the resource cache (in seconds). Override the task or pool default resources ttl"
-        );
-
         var filesOpt = new Option<List<string>>(
             name: "--files",
             description: "Files to send to the bucket."
@@ -72,7 +67,6 @@ public class BucketCommand : Command
         {
             nameOpt,
             examples,
-            ttlOpt,
             filesOpt,
             folderOpt,
         };
@@ -81,7 +75,6 @@ public class BucketCommand : Command
             model => Factory(model).Create(model),
             new CreateBucketBinder(
                 nameOpt,
-                ttlOpt,
                 filesOpt,
                 folderOpt,
                 GlobalOptions

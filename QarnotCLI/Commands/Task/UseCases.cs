@@ -16,6 +16,7 @@ public interface ITaskUseCases
     Task Snapshot(SnapshotTasksModel model);
     Task Stdout(GetTasksOutputModel model);
     Task Stderr(GetTasksOutputModel model);
+    Task CarbonFacts(GetCarbonFactsModel model);
 }
 
 public class TaskUseCases : ITaskUseCases
@@ -429,21 +430,41 @@ public class TaskUseCases : ITaskUseCases
 
     private async Task<List<QTask>> GetTasks(GetPoolsOrTasksModel model)
     {
-        Logger.Debug("Retrieving all the tasks");
         var allTasks = new List<QTask>();
-        var pageDetails = GeneratePageRequest(
-            model.Name,
-            model.CreatedBefore,
-            model.CreatedAfter,
-            model.NamePrefix,
-            exclusiveTags: model?.ExclusiveTags,
-            tags: model?.Tags);
-        PaginatedResponse<QTask> page;
-        do
+        if(model.IsTargetingSingleResource())
         {
-            page = await QarnotAPI.RetrievePaginatedTaskAsync(pageDetails);
-            allTasks.AddRange(page.Data);
-        } while (pageDetails.PrepareNextPage(page));
+            if (!string.IsNullOrEmpty(model.Shortname))
+            {
+                Logger.Debug($"Retrieving task by shortname: {model.Shortname}");
+                allTasks.Add(await QarnotAPI.RetrieveTaskByShortnameAsync(model.Shortname));
+            }
+            else if (!string.IsNullOrEmpty(model.Id) && Guid.TryParse(model.Id, out var uuid))
+            {
+                Logger.Debug($"Retrieving task by UUID: {model.Id}");
+                allTasks.Add(await QarnotAPI.RetrieveTaskByUuidAsync(model.Id));
+            }
+        }
+        else
+        {
+            Logger.Debug(string.Format("Retrieving all tasks {0}{1}{2}{3}",
+                !string.IsNullOrWhiteSpace(model.Name)? $" with name {model.Name}": "",
+                model.Tags.Count != 0 || model.ExclusiveTags.Count != 0 ? $" with tags {string.Join(", ", model.ExclusiveTags.Union(model.Tags))}": "",
+                model.CreatedBefore != default ? $" created before {model.CreatedBefore}": "",
+                model.CreatedAfter != default ? $" created after {model.CreatedAfter}": ""));
+            var pageDetails = GeneratePageRequest(
+                model.Name,
+                model.CreatedBefore,
+                model.CreatedAfter,
+                model.NamePrefix,
+                exclusiveTags: model?.ExclusiveTags,
+                tags: model?.Tags);
+            PaginatedResponse<QTask> page;
+            do
+            {
+                page = await QarnotAPI.RetrievePaginatedTaskAsync(pageDetails);
+                allTasks.AddRange(page.Data);
+            } while (pageDetails.PrepareNextPage(page));
+        }
 
         return allTasks;
     }
@@ -544,5 +565,16 @@ public class TaskUseCases : ITaskUseCases
         StateManager.SaveNextPageToken(
             new PageToken(page.IsTruncated ? page.NextToken : string.Empty));
         return page;
+    }
+
+    public async Task CarbonFacts(GetCarbonFactsModel model)
+    {
+        Logger.Debug("Printing tasks' Carbon Facts");
+        var tasks = await GetTasks(model);
+        var outputs = await Task.WhenAll(tasks.Select(async task => {
+            return await task.GetCarbonFactsAsync(model.EquivalentDataCenterName);
+        }));
+
+        Logger.Result(Formatter.FormatCollection(outputs.ToList()));
     }
 }

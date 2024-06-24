@@ -6,20 +6,17 @@ namespace QarnotCLI;
 public class CreateBucketBinder : GlobalBinder<CreateBucketModel>
 {
     private readonly Option<string> NameOpt;
-    private readonly Option<uint?> TtlOpt;
     private readonly Option<List<string>> FilesOpt;
     private readonly Option<List<string>> FoldersOpt;
 
     public CreateBucketBinder(
         Option<string> nameOpt,
-        Option<uint?> ttlOpt,
         Option<List<string>> filesOpt,
         Option<List<string>> foldersOpt,
         GlobalOptions globalOptions
     ) : base(globalOptions)
     {
         NameOpt = nameOpt;
-        TtlOpt = ttlOpt;
         FilesOpt = filesOpt;
         FoldersOpt = foldersOpt;
     }
@@ -27,7 +24,6 @@ public class CreateBucketBinder : GlobalBinder<CreateBucketModel>
     protected override CreateBucketModel GetBoundValueImpl(BindingContext bindingContext) =>
         new(
             bindingContext.ParseResult.GetValueForOption(NameOpt)!,
-            bindingContext.ParseResult.GetValueForOption(TtlOpt),
             bindingContext.ParseResult.GetValueForOption(FilesOpt) ?? new(),
             bindingContext.ParseResult.GetValueForOption(FoldersOpt) ?? new()
         );

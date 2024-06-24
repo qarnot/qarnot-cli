@@ -23,12 +23,16 @@ public class ConnectionConfigurationParser
     {
         Logger = logger;
         ConfigurationFile = Helpers.GetConnectionConfigurationPath(Logger, forceExist: true);
+        if (ConfigurationFile is null)
+            logger.Warning("No configuration file found");
     }
 
     public ConnectionConfigurationParser(ILogger logger, bool forceExist, bool forceGlobal)
     {
         Logger = logger;
         ConfigurationFile = Helpers.GetConnectionConfigurationPath(Logger, forceExist: forceExist, forceGlobal: forceGlobal);
+        if (ConfigurationFile is null)
+            logger.Warning("No configuration file found");
     }
     public ConnectionConfiguration Parse() =>
         ParseFromEnv(ParseFromFile(new ConnectionConfiguration(), ConfigurationFile));

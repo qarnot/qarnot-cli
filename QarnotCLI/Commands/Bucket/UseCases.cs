@@ -36,10 +36,6 @@ public class BucketUseCases : IBucketUseCases
         Logger.Debug($"Creating new bucket {model.Name}");
 
         var bucket = await QarnotAPI.CreateBucketAsync(model.Name);
-        if (model.Ttl.HasValue)
-        {
-            bucket.WithCacheTTL((int)model.Ttl.Value);
-        }
 
         await bucket.CreateAsync();
 
