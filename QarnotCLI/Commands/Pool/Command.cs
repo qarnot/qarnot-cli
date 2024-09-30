@@ -162,6 +162,11 @@ public class PoolCommand : Command
             description: "Total number of times each pool instance will be allowed to retry in case of failure"
         );
 
+        var maxTimeQueueSecondsOpt = new Option<uint?>(
+            name: "--max-time-queue",
+            description: "Max time to wait before time out when there is not any place to execute the pool (in seconds)"
+        );
+
         var scalingOpt = new Option<string>(
             name: "--scaling",
             description: "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'"
@@ -271,6 +276,7 @@ public class PoolCommand : Command
             ttlOpt,
             maxTotalRetriesOpt,
             maxRetriesPerInstanceOpt,
+            maxTimeQueueSecondsOpt,
             scalingOpt,
             hardwareConstraintMinimumCoreCountOpt,
             hardwareConstraintMaximumCoreCountOpt,
@@ -314,6 +320,7 @@ public class PoolCommand : Command
                 ttlOpt,
                 maxTotalRetriesOpt,
                 maxRetriesPerInstanceOpt,
+                maxTimeQueueSecondsOpt,
                 scalingOpt,
                 hardwareConstraintMinimumCoreCountOpt,
                 hardwareConstraintMaximumCoreCountOpt,

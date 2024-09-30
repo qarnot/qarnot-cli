@@ -126,6 +126,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
     private readonly Option<uint?> TtlOpt;
     private readonly Option<uint?> MaxTotalRetriesOpt;
     private readonly Option<uint?> MaxRetriesPerInstanceOpt;
+    private readonly Option<uint?> MaxTimeQueueSecondsOpt;
     private readonly Option<string> ScalingOpt;
     private readonly Option<uint?> HardwareConstraintMinimumCoreCountOpt;
     private readonly Option<uint?> HardwareConstraintMaximumCoreCountOpt;
@@ -166,6 +167,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         Option<uint?> ttlOpt,
         Option<uint?> maxTotalRetriesOpt,
         Option<uint?> maxRetriesPerInstanceOpt,
+        Option<uint?> maxTimeQueueSecondsOpt,
         Option<string> scalingOpt,
         Option<uint?> hardwareConstraintMinimumCoreCount,
         Option<uint?> hardwareConstraintMaximumCoreCount,
@@ -207,6 +209,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         TtlOpt = ttlOpt;
         MaxTotalRetriesOpt = maxTotalRetriesOpt;
         MaxRetriesPerInstanceOpt = maxRetriesPerInstanceOpt;
+        MaxTimeQueueSecondsOpt = maxTimeQueueSecondsOpt;
         ScalingOpt = scalingOpt;
         HardwareConstraintMinimumCoreCountOpt = hardwareConstraintMinimumCoreCount;
         HardwareConstraintMaximumCoreCountOpt = hardwareConstraintMaximumCoreCount;
@@ -275,6 +278,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
             Ttl: bindingContext.ParseResult.GetValueForOption(TtlOpt) ?? model.Ttl,
             MaxTotalRetries: bindingContext.ParseResult.GetValueForOption(MaxTotalRetriesOpt) ?? model.MaxTotalRetries,
             MaxRetriesPerInstance: bindingContext.ParseResult.GetValueForOption(MaxRetriesPerInstanceOpt) ?? model.MaxRetriesPerInstance,
+            MaxTimeQueueSeconds: bindingContext.ParseResult.GetValueForOption(MaxTimeQueueSecondsOpt) ?? model.MaxTimeQueueSeconds,
             Scaling: scaling ?? model.Scaling,
             HardwareConstraints: hardwareConstraints ?? model.HardwareConstraints,
             SecretsAccessRightsByKey: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByKeyOpt), model.SecretsAccessRightsByKey),

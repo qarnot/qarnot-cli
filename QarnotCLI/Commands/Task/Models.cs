@@ -34,12 +34,16 @@ public record CreateTaskModel(
     bool WaitForResourcesSynchronization,
     [property: JsonProperty("MaxTotalRetries")]
     uint? MaxTotalRetries,
+    [property: JsonProperty("MaxTimeQueueSeconds")]
+    uint? MaxTimeQueueSeconds,
     [property: JsonProperty("MaxRetriesPerInstance")]
     uint? MaxRetriesPerInstance,
     [property: JsonProperty("Dependents")]
     List<string> Dependents,
     [property: JsonProperty("DefaultResourcesCacheTTLSec")]
     uint? Ttl,
+    [property: JsonProperty("ResultsCacheTTLSec")]
+    uint? ResultTtl,
     [property: JsonProperty("HardwareConstraints")]
     QarnotSDK.HardwareConstraints? HardwareConstraints,
     [property: JsonProperty("SecretsAccessRightsByKey")]
@@ -77,9 +81,11 @@ public record CreateTaskModel(
             Result: null,
             WaitForResourcesSynchronization: false,
             MaxTotalRetries: null,
+            MaxTimeQueueSeconds: null,
             MaxRetriesPerInstance: null,
             Dependents: new(),
             Ttl: null,
+            ResultTtl: null,
             HardwareConstraints: null,
             SecretsAccessRightsByKey: new(),
             SecretsAccessRightsByPrefix: new(),

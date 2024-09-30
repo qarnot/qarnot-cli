@@ -143,6 +143,11 @@ public class TaskCommand : Command
             description: "Total number of times each task instance will be allowed to retry in case of failure"
         );
 
+        var maxTimeQueueSecondsOpt = new Option<uint?>(
+            name: "--max-time-queue",
+            description: "Max time to wait before time out when there is not any place to execute the task (in seconds)"
+        );
+
         var dependentsOpt = new Option<List<string>>(
             aliases: new[] { "--dependents", "-d" },
             description: "List of UUID the task need to wait before start running.(must be use with a job with \"is-dependent\" set)"
@@ -151,6 +156,11 @@ public class TaskCommand : Command
         var ttlOpt = new Option<uint?>(
             name: "--ttl",
             description: "Default TTL for the task resources cache (in seconds)"
+        );
+
+        var resultTtlOpt = new Option<uint?>(
+            name: "--result-ttl",
+            description: "Default TTL for the task results cache (in seconds)"
         );
 
         var hardwareConstraintMinimumCoreCountOpt = new Option<uint?>(
@@ -271,8 +281,10 @@ public class TaskCommand : Command
             waitForResourcesSynchronizationOpt,
             maxTotalRetriesOpt,
             maxRetriesPerInstanceOpt,
+            maxTimeQueueSecondsOpt,
             dependentsOpt,
             ttlOpt,
+            resultTtlOpt,
             hardwareConstraintMinimumCoreCountOpt,
             hardwareConstraintMaximumCoreCountOpt,
             hardwareConstraintMinimumRamCoreRatioOpt,
@@ -314,8 +326,10 @@ public class TaskCommand : Command
                 waitForResourcesSynchronizationOpt,
                 maxTotalRetriesOpt,
                 maxRetriesPerInstanceOpt,
+                maxTimeQueueSecondsOpt,
                 dependentsOpt,
                 ttlOpt,
+                resultTtlOpt,
                 hardwareConstraintMinimumCoreCountOpt,
                 hardwareConstraintMaximumCoreCountOpt,
                 hardwareConstraintMinimumRamCoreRatioOpt,

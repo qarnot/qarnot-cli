@@ -96,6 +96,7 @@ public class PoolUseCases : IPoolUseCases
         pool.ElasticMinimumIdlingTime = model.ElasticMinIdlingTime ?? pool.ElasticMinimumIdlingTime;
         pool.Scaling = model.Scaling ?? pool.Scaling;
         pool.HardwareConstraints = model.HardwareConstraints ?? pool.HardwareConstraints;
+        pool.MaxTimeQueueSeconds = model.MaxTimeQueueSeconds;
 
         if (model.ExportCredentialsToEnv.HasValue)
         {

@@ -23,8 +23,10 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
     private readonly Option<bool?> WaitForResourcesSynchronizationOpt;
     private readonly Option<uint?> MaxTotalRetriesOpt;
     private readonly Option<uint?> MaxRetriesPerInstanceOpt;
+    private readonly Option<uint?> MaxTimeQueueSecondsOpt;
     private readonly Option<List<string>> DependentsOpt;
     private readonly Option<uint?> TtlOpt;
+    private readonly Option<uint?> ResultTtlOpt;
     private readonly Option<uint?> HardwareConstraintMinimumCoreCountOpt;
     private readonly Option<uint?> HardwareConstraintMaximumCoreCountOpt;
     private readonly Option<decimal?> HardwareConstraintMinimumRamCoreRatioOpt;
@@ -63,8 +65,10 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         Option<bool?> waitForResourcesSynchronizationOpt,
         Option<uint?> maxTotalRetriesOpt,
         Option<uint?> maxRetriesPerInstanceOpt,
+        Option<uint?> maxTimeQueueSecondsOpt,
         Option<List<string>> dependentsOpt,
         Option<uint?> ttlOpt,
+        Option<uint?> resultTtlOpt,
         Option<uint?> hardwareConstraintMinimumCoreCount,
         Option<uint?> hardwareConstraintMaximumCoreCount,
         Option<decimal?> hardwareConstraintMinimumRamCoreRatio,
@@ -104,8 +108,10 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         WaitForResourcesSynchronizationOpt = waitForResourcesSynchronizationOpt;
         MaxTotalRetriesOpt = maxTotalRetriesOpt;
         MaxRetriesPerInstanceOpt = maxRetriesPerInstanceOpt;
+        MaxTimeQueueSecondsOpt = maxTimeQueueSecondsOpt;
         DependentsOpt = dependentsOpt;
         TtlOpt = ttlOpt;
+        ResultTtlOpt = resultTtlOpt;
         HardwareConstraintMinimumCoreCountOpt = hardwareConstraintMinimumCoreCount;
         HardwareConstraintMaximumCoreCountOpt = hardwareConstraintMaximumCoreCount;
         HardwareConstraintMinimumRamCoreRatioOpt = hardwareConstraintMinimumRamCoreRatio;
@@ -165,8 +171,10 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
             WaitForResourcesSynchronization: bindingContext.ParseResult.GetValueForOption(WaitForResourcesSynchronizationOpt) ?? model.WaitForResourcesSynchronization,
             MaxTotalRetries: bindingContext.ParseResult.GetValueForOption(MaxTotalRetriesOpt) ?? model.MaxTotalRetries,
             MaxRetriesPerInstance: bindingContext.ParseResult.GetValueForOption(MaxRetriesPerInstanceOpt) ?? model.MaxRetriesPerInstance,
+            MaxTimeQueueSeconds: bindingContext.ParseResult.GetValueForOption(MaxTimeQueueSecondsOpt) ?? model.MaxTimeQueueSeconds,
             Dependents: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(DependentsOpt), model.Dependents),
             Ttl: bindingContext.ParseResult.GetValueForOption(TtlOpt) ?? model.Ttl,
+            ResultTtl : bindingContext.ParseResult.GetValueForOption(ResultTtlOpt) ?? model.ResultTtl,
             HardwareConstraints: hardwareConstraints ?? model.HardwareConstraints,
             SecretsAccessRightsByKey: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByKeyOpt), model.SecretsAccessRightsByKey),
             SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),

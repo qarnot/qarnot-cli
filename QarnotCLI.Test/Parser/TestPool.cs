@@ -22,6 +22,7 @@ public class TestPoolCommand
         var constraints = new[] { "CONSTRAINTS" };
         var maxRetriesPerInstance = 23;
         var maxTotalRetries = 24;
+        var maxTimeQueueSeconds = 10;
         var defaultTTL = 36000;
         var reservedMachine = "some-reserved-machine";
 
@@ -31,6 +32,7 @@ public class TestPoolCommand
                 "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
                 "--tasks-wait-for-synchronization", "true" , "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(),
                 "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString(),
+                "--max-time-queue", maxTimeQueueSeconds.ToString(),
                 "--scheduling-type", "Flex", "--machine-target", reservedMachine
             }
         );
@@ -48,6 +50,7 @@ public class TestPoolCommand
             model.TasksWaitForSynchronization &&
             model.MaxRetriesPerInstance == maxRetriesPerInstance &&
             model.MaxTotalRetries == maxTotalRetries &&
+            model.MaxTimeQueueSeconds == maxTimeQueueSeconds &&
             model.ExportCredentialsToEnv == true &&
             model.Ttl == defaultTTL &&
             model.SchedulingType == "Flex" &&

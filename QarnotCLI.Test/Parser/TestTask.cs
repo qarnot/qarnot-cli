@@ -26,8 +26,10 @@ public class TestTaskCommand
         var whitelist = "white*";
         var blacklist = "black*";
         var maxRetriesPerInstance = 23;
+        var maxTimeQueueSeconds = 10;
         var maxTotalRetries = 24;
         var defaultTTL = 36000;
+        var resultTTL = 12345;
         var reservedMachine = "some-reserved-machine";
 
         var res = await mock.Parser.InvokeAsync(
@@ -35,6 +37,7 @@ public class TestTaskCommand
                 "task", "create", "--name", name1, "--shortname", shortname, "--instance", instance.ToString(), "--profile", profile,
                 "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
                 "--wait-for-resources-synchronization", "true" , "--periodic", periodic.ToString(), "--whitelist",  whitelist,
+                "--max-time-queue", maxTimeQueueSeconds.ToString(), 
                 "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString()
             }
         );
@@ -54,9 +57,11 @@ public class TestTaskCommand
             model.Whitelist == whitelist &&
             model.Blacklist == blacklist &&
             model.MaxRetriesPerInstance == maxRetriesPerInstance &&
+            model.MaxTimeQueueSeconds == maxTimeQueueSeconds &&
             model.MaxTotalRetries == maxTotalRetries &&
             model.ExportCredentialsToEnv == null &&
             model.Ttl == null &&
+            model.ResultTtl == null &&
             model.SchedulingType == null &&
             model.MachineTarget == null
         )), Times.Once);
@@ -67,8 +72,9 @@ public class TestTaskCommand
                 "task", "create", "--name", name2, "--shortname", shortname, "--range", range, "--profile", profile,
                 "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--wait-for-resources-synchronization", "false" ,
                 "--periodic", periodic.ToString(), "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance.ToString(),
-                "--max-total-retries", maxTotalRetries.ToString(), "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(), "--scheduling-type", "Flex",
-                "--machine-target", reservedMachine
+                "--max-time-queue", maxTimeQueueSeconds.ToString(),
+                "--max-total-retries", maxTotalRetries.ToString(), "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(),
+                "--result-ttl", resultTTL.ToString(), "--scheduling-type", "Flex", "--machine-target", reservedMachine
             }
         );
 
@@ -87,9 +93,11 @@ public class TestTaskCommand
             model.Whitelist == whitelist &&
             model.Blacklist == blacklist &&
             model.MaxRetriesPerInstance == maxRetriesPerInstance &&
+            model.MaxTimeQueueSeconds == maxTimeQueueSeconds &&
             model.MaxTotalRetries == maxTotalRetries &&
             model.ExportCredentialsToEnv == true &&
             model.Ttl == defaultTTL &&
+            model.ResultTtl == resultTTL &&
             model.SchedulingType == "Flex" &&
             model.MachineTarget == reservedMachine
         )), Times.Once);
@@ -158,6 +166,7 @@ public class TestTaskCommand
             model.MaxTotalRetries == maxTotalRetries &&
             model.ExportCredentialsToEnv == null &&
             model.Ttl == null &&
+            model.ResultTtl == null &&
             model.SchedulingType == null &&
             model.MachineTarget == null &&
             model.HardwareConstraints != null &&

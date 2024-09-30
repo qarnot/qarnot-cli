@@ -114,6 +114,12 @@ public class TaskUseCases : ITaskUseCases
 
          task.Privileges.ExportApiAndStorageCredentialsInEnvironment = model.ExportCredentialsToEnv;
          task.DefaultResourcesCacheTTLSec = model.Ttl;
+         task.MaxTimeQueueSeconds = model.MaxTimeQueueSeconds;
+        if (task.Results != null && model.ResultTtl.HasValue)
+        {
+            task.Results = ((QBucket)task.Results).WithCacheTTL((int)model.ResultTtl);
+        }
+
          task.HardwareConstraints = model.HardwareConstraints;
 
          task.SecretsAccessRights = new();
