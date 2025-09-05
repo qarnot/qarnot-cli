@@ -54,6 +54,8 @@ public record CreateTaskModel(
     string? SchedulingType,
     [property: JsonProperty("TargetedReservedMachineKey")]
     string? MachineTarget,
+    [property: JsonProperty("TargetedReservationName")]
+    string? ReservationTarget,
     [property: JsonProperty("SnapshotPeriodicSec")]
     uint? Periodic,
     [property: JsonProperty("Whitelist")]
@@ -91,6 +93,7 @@ public record CreateTaskModel(
             SecretsAccessRightsByPrefix: new(),
             SchedulingType: null,
             MachineTarget: null,
+            ReservationTarget: null,
             Periodic: null,
             Whitelist: null,
             Blacklist: null,
@@ -117,6 +120,18 @@ public record SnapshotTasksModel(
 public record GetTasksOutputModel(
     uint? InstanceId,
     bool Fresh
+): GetPoolsOrTasksModel;
+
+
+public record GetSnapshotStatusModel(
+    string SnapshotId
+): GetPoolsOrTasksModel;
+
+
+public record WaitSnapshotModel(
+    string SnapshotId,
+    int TimeoutSeconds,
+    int UpdateIntervalSeconds
 ): GetPoolsOrTasksModel;
 
 

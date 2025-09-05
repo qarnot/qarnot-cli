@@ -63,9 +63,9 @@ public class AccountUseCases : IAccountUseCases
             }
 
             computingQuota.Reserved?.ForEach(quota =>
-                    {
-                        outputDictionary.Add($"User Reserved {quota.MachineKey}", $"Instances : {quota.RunningInstancesCount}/{WrapMaxQuota(quota.MaxInstances)} , Cores : {quota.RunningCoresCount}/{WrapMaxQuota(quota.MaxCores)}");
-                    });
+            {
+                outputDictionary.Add($"User Reserved {quota.ReservationName} ({quota.MachineKey})", $"Instances : {quota.RunningInstancesCount}/{WrapMaxQuota(quota.MaxInstances)} , Cores : {quota.RunningCoresCount}/{WrapMaxQuota(quota.MaxCores)}");
+            });
         }
         if (account?.ComputingQuotas?.Organization is not null)
         {
@@ -87,7 +87,7 @@ public class AccountUseCases : IAccountUseCases
 
             computingQuota.Reserved?.ForEach(quota =>
                     {
-                        outputDictionary.Add($"Organization Reserved {quota.MachineKey}", $"Instances : {quota.RunningInstancesCount}/{WrapMaxQuota(quota.MaxInstances)}, Cores : {quota.RunningCoresCount}/{WrapMaxQuota(quota.MaxCores)}");
+                        outputDictionary.Add($"Organization Reserved {quota.ReservationName} ({quota.MachineKey})", $"Instances : {quota.RunningInstancesCount}/{WrapMaxQuota(quota.MaxInstances)}, Cores : {quota.RunningCoresCount}/{WrapMaxQuota(quota.MaxCores)}");
                     });
         }
 

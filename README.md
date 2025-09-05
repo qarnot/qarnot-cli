@@ -47,6 +47,9 @@ When you use the CLI for the first time you need to set the configuration :
 |task|abort|`./qarnot task abort --all`|
 |task|delete|`./qarnot task delete --tags TAG1`|
 |task|carbon-facts|`./qarnot task carbon-facts -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --datacenter DATACENTER_NAME`|
+|task|snapshot create|`./qarnot task snapshot create -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --whitelist White.* --blacklist .*Black.* --bucket snapshotBucket`|
+|task|snapshot get|`./qarnot task snapshot get -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --snapshot-id snap_52c10b2d-0687-41e1-985e-7279f6dd543a_20251228234559`|
+|task|snapshot wait|`./qarnot task snapshot wait -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --snapshot-id snap_52c10b2d-0687-41e1-985e-7279f6dd543a_20251228234559`|
 |pool|create|`./qarnot task create --name "Pool name" --profile docker-batch --tags TAG1 --pool-is-elastic --min-slot 3 --max-slot 5 `|
 |pool|infos|`./qarnot pool infos --name "Pool name"`|
 |pool|list|`./qarnot pool list`|

@@ -31,6 +31,7 @@ public class TestTaskCommand
         var defaultTTL = 36000;
         var resultTTL = 12345;
         var reservedMachine = "some-reserved-machine";
+        var reservationName = "some-reservation-name";
 
         var res = await mock.Parser.InvokeAsync(
             new[] {
@@ -63,7 +64,8 @@ public class TestTaskCommand
             model.Ttl == null &&
             model.ResultTtl == null &&
             model.SchedulingType == null &&
-            model.MachineTarget == null
+            model.MachineTarget == null &&
+            model.ReservationTarget == null
         )), Times.Once);
 
         var name2 = "NAME2";
@@ -74,7 +76,7 @@ public class TestTaskCommand
                 "--periodic", periodic.ToString(), "--whitelist",  whitelist, "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance.ToString(),
                 "--max-time-queue", maxTimeQueueSeconds.ToString(),
                 "--max-total-retries", maxTotalRetries.ToString(), "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(),
-                "--result-ttl", resultTTL.ToString(), "--scheduling-type", "Flex", "--machine-target", reservedMachine
+                "--result-ttl", resultTTL.ToString(), "--scheduling-type", "Flex", "--machine-target", reservedMachine, "--reservation-target", reservationName
             }
         );
 
@@ -99,7 +101,8 @@ public class TestTaskCommand
             model.Ttl == defaultTTL &&
             model.ResultTtl == resultTTL &&
             model.SchedulingType == "Flex" &&
-            model.MachineTarget == reservedMachine
+            model.MachineTarget == reservedMachine &&
+            model.ReservationTarget == reservationName
         )), Times.Once);
     }
 
@@ -169,6 +172,7 @@ public class TestTaskCommand
             model.ResultTtl == null &&
             model.SchedulingType == null &&
             model.MachineTarget == null &&
+            model.ReservationTarget == null &&
             model.HardwareConstraints != null &&
             model.HardwareConstraints.Count == hardwareConstraints.Count &&
             hardwareConstraints.All(constraint => model.HardwareConstraints.Contains(constraint))
@@ -502,7 +506,38 @@ public class TestTaskCommand
             model.Whitelist == whitelist &&
             model.Blacklist == blacklist &&
             model.Bucket == bucket
-        )), Times.Once);
+        ), true), Times.Once);
+    }
+
+    [Test]
+    public async Task SnapshotCreateTask()
+    {
+        var mock = new MockParser();
+
+        var name = "NAME1";
+        var uuid = Guid.NewGuid().ToString();
+        var tags = new List<string> { "TAG1", "TAG2" };
+        var periodic = 5;
+        var whitelist = "white*";
+        var blacklist = "black*";
+        var bucket = "snapshotbucket";
+
+        await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "snapshot", "create", "--name", name, "--id", uuid, "--tags", tags[0], tags[1], "--periodic", periodic.ToString(),
+                "--whitelist", whitelist, "--blacklist", blacklist, "--bucket", bucket
+            }
+        );
+
+        mock.TaskUseCases.Verify(useCases => useCases.Snapshot(It.Is<SnapshotTasksModel>(model =>
+            model.Name == name &&
+            model.Id == uuid &&
+            model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
+            model.Periodic == periodic &&
+            model.Whitelist == whitelist &&
+            model.Blacklist == blacklist &&
+            model.Bucket == bucket
+        ), false), Times.Once);
     }
 
     [Test]
@@ -558,6 +593,93 @@ public class TestTaskCommand
         var res = await mock.Parser.InvokeAsync(new[] { "task", "create", "--name", "name", "--profile", "profile", "--instance", "5", "--range", "2-5" });
 
         Assert.That(res, Is.Not.EqualTo(0));
+    }
+
+    [Test]
+    public async Task SnapshotStatusTask()
+    {
+        var mock = new MockParser();
+
+        var uuid = Guid.NewGuid().ToString();
+        var snapshotId = "snap_52c10b2d-0687-41e1-985e-7279f6dd543a_20251228234559";
+
+        await mock.Parser.InvokeAsync(
+            new[] { "task", "snapshot", "get", "--id", uuid, "--snapshot-id", snapshotId }
+        );
+
+        mock.TaskUseCases.Verify(useCases => useCases.SnapshotStatus(It.Is<GetSnapshotStatusModel>(model =>
+            model.Id == uuid &&
+            model.SnapshotId == snapshotId
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task SnapshotStatusTaskRequiresSnapshotId()
+    {
+        var mock = new MockParser();
+        var uuid = Guid.NewGuid().ToString();
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] { "task", "snapshot", "get", "--id", uuid }
+        );
+
+        Assert.That(res, Is.Not.EqualTo(0), "parsing should fail because --snapshot-id is required");
+    }
+
+    [Test]
+    public async Task WaitSnapshotTask()
+    {
+        var mock = new MockParser();
+
+        var uuid = Guid.NewGuid().ToString();
+        var snapshotId = "snap_52c10b2d-0687-41e1-985e-7279f6dd543a_20251228234559";
+        var timeout = 120;
+        var updateInterval = 5;
+
+        await mock.Parser.InvokeAsync(
+            new[] { "task", "snapshot", "wait", "--id", uuid, "--snapshot-id", snapshotId,
+                    "--timeout", timeout.ToString(), "--update-interval", updateInterval.ToString() }
+        );
+
+        mock.TaskUseCases.Verify(useCases => useCases.WaitSnapshot(It.Is<WaitSnapshotModel>(model =>
+            model.Id == uuid &&
+            model.SnapshotId == snapshotId &&
+            model.TimeoutSeconds == timeout &&
+            model.UpdateIntervalSeconds == updateInterval
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task WaitSnapshotTaskWithDefaults()
+    {
+        var mock = new MockParser();
+
+        var uuid = Guid.NewGuid().ToString();
+        var snapshotId = "snap_52c10b2d-0687-41e1-985e-7279f6dd543a_20251228234559";
+
+        await mock.Parser.InvokeAsync(
+            new[] { "task", "snapshot", "wait", "--id", uuid, "--snapshot-id", snapshotId }
+        );
+
+        mock.TaskUseCases.Verify(useCases => useCases.WaitSnapshot(It.Is<WaitSnapshotModel>(model =>
+            model.Id == uuid &&
+            model.SnapshotId == snapshotId &&
+            model.TimeoutSeconds == -1 &&
+            model.UpdateIntervalSeconds == 10
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task WaitSnapshotTaskRequiresSnapshotId()
+    {
+        var mock = new MockParser();
+        var uuid = Guid.NewGuid().ToString();
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] { "task", "snapshot", "wait", "--id", uuid }
+        );
+
+        Assert.That(res, Is.Not.EqualTo(0), "parsing should fail because --snapshot-id is required");
     }
 
     [TestCase("-d")]

@@ -13,7 +13,9 @@ public interface ITaskUseCases
     Task Delete(GetPoolsOrTasksModel model);
     Task UpdateResources(GetPoolsOrTasksModel model);
     Task UpdateConstant(UpdatePoolsOrTasksConstantModel model);
-    Task Snapshot(SnapshotTasksModel model);
+    Task Snapshot(SnapshotTasksModel model, bool deprecated = false);
+    Task SnapshotStatus(GetSnapshotStatusModel model);
+    Task WaitSnapshot(WaitSnapshotModel model);
     Task Stdout(GetTasksOutputModel model);
     Task Stderr(GetTasksOutputModel model);
     Task CarbonFacts(GetCarbonFactsModel model);
@@ -138,6 +140,7 @@ public class TaskUseCases : ITaskUseCases
         }
 
         task.TargetedReservedMachineKey = model.MachineTarget;
+        task.TargetedReservationName = model.ReservationTarget;
     }
 
     private async Task<QTask> CreateTask(CreateTaskModel model)
@@ -363,31 +366,96 @@ public class TaskUseCases : ITaskUseCases
         Logger.Result(Formatter.FormatCollection(updates.ToList()));
     }
 
-    public async Task Snapshot(SnapshotTasksModel model)
+    public async Task Snapshot(SnapshotTasksModel model, bool deprecated = false)
     {
         Logger.Debug("Snapshoting tasks");
+        if (deprecated)
+        {
+            Logger.Warning("[Warning]: 'task snapshot' is deprecated, please use 'task snapshot create' instead.");
+        }
         var tasks = await GetTasks(model);
         var snapshots = await Task.WhenAll(tasks.Select(async task => {
             task.SnapshotWhitelist = model.Whitelist;
             task.SnapshotBlacklist = model.Blacklist;
             var bucket = model.Bucket != null ? new QBucket(task.Connection, model.Bucket): null;
 
+            string snapshotId = null;
             if (model.Periodic is uint period && period > 0)
             {
                 await task.TriggerPeriodicSnapshotAsync(period, task.SnapshotWhitelist, task.SnapshotBlacklist, bucket);
             }
             else
             {
-                await task.TriggerSnapshotAsync(task.SnapshotWhitelist, task.SnapshotBlacklist, bucket);
+                snapshotId = await task.TriggerSnapshotAsync(task.SnapshotWhitelist, task.SnapshotBlacklist, bucket);
             }
 
             return new {
                 Task = task.Uuid,
                 State = "Snapshot",
+                SnapshotId = snapshotId
             };
         }));
 
         Logger.Result(Formatter.FormatCollection(snapshots.ToList()));
+    }
+
+    public async Task SnapshotStatus(GetSnapshotStatusModel model)
+    {
+        Logger.Debug("Getting snapshot status");
+        var tasks = await GetTasks(model);
+
+        if (tasks.Count != 1)
+        {
+            throw new Exception("Exactly one task must be specified for snapshot-status");
+        }
+
+        var task = tasks.First();
+        var snapshot = await task.GetSnapshotStatusAsync(model.SnapshotId);
+        if (snapshot == default)
+        {
+            throw new Exception($"Snapshot {model.SnapshotId} does not exist for task {task.Uuid}");
+        }
+
+        Logger.Result(Formatter.Format(new {
+            Id = snapshot.Id,
+            TaskUuid = snapshot.TaskUuid,
+            Status = snapshot.Status.ToString(),
+            TriggerDate = snapshot.TriggerDate,
+            LastUpdateDate = snapshot.LastUpdateDate,
+            SizeToUpload = snapshot.SizeToUpload,
+            TransferredSize = snapshot.TransferredSize,
+            Whitelist = snapshot.SnapshotConfig?.Whitelist,
+            Blacklist = snapshot.SnapshotConfig?.Blacklist,
+            Bucket = snapshot.SnapshotConfig?.Bucket,
+            BucketPrefix = snapshot.SnapshotConfig?.BucketPrefix
+        }));
+    }
+
+    public async Task WaitSnapshot(WaitSnapshotModel model)
+    {
+        Logger.Debug("Waiting for snapshot completion");
+        var tasks = await GetTasks(model);
+
+        if (tasks.Count != 1)
+        {
+            throw new Exception("Exactly one task must be specified for wait-snapshot");
+        }
+
+        var task = tasks.First();
+        var snapshot = await task.GetSnapshotStatusAsync(model.SnapshotId);
+        if (snapshot == default)
+        {
+            throw new Exception($"Snapshot {model.SnapshotId} does not exist for task {task.Uuid}");
+        }
+
+        Logger.Debug($"Waiting for snapshot {model.SnapshotId} to complete");
+        await snapshot.WaitCompletionAsync(model.TimeoutSeconds, model.UpdateIntervalSeconds);
+
+        Logger.Result(Formatter.Format(new {
+            Id = snapshot.Id,
+            TaskUuid = snapshot.TaskUuid,
+            Status = snapshot.Status.ToString()
+        }));
     }
 
     public async Task Stdout(GetTasksOutputModel model)

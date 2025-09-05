@@ -252,6 +252,11 @@ public class PoolCommand : Command
             description: "Activate the exportation of the api and storage credentials to the pool environment (default is false)"
         );
 
+        var slotsPerNodeOpt = new Option<uint?>(
+            name: "--slots-per-node",
+            description: "Number of slots per node (Multi slots settings)"
+        );
+
         var cmd = new CommandWithExamples("create", "Create and launch a new pool")
         {
             examples,
@@ -294,6 +299,7 @@ public class PoolCommand : Command
             schedulingTypeOpt,
             machineTargetOpt,
             exportCredentialsToEnvOpt,
+            slotsPerNodeOpt
         };
 
         cmd.SetHandler(
@@ -338,6 +344,7 @@ public class PoolCommand : Command
                 schedulingTypeOpt,
                 machineTargetOpt,
                 exportCredentialsToEnvOpt,
+                slotsPerNodeOpt,
                 GlobalOptions
             )
         );

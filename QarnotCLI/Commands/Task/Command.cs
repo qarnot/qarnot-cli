@@ -239,6 +239,11 @@ public class TaskCommand : Command
             description: "Available only for 'Reserved' scheduling. Specify the reserved machine on which the task should run"
         );
 
+        var reservationTargetOpt = new Option<string>(
+            name: "--reservation-target",
+            description: "Available only for 'Reserved' scheduling. Specify the name of the reservation to use to define the machine on which the task should run"
+        );
+
         var periodicOpt = new Option<uint?>(
             name: "--periodic",
             description: "Periodic time, in seconds, to synchronize the task files to the output bucket"
@@ -300,6 +305,7 @@ public class TaskCommand : Command
             secretsAccessRightsByPrefixOpt,
             schedulingTypeOpt,
             machineTargetOpt,
+            reservationTargetOpt,
             periodicOpt,
             whitelistOpt,
             blacklistOpt,
@@ -345,6 +351,7 @@ public class TaskCommand : Command
                 secretsAccessRightsByPrefixOpt,
                 schedulingTypeOpt,
                 machineTargetOpt,
+                reservationTargetOpt,
                 periodicOpt,
                 whitelistOpt,
                 blacklistOpt,
@@ -588,10 +595,66 @@ public class TaskCommand : Command
 
     private Command BuildSnapshotCommand()
     {
+        var getTasksOptions = new GetPoolsOrTasksOptions(PoolOrTask.Task);
+
+        // TODO: Remove these options once the command 'task snapshot' is definitely replaced by 'task snapshot create'
+        var periodicOpt = new Option<uint>(
+            name: "--periodic",
+            description: "Periodic time, in seconds, to synchronize the task files to the output bucket"
+        );
+
+        var whitelistOpt = new Option<string>(
+            name: "--whitelist",
+            description: "Whitelist of task files to be synchronized to the output bucket"
+        );
+
+        var blacklistOpt = new Option<string>(
+            name:  "--blacklist",
+            description: "Blacklist of task files to synchronize to the output bucket"
+        );
+
+        var bucketNameOpt = new Option<string>(
+            name:  "--bucket",
+            description: "Name of the output bucket used for the snapshot"
+        );
+
+        var cmd = new CommandWithExamples(
+            "snapshot",
+            "Commands to manage task snapshots.\n" +
+            "[deprecated] trigger a snasphot: prefer the use of subcommand 'create' to trigger snapshot: 'qarnot task snapshot create'"
+        )
+        {
+            periodicOpt,
+            whitelistOpt,
+            blacklistOpt,
+            bucketNameOpt
+        }.AddGetPoolsOrTasksOptions(getTasksOptions);
+
+        cmd.SetHandler(
+            model => Factory(model).Snapshot(model, true),
+            new SnapshotTaskBinder(
+                periodicOpt,
+                whitelistOpt,
+                blacklistOpt,
+                bucketNameOpt,
+                getTasksOptions,
+                GlobalOptions
+            )
+        );
+
+        cmd.AddCommand(BuildSnapshotCreateSubcommand());
+        cmd.AddCommand(BuildSnapshotGetSubcommand());
+        cmd.AddCommand(BuildSnapshotWaitSubcommand());
+
+        return cmd;
+    }
+
+    private Command BuildSnapshotCreateSubcommand()
+    {
         var example = new Example(
             Title: "Regular usage",
             CommandLines: new[] {
-              "qarnot task snapshot --id TaskID",
+                "qarnot task snapshot create --id TaskID",
             }
         );
 
@@ -618,7 +681,7 @@ public class TaskCommand : Command
         );
 
         var cmd = new CommandWithExamples(
-            "snapshot",
+            "create",
             "Trigger a snapshot: request to upload a version of the running task files into the output bucket"
         )
         {
@@ -636,6 +699,96 @@ public class TaskCommand : Command
                 whitelistOpt,
                 blacklistOpt,
                 bucketNameOpt,
+                getTasksOptions,
+                GlobalOptions
+            )
+        );
+
+        return cmd;
+    }
+
+    private Command BuildSnapshotGetSubcommand()
+    {
+        var example = new Example(
+            Title: "Regular usage",
+            CommandLines: new[] {
+                "qarnot task snapshot get --id TASK_UUID --snapshot-id SNAPSHOT_ID",
+            }
+        );
+
+        var getTasksOptions = new GetPoolsOrTasksOptions(PoolOrTask.Task);
+
+        var snapshotIdOpt = new Option<string>(
+            name: "--snapshot-id",
+            description: "ID of the snapshot to retrieve status for"
+        ) { IsRequired = true };
+
+        var cmd = new CommandWithExamples(
+            "get",
+            "Get the status of a task snapshot"
+        )
+        {
+            example,
+            snapshotIdOpt
+        }.AddGetPoolsOrTasksOptions(getTasksOptions);
+
+        cmd.SetHandler(
+            model => Factory(model).SnapshotStatus(model),
+            new GetSnapshotStatusBinder(
+                snapshotIdOpt,
+                getTasksOptions,
+                GlobalOptions
+            )
+        );
+
+        return cmd;
+    }
+
+    private Command BuildSnapshotWaitSubcommand()
+    {
+        var example = new Example(
+            Title: "Regular usage",
+            CommandLines: new[] {
+                "qarnot task snapshot wait --id TASK_UUID --snapshot-id SNAPSHOT_ID",
+            }
+        );
+
+        var getTasksOptions = new GetPoolsOrTasksOptions(PoolOrTask.Task);
+
+        var snapshotIdOpt = new Option<string>(
+            name: "--snapshot-id",
+            description: "ID of the snapshot to wait for"
+        ) { IsRequired = true };
+
+        var timeoutOpt = new Option<int>(
+            name: "--timeout",
+            description: "Maximum time to wait in seconds (-1 for no timeout)",
+            getDefaultValue: () => -1
+        );
+
+        var updateIntervalOpt = new Option<int>(
+            name: "--update-interval",
+            description: "Time between status updates in seconds",
+            getDefaultValue: () => 10
+        );
+
+        var cmd = new CommandWithExamples(
+            "wait",
+            "Wait for a task snapshot to complete and return its status"
+        )
+        {
+            example,
+            snapshotIdOpt,
+            timeoutOpt,
+            updateIntervalOpt
+        }.AddGetPoolsOrTasksOptions(getTasksOptions);
+
+        cmd.SetHandler(
+            model => Factory(model).WaitSnapshot(model),
+            new WaitSnapshotBinder(
+                snapshotIdOpt,
+                timeoutOpt,
+                updateIntervalOpt,
                 getTasksOptions,
                 GlobalOptions
             )

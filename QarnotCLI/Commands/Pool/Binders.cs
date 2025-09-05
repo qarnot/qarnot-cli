@@ -144,6 +144,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
     private readonly Option<string> SchedulingTypeOpt;
     private readonly Option<string> MachineTargetOpt;
     private readonly Option<bool?> ExportCredentialsToEnvOpt;
+    private readonly Option<uint?> SlotsPerNodeOpt;
 
     public CreatePoolBinder(
         Option<string> nameOpt,
@@ -185,6 +186,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         Option<string> schedulingTypeOpt,
         Option<string> machineTargetOpt,
         Option<bool?> exportCredentialsToEnvOpt,
+        Option<uint?> slotsPerNodeOpt,
         GlobalOptions globalOptions
     ) : base(globalOptions)
     {
@@ -227,6 +229,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         SchedulingTypeOpt = schedulingTypeOpt;
         MachineTargetOpt = machineTargetOpt;
         ExportCredentialsToEnvOpt = exportCredentialsToEnvOpt;
+        SlotsPerNodeOpt = slotsPerNodeOpt;
     }
 
     protected override CreatePoolModel GetBoundValueImpl(BindingContext bindingContext)
@@ -285,7 +288,8 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
             SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),
             SchedulingType: bindingContext.ParseResult.GetValueForOption(SchedulingTypeOpt) ?? model.SchedulingType,
             MachineTarget: bindingContext.ParseResult.GetValueForOption(MachineTargetOpt) ?? model.MachineTarget,
-            ExportCredentialsToEnv: bindingContext.ParseResult.GetValueForOption(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv
+            ExportCredentialsToEnv: bindingContext.ParseResult.GetValueForOption(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv,
+            SlotsPerNode: bindingContext.ParseResult.GetValueForOption(SlotsPerNodeOpt) ?? model.SlotsPerNode
         );
 
         if (string.IsNullOrWhiteSpace(model.Name))

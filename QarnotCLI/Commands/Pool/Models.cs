@@ -59,7 +59,9 @@ public record CreatePoolModel(
     [property: JsonProperty("TargetedReservedMachineKey")]
     string? MachineTarget,
     [property: JsonProperty("ExportApiAndStorageCredentialsInEnvironment")]
-    bool? ExportCredentialsToEnv
+    bool? ExportCredentialsToEnv,
+    [property: JsonProperty("SlotsPerNode")]
+    uint? SlotsPerNode
 ): GlobalModel
 {
     public CreatePoolModel()
@@ -91,7 +93,8 @@ public record CreatePoolModel(
             SecretsAccessRightsByPrefix: new(),
             SchedulingType: null,
             MachineTarget: null,
-            ExportCredentialsToEnv: null
+            ExportCredentialsToEnv: null,
+            SlotsPerNode: null
         )
     {
     }

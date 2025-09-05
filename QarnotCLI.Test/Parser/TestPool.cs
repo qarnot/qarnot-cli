@@ -54,7 +54,8 @@ public class TestPoolCommand
             model.ExportCredentialsToEnv == true &&
             model.Ttl == defaultTTL &&
             model.SchedulingType == "Flex" &&
-            model.MachineTarget == reservedMachine
+            model.MachineTarget == reservedMachine &&
+            model.SlotsPerNode == default
         )), Times.Once);
 
         var name2 = "NAME2";
@@ -80,7 +81,8 @@ public class TestPoolCommand
             model.ExportCredentialsToEnv == null &&
             model.Ttl == null &&
             model.SchedulingType == null &&
-            model.MachineTarget == null
+            model.MachineTarget == null &&
+            model.SlotsPerNode == default
         )), Times.Once);
     }
 
@@ -149,7 +151,8 @@ public class TestPoolCommand
             model.MachineTarget == reservedMachine &&
             model.HardwareConstraints != null &&
             model.HardwareConstraints.Count == hardwareConstraints.Count &&
-            hardwareConstraints.All(constraint => model.HardwareConstraints.Contains(constraint))
+            hardwareConstraints.All(constraint => model.HardwareConstraints.Contains(constraint)) &&
+            model.SlotsPerNode == default
         )), Times.Once);
 
     }
@@ -218,7 +221,31 @@ public class TestPoolCommand
             model.Name == name &&
             model.Shortname == shortname &&
             model.ElasticMinSlots == minimumElasticSlots &&
-            model.Profile == profile
+            model.Profile == profile &&
+            model.SlotsPerNode == default
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task CreatePoolWithMultiSlotsSettings()
+    {
+        var mock = new MockParser();
+
+        var name = "NAME";
+        var shortname = "SHORT";
+        var minimumElasticSlots = 2;
+        var profile = "PROFILE";
+
+        await mock.Parser.InvokeAsync(new[] {
+            "pool", "create", "--name", name, "--shortname", shortname, "--profile", profile, "--pool-is-elastic", "--min-slot", minimumElasticSlots.ToString(), "--slots-per-node", "12"
+        });
+
+        mock.PoolUseCases.Verify(useCases => useCases.Create(It.Is<CreatePoolModel>(model =>
+            model.Name == name &&
+            model.Shortname == shortname &&
+            model.ElasticMinSlots == minimumElasticSlots &&
+            model.Profile == profile &&
+            model.SlotsPerNode == 12
         )), Times.Once);
     }
 

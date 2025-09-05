@@ -143,6 +143,11 @@ public class PoolUseCases : IPoolUseCases
 
         pool.TargetedReservedMachineKey = model.MachineTarget;
 
+        if (model.SlotsPerNode is uint slotsPerNode)
+        {
+            pool.MultiSlotsSettings = new MultiSlotsSettings(slotsPerNode);
+        }
+
         return pool;
     }
 

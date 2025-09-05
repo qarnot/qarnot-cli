@@ -42,6 +42,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
     private readonly Option<List<string>> SecretsAccessRightsByPrefixOpt;
     private readonly Option<string> SchedulingTypeOpt;
     private readonly Option<string> MachineTargetOpt;
+    private readonly Option<string> ReservationTargetOpt;
     private readonly Option<uint?> PeriodicOpt;
     private readonly Option<string> WhitelistOpt;
     private readonly Option<string> BlacklistOpt;
@@ -84,6 +85,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         Option<List<string>> secretsAccessRightsByPrefixOpt,
         Option<string> schedulingTypeOpt,
         Option<string> machineTargetOpt,
+        Option<string> reservationTargetOpt,
         Option<uint?> periodicOpt,
         Option<string> whitelistOpt,
         Option<string> blacklistOpt,
@@ -127,6 +129,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         SecretsAccessRightsByPrefixOpt = secretsAccessRightsByPrefixOpt;
         SchedulingTypeOpt = schedulingTypeOpt;
         MachineTargetOpt = machineTargetOpt;
+        ReservationTargetOpt = reservationTargetOpt;
         PeriodicOpt = periodicOpt;
         WhitelistOpt = whitelistOpt;
         BlacklistOpt = blacklistOpt;
@@ -180,6 +183,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
             SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),
             SchedulingType: bindingContext.ParseResult.GetValueForOption(SchedulingTypeOpt) ?? model.SchedulingType,
             MachineTarget: bindingContext.ParseResult.GetValueForOption(MachineTargetOpt) ?? model.MachineTarget,
+            ReservationTarget: bindingContext.ParseResult.GetValueForOption(ReservationTargetOpt) ?? model.ReservationTarget,
             Periodic: bindingContext.ParseResult.GetValueForOption(PeriodicOpt) ?? model.Periodic,
             Whitelist: bindingContext.ParseResult.GetValueForOption(WhitelistOpt) ?? model.Whitelist,
             Blacklist: bindingContext.ParseResult.GetValueForOption(BlacklistOpt) ?? model.Blacklist,
@@ -290,5 +294,55 @@ public class GetTasksOutputBinder : GlobalBinder<GetTasksOutputModel>
         new GetTasksOutputModel(
             bindingContext.ParseResult.GetValueForOption(InstanceIdOpt),
             bindingContext.ParseResult.GetValueForOption(FreshOpt)
+        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+}
+
+public class GetSnapshotStatusBinder : GlobalBinder<GetSnapshotStatusModel>
+{
+    private readonly Option<string> SnapshotIdOpt;
+    private readonly GetPoolsOrTasksOptions GetTasksOptions;
+
+    public GetSnapshotStatusBinder(
+        Option<string> snapshotIdOpt,
+        GetPoolsOrTasksOptions getTasksOptions,
+        GlobalOptions globalOptions
+    ) : base(globalOptions)
+    {
+        SnapshotIdOpt = snapshotIdOpt;
+        GetTasksOptions = getTasksOptions;
+    }
+
+    protected override GetSnapshotStatusModel GetBoundValueImpl(BindingContext bindingContext) =>
+        new GetSnapshotStatusModel(
+            bindingContext.ParseResult.GetValueForOption(SnapshotIdOpt)! // Option is marked IsRequired in Command.cs
+        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+}
+
+public class WaitSnapshotBinder : GlobalBinder<WaitSnapshotModel>
+{
+    private readonly Option<string> SnapshotIdOpt;
+    private readonly Option<int> TimeoutOpt;
+    private readonly Option<int> UpdateIntervalOpt;
+    private readonly GetPoolsOrTasksOptions GetTasksOptions;
+
+    public WaitSnapshotBinder(
+        Option<string> snapshotIdOpt,
+        Option<int> timeoutOpt,
+        Option<int> updateIntervalOpt,
+        GetPoolsOrTasksOptions getTasksOptions,
+        GlobalOptions globalOptions
+    ) : base(globalOptions)
+    {
+        SnapshotIdOpt = snapshotIdOpt;
+        TimeoutOpt = timeoutOpt;
+        UpdateIntervalOpt = updateIntervalOpt;
+        GetTasksOptions = getTasksOptions;
+    }
+
+    protected override WaitSnapshotModel GetBoundValueImpl(BindingContext bindingContext) =>
+        new WaitSnapshotModel(
+            bindingContext.ParseResult.GetValueForOption(SnapshotIdOpt)!, // Option is marked IsRequired in Command.cs
+            bindingContext.ParseResult.GetValueForOption(TimeoutOpt),
+            bindingContext.ParseResult.GetValueForOption(UpdateIntervalOpt)
         ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
 }
