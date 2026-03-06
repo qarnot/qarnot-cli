@@ -1,50 +1,7 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 using Newtonsoft.Json;
-using QarnotSDK;
 
 namespace QarnotCLI;
-
-public class UpdatePoolElasticSettingsBinder : GlobalBinder<UpdatePoolElasticSettingsModel>
-{
-    private readonly Option<uint?> MinSlotsOpt;
-    private readonly Option<uint?> MaxSlotsOpt;
-    private readonly Option<uint?> MinIdlingSlotsOpt;
-    private readonly Option<uint?> ResizePeriodOpt;
-    private readonly Option<float?> ResizeFactorOpt;
-    private readonly Option<uint?> MinIdlingTimeOpt;
-    private readonly GetPoolsOrTasksOptions GetPoolsOptions;
-
-    public UpdatePoolElasticSettingsBinder(
-        Option<uint?> minSlotsOpt,
-        Option<uint?> maxSlotsOpt,
-        Option<uint?> minIdlingSlotsOpt,
-        Option<uint?> resizePeriodOpt,
-        Option<float?> resizeFactorOpt,
-        Option<uint?> minIdlingtimeOpt,
-        GetPoolsOrTasksOptions getPoolsOptions,
-        GlobalOptions  globalOptions
-    ) : base(globalOptions)
-    {
-        MinSlotsOpt = minSlotsOpt;
-        MaxSlotsOpt = maxSlotsOpt;
-        MinIdlingSlotsOpt = minIdlingSlotsOpt;
-        ResizePeriodOpt = resizePeriodOpt;
-        ResizeFactorOpt = resizeFactorOpt;
-        MinIdlingTimeOpt = minIdlingtimeOpt;
-        GetPoolsOptions = getPoolsOptions;
-    }
-
-    protected override UpdatePoolElasticSettingsModel GetBoundValueImpl(BindingContext bindingContext) =>
-        new UpdatePoolElasticSettingsModel(
-            bindingContext.ParseResult.GetValueForOption(MinSlotsOpt),
-            bindingContext.ParseResult.GetValueForOption(MaxSlotsOpt),
-            bindingContext.ParseResult.GetValueForOption(MinIdlingSlotsOpt),
-            bindingContext.ParseResult.GetValueForOption(ResizePeriodOpt),
-            bindingContext.ParseResult.GetValueForOption(ResizeFactorOpt),
-            bindingContext.ParseResult.GetValueForOption(MinIdlingTimeOpt)
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetPoolsOptions);
-}
 
 public class UpdatePoolsScalingBinder : GlobalBinder<UpdatePoolScalingModel>
 {
@@ -66,16 +23,16 @@ public class UpdatePoolsScalingBinder : GlobalBinder<UpdatePoolScalingModel>
         GetPoolsOrTasksOptions = getPoolsOrTasksOptions;
     }
 
-    protected override UpdatePoolScalingModel GetBoundValueImpl(BindingContext bindingContext)
+    protected override UpdatePoolScalingModel GetBoundValueImpl(ParseResult parseResult)
     {
         QarnotSDK.Scaling? scaling = null;
-        var scalingStr = bindingContext.ParseResult.GetValueForOption(ScalingOpt);
+        var scalingStr = parseResult.GetValue(ScalingOpt);
         if (!string.IsNullOrWhiteSpace(scalingStr))
         {
             scaling = ParseScaling(scalingStr);
         }
 
-        return new UpdatePoolScalingModel(scaling).BindGetPoolsOrTasksOptions(bindingContext, GetPoolsOrTasksOptions);
+        return new UpdatePoolScalingModel(scaling).BindGetPoolsOrTasksOptions(parseResult, GetPoolsOrTasksOptions);
     }
 
     private QarnotSDK.Scaling? ParseScaling(string? scaling)
@@ -109,19 +66,12 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
     private readonly Option<string> ShortnameOpt;
     private readonly Option<string> ProfileOpt;
     private readonly Option<uint?> InstanceCountOpt;
-    private readonly Option<bool?> IsElasticOpt;
     private readonly Option<string> FileOpt;
     private readonly Option<List<string>> TagsOpt;
     private readonly Option<List<string>> ConstantsOpt;
     private readonly Option<List<string>> ConstraintsOpt;
     private readonly Option<List<string>> LabelsOpt;
     private readonly Option<List<string>> ResourcesOpt;
-    private readonly Option<uint?> ElasticMinSlotsOpt;
-    private readonly Option<uint?> ElasticMaxSlotsOpt;
-    private readonly Option<uint?> ElasticMinIdlingSlotsOpt;
-    private readonly Option<uint?> ElasticResizePeriodOpt;
-    private readonly Option<float?> ElasticResizeFactorOpt;
-    private readonly Option<uint?> ElasticMinIdlingTimeOpt;
     private readonly Option<bool?> TasksWaitForSynchronizationOpt;
     private readonly Option<uint?> TtlOpt;
     private readonly Option<uint?> MaxTotalRetriesOpt;
@@ -151,19 +101,12 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         Option<string> shortnameOpt,
         Option<string> profileOpt,
         Option<uint?> instanceCountOpt,
-        Option<bool?> isElasticOpt,
         Option<string> fileOpt,
         Option<List<string>> tagsOpt,
         Option<List<string>> constantsOpt,
         Option<List<string>> constraintsOpt,
         Option<List<string>> labelsOpt,
         Option<List<string>> resourcesOpt,
-        Option<uint?> elasticMinSlotsOpt,
-        Option<uint?> elasticMaxSlotsOpt,
-        Option<uint?> elasticMinIdlingSlotsOpt,
-        Option<uint?> elasticResizePeriodOpt,
-        Option<float?> elasticResizeFactorOpt,
-        Option<uint?> elasticMinIdlingTimeOpt,
         Option<bool?> tasksWaitForSynchronizationOpt,
         Option<uint?> ttlOpt,
         Option<uint?> maxTotalRetriesOpt,
@@ -194,19 +137,12 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         ShortnameOpt = shortnameOpt;
         ProfileOpt = profileOpt;
         InstanceCountOpt = instanceCountOpt;
-        IsElasticOpt = isElasticOpt;
         FileOpt = fileOpt;
         TagsOpt = tagsOpt;
         ConstantsOpt = constantsOpt;
         ConstraintsOpt = constraintsOpt;
         LabelsOpt = labelsOpt;
         ResourcesOpt = resourcesOpt;
-        ElasticMinSlotsOpt = elasticMinSlotsOpt;
-        ElasticMaxSlotsOpt = elasticMaxSlotsOpt;
-        ElasticMinIdlingSlotsOpt = elasticMinIdlingSlotsOpt;
-        ElasticResizePeriodOpt = elasticResizePeriodOpt;
-        ElasticResizeFactorOpt = elasticResizeFactorOpt;
-        ElasticMinIdlingTimeOpt = elasticMinIdlingTimeOpt;
         TasksWaitForSynchronizationOpt = tasksWaitForSynchronizationOpt;
         TtlOpt = ttlOpt;
         MaxTotalRetriesOpt = maxTotalRetriesOpt;
@@ -232,64 +168,57 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         SlotsPerNodeOpt = slotsPerNodeOpt;
     }
 
-    protected override CreatePoolModel GetBoundValueImpl(BindingContext bindingContext)
+    protected override CreatePoolModel GetBoundValueImpl(ParseResult parseResult)
     {
-        var file = bindingContext.ParseResult.GetValueForOption(FileOpt);
+        var file = parseResult.GetValue(FileOpt);
         var model = !string.IsNullOrWhiteSpace(file)
             ? ParseFromFile(file)
             : new CreatePoolModel();
 
         QarnotSDK.Scaling? scaling = null;
-        var scalingStr = bindingContext.ParseResult.GetValueForOption(ScalingOpt);
+        var scalingStr = parseResult.GetValue(ScalingOpt);
         if (!string.IsNullOrWhiteSpace(scalingStr))
         {
             scaling = ParseScaling(scalingStr);
         }
 
         QarnotSDK.HardwareConstraints? hardwareConstraints = Helpers.BuildHardwareConstraints(
-            minimumCoreCount: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumCoreCountOpt),
-            maximumCoreCount: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumCoreCountOpt),
-            minimumRamCoreRatio: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumRamCoreRatioOpt),
-            maximumRamCoreRatio: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumRamCoreRatioOpt),
-            specificHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintSpecificHardware),
-            gpuHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintGpuHardware),
-            ssdHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintSsdHardware),
-            noSsdHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintNoSsdHardware),
-            minimumRamHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumRamHardware),
-            maximumRamHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumRamHardware),
-            cpuModelHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintCpuModelHardware)
+            minimumCoreCount: parseResult.GetValue(HardwareConstraintMinimumCoreCountOpt),
+            maximumCoreCount: parseResult.GetValue(HardwareConstraintMaximumCoreCountOpt),
+            minimumRamCoreRatio: parseResult.GetValue(HardwareConstraintMinimumRamCoreRatioOpt),
+            maximumRamCoreRatio: parseResult.GetValue(HardwareConstraintMaximumRamCoreRatioOpt),
+            specificHardware: parseResult.GetValue(HardwareConstraintSpecificHardware),
+            gpuHardware: parseResult.GetValue(HardwareConstraintGpuHardware),
+            ssdHardware: parseResult.GetValue(HardwareConstraintSsdHardware),
+            noSsdHardware: parseResult.GetValue(HardwareConstraintNoSsdHardware),
+            minimumRamHardware: parseResult.GetValue(HardwareConstraintMinimumRamHardware),
+            maximumRamHardware: parseResult.GetValue(HardwareConstraintMaximumRamHardware),
+            cpuModelHardware: parseResult.GetValue(HardwareConstraintCpuModelHardware)
         );
 
         model = new(
-            Name: bindingContext.ParseResult.GetValueForOption(NameOpt) ?? model.Name,
-            Shortname: bindingContext.ParseResult.GetValueForOption(ShortnameOpt) ?? model.Shortname,
-            Profile: bindingContext.ParseResult.GetValueForOption(ProfileOpt) ?? model.Profile,
-            InstanceCount: bindingContext.ParseResult.GetValueForOption(InstanceCountOpt) ?? model.InstanceCount,
-            IsElastic: bindingContext.ParseResult.GetValueForOption(IsElasticOpt) ?? model.IsElastic,
-            Tags: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(TagsOpt), model.Tags),
-            Constants: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(ConstantsOpt), model.Constants),
-            Constraints: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(ConstraintsOpt), model.Constraints),
-            Labels: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(LabelsOpt), model.Labels),
-            Resources: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(ResourcesOpt), model.Resources),
-            ElasticMinSlots: bindingContext.ParseResult.GetValueForOption(ElasticMinSlotsOpt) ?? model.ElasticMinSlots,
-            ElasticMaxSlots: bindingContext.ParseResult.GetValueForOption(ElasticMaxSlotsOpt) ?? model.ElasticMaxSlots,
-            ElasticMinIdlingSlots: bindingContext.ParseResult.GetValueForOption(ElasticMinIdlingSlotsOpt) ?? model.ElasticMinIdlingSlots,
-            ElasticResizePeriod: bindingContext.ParseResult.GetValueForOption(ElasticResizePeriodOpt) ?? model.ElasticResizePeriod,
-            ElasticResizeFactor: bindingContext.ParseResult.GetValueForOption(ElasticResizeFactorOpt) ?? model.ElasticResizeFactor,
-            ElasticMinIdlingTime: bindingContext.ParseResult.GetValueForOption(ElasticMinIdlingTimeOpt) ?? model.ElasticMinIdlingTime,
-            TasksWaitForSynchronization: bindingContext.ParseResult.GetValueForOption(TasksWaitForSynchronizationOpt) ?? model.TasksWaitForSynchronization,
-            Ttl: bindingContext.ParseResult.GetValueForOption(TtlOpt) ?? model.Ttl,
-            MaxTotalRetries: bindingContext.ParseResult.GetValueForOption(MaxTotalRetriesOpt) ?? model.MaxTotalRetries,
-            MaxRetriesPerInstance: bindingContext.ParseResult.GetValueForOption(MaxRetriesPerInstanceOpt) ?? model.MaxRetriesPerInstance,
-            MaxTimeQueueSeconds: bindingContext.ParseResult.GetValueForOption(MaxTimeQueueSecondsOpt) ?? model.MaxTimeQueueSeconds,
+            Name: parseResult.GetValue(NameOpt) ?? model.Name,
+            Shortname: parseResult.GetValue(ShortnameOpt) ?? model.Shortname,
+            Profile: parseResult.GetValue(ProfileOpt) ?? model.Profile,
+            InstanceCount: parseResult.GetValue(InstanceCountOpt) ?? model.InstanceCount,
+            Tags: Helpers.CoalesceEmpty(parseResult.GetValue(TagsOpt), model.Tags),
+            Constants: Helpers.CoalesceEmpty(parseResult.GetValue(ConstantsOpt), model.Constants),
+            Constraints: Helpers.CoalesceEmpty(parseResult.GetValue(ConstraintsOpt), model.Constraints),
+            Labels: Helpers.CoalesceEmpty(parseResult.GetValue(LabelsOpt), model.Labels),
+            Resources: Helpers.CoalesceEmpty(parseResult.GetValue(ResourcesOpt), model.Resources),
+            TasksWaitForSynchronization: parseResult.GetValue(TasksWaitForSynchronizationOpt) ?? model.TasksWaitForSynchronization,
+            Ttl: parseResult.GetValue(TtlOpt) ?? model.Ttl,
+            MaxTotalRetries: parseResult.GetValue(MaxTotalRetriesOpt) ?? model.MaxTotalRetries,
+            MaxRetriesPerInstance: parseResult.GetValue(MaxRetriesPerInstanceOpt) ?? model.MaxRetriesPerInstance,
+            MaxTimeQueueSeconds: parseResult.GetValue(MaxTimeQueueSecondsOpt) ?? model.MaxTimeQueueSeconds,
             Scaling: scaling ?? model.Scaling,
             HardwareConstraints: hardwareConstraints ?? model.HardwareConstraints,
-            SecretsAccessRightsByKey: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByKeyOpt), model.SecretsAccessRightsByKey),
-            SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),
-            SchedulingType: bindingContext.ParseResult.GetValueForOption(SchedulingTypeOpt) ?? model.SchedulingType,
-            MachineTarget: bindingContext.ParseResult.GetValueForOption(MachineTargetOpt) ?? model.MachineTarget,
-            ExportCredentialsToEnv: bindingContext.ParseResult.GetValueForOption(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv,
-            SlotsPerNode: bindingContext.ParseResult.GetValueForOption(SlotsPerNodeOpt) ?? model.SlotsPerNode
+            SecretsAccessRightsByKey: Helpers.CoalesceEmpty(parseResult.GetValue(SecretsAccessRightsByKeyOpt), model.SecretsAccessRightsByKey),
+            SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(parseResult.GetValue(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),
+            SchedulingType: parseResult.GetValue(SchedulingTypeOpt) ?? model.SchedulingType,
+            MachineTarget: parseResult.GetValue(MachineTargetOpt) ?? model.MachineTarget,
+            ExportCredentialsToEnv: parseResult.GetValue(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv,
+            SlotsPerNode: parseResult.GetValue(SlotsPerNodeOpt) ?? model.SlotsPerNode
         );
 
         if (string.IsNullOrWhiteSpace(model.Name))
@@ -297,7 +226,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
             throw new Exception("A name must be given to the pool");
         }
 
-        if (model.InstanceCount == 0 && model.ElasticMinSlots == null && model.Scaling == null)
+        if (model.InstanceCount == 0 && model.Scaling == null)
         {
             throw new Exception("An instance count must be given to the pool");
         }

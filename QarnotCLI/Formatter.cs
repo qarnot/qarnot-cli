@@ -64,6 +64,11 @@ public class TableFormatter : IFormatter
 
     public string Format<T>(T obj)
     {
+        if (obj is QTaskDependencies deps)
+        {
+            return FormatDependenciesState(deps);
+        }
+
         if (IsQarnotSDKType<T>())
         {
             return JsonFormatter.Format(obj);
@@ -110,6 +115,43 @@ public class TableFormatter : IFormatter
                 return builder;
         }
     }
+
+    private static string FormatDependenciesState(QTaskDependencies deps)
+    {
+        var sb = new StringBuilder();
+
+        sb.AppendLine($"Overall state: {deps.State?.ToString() ?? "Unknown"}");
+        sb.AppendLine();
+
+        if (deps.AdvancedDependsOn is { Count: > 0 } advancedDeps)
+        {
+            var rows = advancedDeps
+                .Select(d => new AdvancedDependencyTableRow(
+                    TaskUuid: d.TaskUuid.ToString(),
+                    Conditions: d.TaskFinalStateCondition is { Count: > 0 }
+                        ? string.Join(", ", d.TaskFinalStateCondition)
+                        : "(any)",
+                    ActualFinalState: d.ActualFinalState?.ToString() ?? "",
+                    State: d.State?.ToString() ?? "Unknown"))
+                .ToList();
+
+            sb.Append(ConsoleTable.From(rows).ToString());
+        }
+        else if (deps.DependsOn is { Count: > 0 } simpleDeps)
+        {
+            var rows = simpleDeps
+                .Select(id => new SimpleDependencyTableRow(TaskUuid: id.ToString()))
+                .ToList();
+
+            sb.Append(ConsoleTable.From(rows).ToString());
+        }
+
+        return sb.ToString();
+    }
+
+    private record AdvancedDependencyTableRow(string TaskUuid, string Conditions, string ActualFinalState, string State);
+
+    private record SimpleDependencyTableRow(string TaskUuid);
 
     private static bool IsQarnotSDKType<T>() =>
         typeof(T).Namespace?.Contains(nameof(QarnotSDK)) ?? false;

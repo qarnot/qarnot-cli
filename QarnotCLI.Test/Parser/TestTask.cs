@@ -1,8 +1,6 @@
-using Microsoft.VisualBasic;
 using Moq;
 using NUnit.Framework;
 using QarnotSDK;
-using System.CommandLine.Parsing;
 
 namespace QarnotCLI.Test;
 
@@ -706,5 +704,372 @@ public class TestTaskCommand
             model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
             model.EquivalentDataCenterName == datacenterName
         )), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateTaskWithDependsOn()
+    {
+        var mock = new MockParser();
+
+        var uuid1 = Guid.NewGuid().ToString();
+        var uuid2 = Guid.NewGuid().ToString();
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "create",
+                "--name", "MyTask",
+                "--profile", "docker-batch",
+                "--instance", "1",
+                "--depends-on", uuid1, uuid2,
+            }
+        );
+
+        Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+        mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+            model.DependsOn.Count == 2 &&
+            model.DependsOn[0].TaskUuid == Guid.Parse(uuid1) &&
+            model.DependsOn[0].TaskFinalStateCondition == null &&
+            model.DependsOn[1].TaskUuid == Guid.Parse(uuid2) &&
+            model.DependsOn[1].TaskFinalStateCondition == null
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateTaskWithDependsOnFromJson()
+    {
+        var mock = new MockParser();
+
+        var uuid1 = Guid.NewGuid().ToString();
+        var uuid2 = Guid.NewGuid().ToString();
+        var jsonFile = Path.GetTempFileName();
+
+        try
+        {
+            await File.WriteAllTextAsync(jsonFile, $$"""
+                {
+                  "Name": "MyTask",
+                  "Profile": "docker-batch",
+                  "InstanceCount": 1,
+                  "DependsOn": [{"TaskUuid": "{{uuid1}}"}, {"TaskUuid": "{{uuid2}}"}]
+                }
+                """);
+
+            var res = await mock.Parser.InvokeAsync(
+                new[] { "task", "create", "--file", jsonFile }
+            );
+
+            Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+            mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+                model.DependsOn.Count == 2 &&
+                model.DependsOn[0].TaskUuid == Guid.Parse(uuid1) &&
+                model.DependsOn[0].TaskFinalStateCondition == null &&
+                model.DependsOn[1].TaskUuid == Guid.Parse(uuid2) &&
+                model.DependsOn[1].TaskFinalStateCondition == null
+            )), Times.Once);
+        }
+        finally
+        {
+            File.Delete(jsonFile);
+        }
+    }
+
+    // Tests for advaced dependencies UUID:Condition syntax
+
+    [Test]
+    public async Task CreateTaskWithAdvancedDependsOn()
+    {
+        var mock = new MockParser();
+
+        var uuid1 = Guid.NewGuid().ToString();
+        var uuid2 = Guid.NewGuid().ToString();
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "create",
+                "--name", "MyTask",
+                "--profile", "docker-batch",
+                "--instance", "1",
+                "--depends-on", $"{uuid1}:Failure,Cancelled", $"{uuid2}:Success",
+            }
+        );
+
+        Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+        mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+            model.DependsOn.Count == 2 &&
+            model.DependsOn[0].TaskUuid == Guid.Parse(uuid1) &&
+            model.DependsOn[0].TaskFinalStateCondition != null &&
+            model.DependsOn[0].TaskFinalStateCondition!.Count() == 2 &&
+            model.DependsOn[0].TaskFinalStateCondition!.Contains(TaskFinalState.Failure) &&
+            model.DependsOn[0].TaskFinalStateCondition!.Contains(TaskFinalState.Cancelled) &&
+            model.DependsOn[1].TaskUuid == Guid.Parse(uuid2) &&
+            model.DependsOn[1].TaskFinalStateCondition != null &&
+            model.DependsOn[1].TaskFinalStateCondition!.Contains(TaskFinalState.Success)
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateTaskWithMixedDependsOn()
+    {
+        var mock = new MockParser();
+
+        var uuid1 = Guid.NewGuid().ToString();
+        var uuid2 = Guid.NewGuid().ToString();
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "create",
+                "--name", "MyTask",
+                "--profile", "docker-batch",
+                "--instance", "1",
+                "--depends-on", $"{uuid1}:Failure", uuid2,
+            }
+        );
+
+        Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+        mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+            model.DependsOn.Count == 2 &&
+            model.DependsOn[0].TaskUuid == Guid.Parse(uuid1) &&
+            model.DependsOn[0].TaskFinalStateCondition != null &&
+            model.DependsOn[0].TaskFinalStateCondition!.Count() == 1 &&
+            model.DependsOn[0].TaskFinalStateCondition!.Contains(TaskFinalState.Failure) &&
+            model.DependsOn[1].TaskUuid == Guid.Parse(uuid2) &&
+            model.DependsOn[1].TaskFinalStateCondition == null
+        )), Times.Once);
+    }
+
+
+    [Test]
+    public async Task CreateTaskWithAdvancedDependsOnFromJson()
+    {
+        var mock = new MockParser();
+
+        var uuid1 = Guid.NewGuid().ToString();
+        var jsonFile = Path.GetTempFileName();
+
+        try
+        {
+            await File.WriteAllTextAsync(jsonFile, $$"""
+                {
+                  "Name": "MyTask",
+                  "Profile": "docker-batch",
+                  "InstanceCount": 1,
+                  "DependsOn": [{"TaskUuid": "{{uuid1}}", "TaskFinalStateCondition": ["Failure", "Cancelled"]}]
+                }
+                """);
+
+            var res = await mock.Parser.InvokeAsync(
+                new[] { "task", "create", "--file", jsonFile }
+            );
+
+            Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+            mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+                model.DependsOn.Count == 1 &&
+                model.DependsOn[0].TaskUuid == Guid.Parse(uuid1) &&
+                model.DependsOn[0].TaskFinalStateCondition != null &&
+                model.DependsOn[0].TaskFinalStateCondition!.Count() == 2 &&
+                model.DependsOn[0].TaskFinalStateCondition!.Contains(TaskFinalState.Failure) &&
+                model.DependsOn[0].TaskFinalStateCondition!.Contains(TaskFinalState.Cancelled)
+            )), Times.Once);
+        }
+        finally
+        {
+            File.Delete(jsonFile);
+        }
+    }
+
+    [Test]
+    public async Task CreateTaskWithMixedAdvancedDependsOnFromJson()
+    {
+        var mock = new MockParser();
+
+        var uuid1 = Guid.NewGuid().ToString();
+        var uuid2 = Guid.NewGuid().ToString();
+        var jsonFile = Path.GetTempFileName();
+
+        try
+        {
+            await File.WriteAllTextAsync(jsonFile, $$"""
+                {
+                  "Name": "MyTask",
+                  "Profile": "docker-batch",
+                  "InstanceCount": 1,
+                  "DependsOn": [
+                    {"TaskUuid": "{{uuid1}}"},
+                    {"TaskUuid": "{{uuid2}}", "TaskFinalStateCondition": ["Success"]}
+                  ]
+                }
+                """);
+
+            var res = await mock.Parser.InvokeAsync(
+                new[] { "task", "create", "--file", jsonFile }
+            );
+
+            Assert.That(res, Is.EqualTo(0), "parsing should succeed");
+
+            mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+                model.DependsOn.Count == 2 &&
+                model.DependsOn[0].TaskUuid == Guid.Parse(uuid1) &&
+                model.DependsOn[0].TaskFinalStateCondition == null &&
+                model.DependsOn[1].TaskUuid == Guid.Parse(uuid2) &&
+                model.DependsOn[1].TaskFinalStateCondition != null &&
+                model.DependsOn[1].TaskFinalStateCondition!.Count() == 1 &&
+                model.DependsOn[1].TaskFinalStateCondition!.Contains(TaskFinalState.Success)
+            )), Times.Once);
+        }
+        finally
+        {
+            File.Delete(jsonFile);
+        }
+    }
+
+    [Test]
+    public async Task DependenciesStateTask()
+    {
+        var mock = new MockParser();
+
+        var uuid = Guid.NewGuid().ToString();
+
+        await mock.Parser.InvokeAsync(
+            new[] { "task", "dependencies-state", "--id", uuid }
+        );
+
+        mock.TaskUseCases.Verify(useCases => useCases.DependenciesState(It.Is<GetPoolsOrTasksModel>(model =>
+            model.Id == uuid
+        )), Times.Once);
+    }
+}
+
+
+// A few tests checking what happens if we give bad DependsOn arguments. We want to fail with a human-readable
+// hint as to why.
+// NOTE: the failure mode is not great, we display an exception to the end user, which is why here we just look at
+// NOTE: the exception message. That is not the greatest UI, but it's not specific to dependencies and we'll live
+// NOTE: it for the time being.
+[TestFixture]
+public class TestAdvancedDependencyValidation
+{
+    [Test]
+    // AMEND: make this test more "out"
+    public void ParseAdvancedDependency_InvalidUuid_ThrowsWithHelpfulMessage()
+    {
+        var ex = Assert.Throws<Exception>(() => Helpers.ParseAdvancedDependency("not-a-uuid"));
+
+        Assert.That(ex!.Message, Does.Contain("not-a-uuid"),
+            "message should quote the bad value");
+        Assert.That(ex!.Message, Does.Contain("UUID"),
+            "message should mention UUID so the user understands what was expected");
+    }
+
+    [Test]
+    public void ParseAdvancedDependency_InvalidState_ThrowsWithHelpfulMessage()
+    {
+        var uuid = Guid.NewGuid().ToString();
+        var ex = Assert.Throws<Exception>(() => Helpers.ParseAdvancedDependency($"{uuid}:BadCondition"));
+
+        Assert.That(ex!.Message, Does.Contain("BadCondition"),
+            "message should quote the bad value");
+        Assert.That(ex!.Message, Does.Contain("Success"),
+            "message should list the accepted values");
+        Assert.That(ex!.Message, Does.Contain("Failure"),
+            "message should list the accepted values");
+        Assert.That(ex!.Message, Does.Contain("Cancelled"),
+            "message should list the accepted values");
+    }
+
+    // These verify that invalid input causes a non-zero exit code (not a silent success).
+
+    [Test]
+    public async Task CreateTask_DependsOn_InvalidUuid_FailsWithError()
+    {
+        var mock = new MockParser();
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "create",
+                "--name", "MyTask", "--profile", "docker-batch", "--instance", "1",
+                "--depends-on", "not-a-uuid",
+            }
+        );
+
+        Assert.That(res, Is.Not.EqualTo(0), "parsing should fail when --depends-on value is not a valid UUID");
+    }
+
+    [Test]
+    public async Task CreateTask_DependsOn_InvalidState_FailsWithError()
+    {
+        var mock = new MockParser();
+        var uuid = Guid.NewGuid().ToString();
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "create",
+                "--name", "MyTask", "--profile", "docker-batch", "--instance", "1",
+                "--depends-on", $"{uuid}:BadCondition",
+            }
+        );
+
+        Assert.That(res, Is.Not.EqualTo(0), "parsing should fail when --depends-on condition is not a valid value");
+    }
+
+    // --- Integration tests via JSON file ---
+
+    [Test]
+    public async Task CreateTask_JsonFile_DependsOn_InvalidUuid_FailsWithError()
+    {
+        var mock = new MockParser();
+        var jsonFile = Path.GetTempFileName();
+
+        try
+        {
+            await File.WriteAllTextAsync(jsonFile, """
+                {
+                  "Name": "MyTask",
+                  "Profile": "docker-batch",
+                  "InstanceCount": 1,
+                  "DependsOn": [{"TaskUuid": "not-a-uuid"}]
+                }
+                """);
+
+            var res = await mock.Parser.InvokeAsync(new[] { "task", "create", "--file", jsonFile });
+
+            Assert.That(res, Is.Not.EqualTo(0), "parsing should fail when DependsOn contains a non-UUID TaskUuid");
+        }
+        finally
+        {
+            File.Delete(jsonFile);
+        }
+    }
+
+    [Test]
+    public async Task CreateTask_JsonFile_DependsOn_InvalidState_FailsWithError()
+    {
+        var mock = new MockParser();
+        var uuid = Guid.NewGuid().ToString();
+        var jsonFile = Path.GetTempFileName();
+
+        try
+        {
+            await File.WriteAllTextAsync(jsonFile, $$"""
+                {
+                  "Name": "MyTask",
+                  "Profile": "docker-batch",
+                  "InstanceCount": 1,
+                  "DependsOn": [{"TaskUuid": "{{uuid}}", "TaskFinalStateCondition": ["BadCondition"]}]
+                }
+                """);
+
+            var res = await mock.Parser.InvokeAsync(new[] { "task", "create", "--file", jsonFile });
+
+            Assert.That(res, Is.Not.EqualTo(0), "parsing should fail when DependsOn condition is not a valid value");
+        }
+        finally
+        {
+            File.Delete(jsonFile);
+        }
     }
 }

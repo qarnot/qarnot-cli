@@ -42,68 +42,68 @@ public class GetPoolsOrTasksOptions
 
     public GetPoolsOrTasksOptions(PoolOrTask poolOrTask)
     {
-        IdOpt = new Option<string>(
-            aliases: new[] { "--id", "-i" },
-            description: $"Short name or UUID of a {poolOrTask.Singular()}"
-        );
+        IdOpt = new Option<string>("--id", "-i")
+        {
+            Description = $"Short name or UUID of a {poolOrTask.Singular()}",
+        };
 
-        ShortnameOpt = new Option<string>(
-            aliases: new[] { "--shortname" },
-            description: $"Short name of a {poolOrTask.Singular()}"
-        );
+        ShortnameOpt = new Option<string>("--shortname")
+        {
+            Description = $"Short name of a {poolOrTask.Singular()}",
+        };
 
-        NameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: $"Name of the {poolOrTask.Singular()}"
-        );
+        NameOpt = new Option<string>("--name", "-n")
+        {
+            Description = $"Name of the {poolOrTask.Singular()}",
+        };
 
-        NoPaginateOpt = new Option<bool>(
-            aliases: new[] { "--no-paginate" },
-            description: $"No Pagination option for {poolOrTask.Plural()}, pages iteration will be done in the client",
-            getDefaultValue: () => false
-        );
+        NoPaginateOpt = new Option<bool>("--no-paginate")
+        {
+            Description = $"No Pagination option for {poolOrTask.Plural()}, pages iteration will be done in the client",
+            DefaultValueFactory = _ => false,
+        };
 
-        NextPageOpt = new Option<bool>(
-            aliases: new[] { "--next-page" },
-            description: $"Next page option for {poolOrTask.Plural()} pagination",
-            getDefaultValue: () => false
-        );
+        NextPageOpt = new Option<bool>("--next-page")
+        {
+            Description = $"Next page option for {poolOrTask.Plural()} pagination",
+            DefaultValueFactory = _ => false,
+        };
 
-        MaxPageSizeOpt = new Option<int?>(
-            aliases: new[] { "--max-page-size" },
-            description: $"Max page size option for {poolOrTask.Plural()} pagination",
-            getDefaultValue: () => null
-        );
+        MaxPageSizeOpt = new Option<int?>("--max-page-size")
+        {
+            Description = $"Max page size option for {poolOrTask.Plural()} pagination",
+            DefaultValueFactory = _ => null,
+        };
 
-        NextPageTokenOpt = new Option<string>(
-            aliases: new[] { "--next-page-token" },
-            description: $"Provide the token to query next {poolOrTask.Plural()} page"
-        );
+        NextPageTokenOpt = new Option<string>("--next-page-token")
+        {
+            Description = $"Provide the token to query next {poolOrTask.Plural()} page",
+        };
 
-        CreatedBeforeOpt = new Option<string>(
-            aliases: new[] { "--created-before" },
-            description: $"Filter {poolOrTask.Plural()} by creation date. Retrieve {poolOrTask.Plural()} created before the given date"
-        );
+        CreatedBeforeOpt = new Option<string>("--created-before")
+        {
+            Description = $"Filter {poolOrTask.Plural()} by creation date. Retrieve {poolOrTask.Plural()} created before the given date",
+        };
 
-        CreatedAfterOpt = new Option<string>(
-            aliases: new[] { "--created-after" },
-            description: $"Filter {poolOrTask.Plural()} by creation date. Retrieve {poolOrTask.Plural()} created after the given date"
-        );
+        CreatedAfterOpt = new Option<string>("--created-after")
+        {
+            Description = $"Filter {poolOrTask.Plural()} by creation date. Retrieve {poolOrTask.Plural()} created after the given date",
+        };
 
-        NamePrefixOpt = new Option<string>(
-            aliases: new[] { "--name-prefix" },
-            description: $"Filter {poolOrTask.Plural()} by name prefix. Retrieve {poolOrTask.Plural()} with name starting with the given prefix"
-        );
+        NamePrefixOpt = new Option<string>("--name-prefix")
+        {
+            Description = $"Filter {poolOrTask.Plural()} by name prefix. Retrieve {poolOrTask.Plural()} with name starting with the given prefix",
+        };
 
-        TagsOpt = new Option<List<string>>(
-            aliases: new[] { "--tags", "-t" },
-            description: $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with any of the given tags"
-        ) { AllowMultipleArgumentsPerToken = true };
+        TagsOpt = new Option<List<string>>("--tags", "-t")
+        {
+            Description = $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with any of the given tags", AllowMultipleArgumentsPerToken = true,
+        };
 
-        ExclusiveTagsOpt = new Option<List<string>>(
-            name: "--exclusive-tags",
-            description: $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with all of the given tags"
-        ) { AllowMultipleArgumentsPerToken = true };
+        ExclusiveTagsOpt = new Option<List<string>>("--exclusive-tags")
+        {
+            Description = $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with all of the given tags", AllowMultipleArgumentsPerToken = true,
+        };
     }
 }
 
@@ -111,18 +111,18 @@ public static class GetPoolsOrTasksOptionsExtension
 {
     public static Command AddGetPoolsOrTasksOptions(this Command cmd, GetPoolsOrTasksOptions options)
     {
-        cmd.AddOption(options.IdOpt);
-        cmd.AddOption(options.NameOpt);
-        cmd.AddOption(options.ShortnameOpt);
-        cmd.AddOption(options.NoPaginateOpt);
-        cmd.AddOption(options.NextPageTokenOpt);
-        cmd.AddOption(options.NextPageOpt);
-        cmd.AddOption(options.MaxPageSizeOpt);
-        cmd.AddOption(options.TagsOpt);
-        cmd.AddOption(options.ExclusiveTagsOpt);
-        cmd.AddOption(options.CreatedAfterOpt);
-        cmd.AddOption(options.CreatedBeforeOpt);
-        cmd.AddOption(options.NamePrefixOpt);
+        cmd.Add(options.IdOpt);
+        cmd.Add(options.NameOpt);
+        cmd.Add(options.ShortnameOpt);
+        cmd.Add(options.NoPaginateOpt);
+        cmd.Add(options.NextPageTokenOpt);
+        cmd.Add(options.NextPageOpt);
+        cmd.Add(options.MaxPageSizeOpt);
+        cmd.Add(options.TagsOpt);
+        cmd.Add(options.ExclusiveTagsOpt);
+        cmd.Add(options.CreatedAfterOpt);
+        cmd.Add(options.CreatedBeforeOpt);
+        cmd.Add(options.NamePrefixOpt);
 
         return cmd;
     }

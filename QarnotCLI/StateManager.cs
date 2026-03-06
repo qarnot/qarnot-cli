@@ -5,44 +5,46 @@ public record PageToken(string Token);
 
 public interface IStateManager
 {
-    PageToken GetNextPageToken();
+    PageToken? GetNextPageToken();
     bool SaveNextPageToken(PageToken pageToken);
 }
 
 public interface IStateManagerFactory
 {
-    IStateManager Create(ILogger logger);
+    IStateManager Create(ILogger logger, bool noPersistedNextPageToken = false);
 }
 
 public class StateManagerFactory : IStateManagerFactory
 {
-    public IStateManager Create(ILogger logger) => new StateManager(logger);
+    public IStateManager Create(ILogger logger, bool noPersistedNextPageToken = false) =>
+        new StateManager(logger, noPersistedNextPageToken);
 }
 
 public class StateManager : IStateManager
 {
     private const string NextPageTokenKey = "next-page-token";
     private readonly bool DoNotPersistPageToken;
-    private readonly string ConfigurationFile;
-    private readonly ILogger Logger;
+    private readonly string? ConfigurationFile;
+    private readonly ILogger? Logger;
 
     public StateManager()
     {
     }
 
-    public StateManager(ILogger logger) : this()
+    public StateManager(ILogger logger, bool noPersistedNextPageToken = false) : this()
     {
         Logger = logger;
-        ConfigurationFile = Helpers
-            .GetConnectionConfigurationPath(logger, forceExist: true)
-            ?? string.Empty;
+        DoNotPersistPageToken = noPersistedNextPageToken;
+        ConfigurationFile = noPersistedNextPageToken
+            ? string.Empty
+            : Helpers.GetConnectionConfigurationPath(logger, forceExist: true) ?? string.Empty;
     }
 
-    public PageToken GetNextPageToken()
+    public PageToken? GetNextPageToken()
     {
         if(DoNotPersistPageToken)
         {
-            return default;
+            return null;
         }
 
         return new PageToken(ReadNextPageTokenFromFile());
@@ -108,7 +110,7 @@ public class StateManager : IStateManager
         }
         catch (Exception exception)
         {
-            Logger.Warning($"Can't save pagination token: '--next-page' won't work (Details: {exception.Message})");
+            Logger?.Warning($"Can't save pagination token: '--next-page' won't work (Details: {exception.Message})");
         }
     }
 

@@ -1,10 +1,13 @@
 using System.CommandLine;
-using System.CommandLine.Builder;
 using System.CommandLine.Help;
-using System.CommandLine.IO;
-using QarnotSDK;
 
 namespace QarnotCLI;
+
+public record CommandLineSetup(
+    RootCommand RootCommand,
+    ParserConfiguration ParserConfig,
+    InvocationConfiguration InvocationConfig
+);
 
 public class CommandLineBuilderFactory
 {
@@ -63,7 +66,7 @@ public class CommandLineBuilderFactory
         AccountUseCasesFactory = accountUseCasesFactory;
     }
 
-    public CommandLineBuilder Create(
+    public CommandLineSetup Create(
         ConnectionConfiguration config,
         IReleasesService releasesService,
         ILogger logger
@@ -84,56 +87,46 @@ public class CommandLineBuilderFactory
             new ConfigCommand(globalOptions, ConfigUseCasesFactory),
             new AccountCommand(globalOptions, AccountUseCasesFactory),
             new VersionCommand(assemblyDetails, logger),
-        }.AddGlobalOptions(globalOptions);
+        };
+        rootCommand.AddGlobalOptions(globalOptions);
 
-        var versionOpt = new Option<bool>(
-            name: "--version",
-            description: "The current version"
-        );
-        rootCommand.SetHandler(
-            version => {
-                if (version) {
-                    Console.WriteLine(assemblyDetails.ToString());
-                } else {
-                    throw new DisplayHelpException(rootCommand);
-                }
-            },
-            versionOpt
-        );
+        var versionOpt = new Option<bool>("--version")
+        {
+            Description = "The current version",
+        };
+        rootCommand.SetAction(parseResult =>
+        {
+            if (parseResult.GetValue(versionOpt))
+            {
+                Console.WriteLine(assemblyDetails.ToString());
+            }
+            else
+            {
+                new HelpAction().Invoke(parseResult);
+            }
+        });
         rootCommand.Add(versionOpt);
 
-        return new CommandLineBuilder(rootCommand)
-            .RegisterWithDotnetSuggest()
-            .UseTypoCorrections()
-            .UseParseErrorReporting()
-            .CancelOnProcessTermination()
-            // Disable the default handling for `@` on the command line.
-            .UseTokenReplacer((string _1, out IReadOnlyList<string>? _2, out string? _3) => {
+        // Set up custom help on all commands
+        CustomHelpLayout.ApplyCustomHelp(rootCommand, assemblyDetails);
+
+        // Disable the default handling for `@` on the command line
+        var parserConfig = new ParserConfiguration
+        {
+            ResponseFileTokenReplacer = (string _1, out IReadOnlyList<string>? _2, out string? _3) =>
+            {
                 _2 = null;
                 _3 = null;
                 return false;
-            })
-            .UseCustomHelp(assemblyDetails)
-            .UseExceptionHandler((exc, ctx) =>
-            {
-                if (exc is QarnotApiException)
-                {
-                    logger.Error(exc,"An error occurred while connecting to Qarnot API :");
-                    ctx.ExitCode = 1;
-                }
-                else if (exc is DisplayHelpException displayHelpException)
-                {
-                    ctx.HelpBuilder.Write(
-                        displayHelpException.Command,
-                        ctx.Console.Out.CreateTextWriter()
-                    );
-                }
-                else
-                {
-                    logger.Error(exc, "An error occured :");
-                    ctx.ExitCode = 1;
-                }
-            })
-            .UseParseErrorReporting(errorExitCode: 1);
+            },
+        };
+
+        var invocationConfig = new InvocationConfiguration
+        {
+            ProcessTerminationTimeout = TimeSpan.FromSeconds(2),
+            EnableDefaultExceptionHandler = false,
+        };
+
+        return new CommandLineSetup(rootCommand, parserConfig, invocationConfig);
     }
 }

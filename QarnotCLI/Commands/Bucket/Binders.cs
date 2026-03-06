@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 
 namespace QarnotCLI;
 
@@ -21,11 +20,11 @@ public class CreateBucketBinder : GlobalBinder<CreateBucketModel>
         FoldersOpt = foldersOpt;
     }
 
-    protected override CreateBucketModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override CreateBucketModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(NameOpt)!,
-            bindingContext.ParseResult.GetValueForOption(FilesOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(FoldersOpt) ?? new()
+            parseResult.GetValue(NameOpt)!,
+            parseResult.GetValue(FilesOpt) ?? new(),
+            parseResult.GetValue(FoldersOpt) ?? new()
         );
 }
 
@@ -44,10 +43,10 @@ public class ListBucketBinder : GlobalBinder<ListBucketModel>
         FolderOpt = folderOpt;
     }
 
-    protected override ListBucketModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override ListBucketModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(NameOpt),
-            bindingContext.ParseResult.GetValueForOption(FolderOpt)
+            parseResult.GetValue(NameOpt),
+            parseResult.GetValue(FolderOpt)
         );
 }
 
@@ -75,13 +74,13 @@ public class GetBucketBinder : GlobalBinder<GetBucketModel>
         StringOpt = stringOpt;
     }
 
-    protected override GetBucketModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override GetBucketModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(NameOpt)!,
-            bindingContext.ParseResult.GetValueForOption(LocalPathOpt),
-            bindingContext.ParseResult.GetValueForOption(BucketFoldersOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(BucketFilesOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(StringOpt)
+            parseResult.GetValue(NameOpt)!,
+            parseResult.GetValue(LocalPathOpt),
+            parseResult.GetValue(BucketFoldersOpt) ?? new(),
+            parseResult.GetValue(BucketFilesOpt) ?? new(),
+            parseResult.GetValue(StringOpt)
         );
 }
 
@@ -109,13 +108,13 @@ public class PutBucketBinder : GlobalBinder<PutBucketModel>
         SendOpt = sendOpt;
     }
 
-    protected override PutBucketModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override PutBucketModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(NameOpt)!,
-            bindingContext.ParseResult.GetValueForOption(LocalFoldersOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(LocalFilesOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(BucketPathOpt),
-            bindingContext.ParseResult.GetValueForOption(SendOpt)
+            parseResult.GetValue(NameOpt)!,
+            parseResult.GetValue(LocalFoldersOpt) ?? new(),
+            parseResult.GetValue(LocalFilesOpt) ?? new(),
+            parseResult.GetValue(BucketPathOpt),
+            parseResult.GetValue(SendOpt)
         );
 }
 
@@ -140,12 +139,12 @@ public class SyncBucketBinder : GlobalBinder<SyncBucketModel>
         NoDeleteOpt = noDeleteOpt;
     }
 
-    protected override SyncBucketModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override SyncBucketModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(NameOpt)!,
-            bindingContext.ParseResult.GetValueForOption(LocalPathOpt)!,
-            bindingContext.ParseResult.GetValueForOption(BucketFolderOpt),
-            bindingContext.ParseResult.GetValueForOption(NoDeleteOpt)
+            parseResult.GetValue(NameOpt)!,
+            parseResult.GetValue(LocalPathOpt)!,
+            parseResult.GetValue(BucketFolderOpt),
+            parseResult.GetValue(NoDeleteOpt)
         );
 }
 
@@ -164,9 +163,9 @@ public class DeleteBucketBinder : GlobalBinder<DeleteBucketModel>
         BucketPathsArg = bucketPathsArg;
     }
 
-    protected override DeleteBucketModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override DeleteBucketModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(NameOpt)!,
-            bindingContext.ParseResult.GetValueForArgument(BucketPathsArg) ?? new()
+            parseResult.GetValue(NameOpt)!,
+            parseResult.GetValue(BucketPathsArg) ?? new()
         );
 }

@@ -6,7 +6,7 @@ using System.Text;
 var releasesService = new ReleasesService();
 
 // Mock everything as we are only interested in the options themselves.
-var parser = new CommandLineBuilderFactory(
+var setup = new CommandLineBuilderFactory(
     _ => new Mock<ITaskUseCases>().Object,
     _ => new Mock<IPoolUseCases>().Object,
     _ => new Mock<IHardwareConstraintsUseCases>().Object,
@@ -18,10 +18,9 @@ var parser = new CommandLineBuilderFactory(
     _ => new Mock<IAccountUseCases>().Object
 ).Create(
     new(), releasesService, new Mock<ILogger>().Object
-).Build();
+);
 
-var rootCmd = parser.Configuration.RootCommand;
-rootCmd.Name = "Commands";
+var rootCmd = setup.RootCommand;
 
 var formatter = new Formatter(releasesService, rootCmd.Options);
 formatter.FormatCmd(rootCmd);
@@ -37,9 +36,9 @@ public class Formatter
 
     private readonly string Version;
     private readonly string Copyright;
-    private readonly IReadOnlyList<Option> GlobalOptions;
+    private readonly IList<Option> GlobalOptions;
 
-    public Formatter(IReleasesService releasesService, IReadOnlyList<Option> globalOptions)
+    public Formatter(IReleasesService releasesService, IList<Option> globalOptions)
     {
         Version = releasesService.GetAssemblyDetails().ToString();
         Copyright = $"Copyright (C) {DateTime.UtcNow.Year} Qarnot computing";

@@ -19,6 +19,7 @@ public interface ITaskUseCases
     Task Stdout(GetTasksOutputModel model);
     Task Stderr(GetTasksOutputModel model);
     Task CarbonFacts(GetCarbonFactsModel model);
+    Task DependenciesState(GetPoolsOrTasksModel model);
 }
 
 public class TaskUseCases : ITaskUseCases
@@ -96,7 +97,16 @@ public class TaskUseCases : ITaskUseCases
              }
          }
 
-         task.SetTaskDependencies(model.Dependents.Select(id => new Guid(id)).ToArray());
+         if (model.DependsOn.Count > 0)
+         {
+             var advancedDeps = model.DependsOn
+                 .Select(d => new QarnotSDK.AdvancedDependency(
+                     d.TaskUuid,
+                     d.TaskFinalStateCondition?.ToArray() ?? Array.Empty<TaskFinalState>()))
+                 .ToArray();
+
+             task.SetTaskDependencies(advancedDeps);
+         }
 
          task.ResultsWhitelist = model.Whitelist;
          task.ResultsBlacklist = model.Blacklist;
@@ -195,7 +205,7 @@ public class TaskUseCases : ITaskUseCases
 
         if(model.IsTargetingSingleResource())
         {
-            QTask task = null;
+            QTask? task = null;
             if (!string.IsNullOrEmpty(model.Shortname))
             {
                 Logger.Debug($"Retrieving task by shortname: {model.Shortname}");
@@ -379,7 +389,7 @@ public class TaskUseCases : ITaskUseCases
             task.SnapshotBlacklist = model.Blacklist;
             var bucket = model.Bucket != null ? new QBucket(task.Connection, model.Bucket): null;
 
-            string snapshotId = null;
+            string? snapshotId = null;
             if (model.Periodic is uint period && period > 0)
             {
                 await task.TriggerPeriodicSnapshotAsync(period, task.SnapshotWhitelist, task.SnapshotBlacklist, bucket);
@@ -551,8 +561,8 @@ public class TaskUseCases : ITaskUseCases
         string? namePrefix,
         int? maxPageSize = null,
         string? nextPageToken = null,
-        List<string> exclusiveTags = default,
-        List<string> tags = default)
+        List<string>? exclusiveTags = null,
+        List<string>? tags = null)
     {
         var filters = new List<QFilter<QTask>>();
         if (!string.IsNullOrWhiteSpace(name))
@@ -639,6 +649,27 @@ public class TaskUseCases : ITaskUseCases
         StateManager.SaveNextPageToken(
             new PageToken(page.IsTruncated ? page.NextToken : string.Empty));
         return page;
+    }
+
+    public async Task DependenciesState(GetPoolsOrTasksModel model)
+    {
+        Logger.Debug("Getting task dependencies state");
+        var tasks = await GetTasks(model);
+
+        if (tasks.Count != 1)
+        {
+            throw new Exception("Exactly one task must be specified for dependencies-state");
+        }
+
+        var task = tasks.First();
+        var dependencies = task.Dependencies;
+
+        if (dependencies == null)
+        {
+            return;
+        }
+
+        Logger.Result(Formatter.Format(dependencies));
     }
 
     public async Task CarbonFacts(GetCarbonFactsModel model)

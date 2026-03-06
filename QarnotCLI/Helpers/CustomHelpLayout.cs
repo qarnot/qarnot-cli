@@ -1,47 +1,81 @@
-using System.CommandLine.Builder;
+using System.CommandLine;
 using System.CommandLine.Help;
+using System.CommandLine.Invocation;
 
 namespace QarnotCLI;
 
-public static class HelpBuilderExtensions
+public static class CustomHelpLayout
 {
-    public static CommandLineBuilder UseCustomHelp(this CommandLineBuilder builder, AssemblyDetails details) =>
-        builder
-            // Exclude "-h" as it's used for the "human readable" option.
-            .UseHelp("--help")
-            .UseHelp(ctx => {
-                ctx.HelpBuilder.UseCustomLayout(details);
-            });
-
-    // WARNING: current implementation erases all previous modification,
-    // that might have been made to the layout. Use this as the first
-    // extension method if you want to use multiple ones.
-    public static HelpBuilder UseCustomLayout(this HelpBuilder helpBuilder, AssemblyDetails details)
+    public static void ApplyCustomHelp(RootCommand rootCommand, AssemblyDetails details)
     {
-        helpBuilder.CustomizeLayout(ctx => new List<HelpSectionDelegate>
+        ApplyToCommand(rootCommand, details);
+        foreach (var cmd in GetAllCommands(rootCommand))
         {
-            _ => ctx.Output.WriteLine(details),
-            HelpBuilder.Default.SynopsisSection(),
-            HelpBuilder.Default.CommandUsageSection(),
-            _ => {
-                if (!ctx.Command.IsHidden && ctx.Command is CommandWithExamples cmd)
-                {
-                    foreach (var example in cmd.Examples)
-                    {
-                        ctx.Output.WriteLine(example.Title + ":");
-                        foreach (var line in example.CommandLines)
-                        {
-                            ctx.Output.WriteLine("  " + line);
-                        }
-                    }
-                }
-            },
-            HelpBuilder.Default.CommandArgumentsSection(),
-            HelpBuilder.Default.OptionsSection(),
-            HelpBuilder.Default.SubcommandsSection(),
-            HelpBuilder.Default.AdditionalArgumentsSection(),
-        });
+            ApplyToCommand(cmd, details);
+        }
+    }
 
-        return helpBuilder;
+    private static void ApplyToCommand(Command command, AssemblyDetails details)
+    {
+        var helpOption = command.Options.OfType<HelpOption>().FirstOrDefault();
+        if (helpOption is null)
+        {
+            return;
+        }
+
+        // Remove the default "-h" alias since it's used for "human readable"
+        helpOption.Aliases.Remove("-h");
+
+        helpOption.Action = new CustomHelpAction(details);
+    }
+
+    private static IEnumerable<Command> GetAllCommands(Command command)
+    {
+        foreach (var sub in command.Subcommands)
+        {
+            yield return sub;
+            foreach (var nested in GetAllCommands(sub))
+            {
+                yield return nested;
+            }
+        }
+    }
+}
+
+public class CustomHelpAction : SynchronousCommandLineAction
+{
+    private readonly AssemblyDetails Details;
+
+    public CustomHelpAction(AssemblyDetails details)
+    {
+        Details = details;
+    }
+
+    public override int Invoke(ParseResult parseResult)
+    {
+        Console.WriteLine(Details);
+
+        var helpAction = new HelpAction();
+        helpAction.Invoke(parseResult);
+
+        var command = parseResult.CommandResult.Command;
+        if (!command.Hidden && command is CommandWithExamples cmdWithExamples)
+        {
+            PrintExamples(cmdWithExamples.Examples);
+        }
+
+        return 0;
+    }
+
+    private static void PrintExamples(IReadOnlyList<Example> examples)
+    {
+        foreach (var example in examples)
+        {
+            Console.WriteLine(example.Title + ":");
+            foreach (var line in example.CommandLines)
+            {
+                Console.WriteLine("  " + line);
+            }
+        }
     }
 }

@@ -8,7 +8,7 @@ QarnotCLI is the Command Line Interface to interact with the Qarnot Computing pl
 Launch in `QarnotCLI` directory :
 
 ```
-dotnet publish -c Release -r ubuntu-x64 --self-contained true /p:PublishSingleFile=true -o ./dest/bin
+dotnet publish -c Release -r linux-x64 --self-contained true /p:PublishSingleFile=true -o ./dest/bin
 ```
 ```
 dotnet publish -c Release -r win10-x64 --self-contained true /p:PublishSingleFile=true -o ./dest/bin
@@ -50,10 +50,9 @@ When you use the CLI for the first time you need to set the configuration :
 |task|snapshot create|`./qarnot task snapshot create -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --whitelist White.* --blacklist .*Black.* --bucket snapshotBucket`|
 |task|snapshot get|`./qarnot task snapshot get -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --snapshot-id snap_52c10b2d-0687-41e1-985e-7279f6dd543a_20251228234559`|
 |task|snapshot wait|`./qarnot task snapshot wait -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --snapshot-id snap_52c10b2d-0687-41e1-985e-7279f6dd543a_20251228234559`|
-|pool|create|`./qarnot task create --name "Pool name" --profile docker-batch --tags TAG1 --pool-is-elastic --min-slot 3 --max-slot 5 `|
+|pool|create|`./qarnot pool create --instanceNodes 4 --name "Pool name" --profile docker-batch --tags TAG1`|
 |pool|infos|`./qarnot pool infos --name "Pool name"`|
 |pool|list|`./qarnot pool list`|
-|pool|set|`./qarnot pool set --id bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --min-slot 2`|
 |pool|abort|`./qarnot pool abort --all`|
 |pool|delete|`./qarnot pool delete --tags TAG1`|
 |pool|carbon-facts|`./qarnot pool carbon-facts -i bb7c4f7c-d692-45d4-9c12-83b5a2b88ab3 --datacenter DATACENTER_NAME`|

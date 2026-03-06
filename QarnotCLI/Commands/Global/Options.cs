@@ -16,38 +16,39 @@ public class GlobalOptions
 
     public GlobalOptions(ConnectionConfiguration connectionConfiguration)
     {
-        TokenOpt = new Option<string>(
-            name: "--token",
-            description: "Connection API token"
-        );
-        UnsafeSslOpt = new Option<bool?>(
-            name: "--unsafe-ssl",
-            description: "Don't check the ssl certificate"
-        );
-        CustomSslCertificateOpt = new Option<string>(
-            name: "--api-ca-certificate",
-            description: "Path to your custom SSL certificate"
-        );
-        VerboseOpt = new Option<bool>(
-            aliases: new[] { "--verbose", "-v" },
-            description: "Set the max verbose messages"
-        );
-        QuietOpt = new Option<bool>(
-            aliases: new[] { "--quiet", "-q" },
-            description: "Set no verbose messages"
-        );
-        NoColorOpt = new Option<bool>(
-            name: "--no-color",
-            description: "Remove the color on the console"
-        );
-        FormatOpt = new Option<string>(
-            name: "--format",
-            description: "Change the result format (one of TABLE (default) or JSON)"
-        ).FromAmong("TABLE", "JSON");
-        HumanReadableOpt = new Option<bool>(
-            aliases: new[] { "-h", "--human-readable" },
-            description: "Print sizes in human readable format (e.g. 1K, 234M, etc.)"
-        );
+        TokenOpt = new Option<string>("--token")
+        {
+            Description = "Connection API token",
+        };
+        UnsafeSslOpt = new Option<bool?>("--unsafe-ssl")
+        {
+            Description = "Don't check the ssl certificate",
+        };
+        CustomSslCertificateOpt = new Option<string>("--api-ca-certificate")
+        {
+            Description = "Path to your custom SSL certificate",
+        };
+        VerboseOpt = new Option<bool>("--verbose", "-v")
+        {
+            Description = "Set the max verbose messages",
+        };
+        QuietOpt = new Option<bool>("--quiet", "-q")
+        {
+            Description = "Set no verbose messages",
+        };
+        NoColorOpt = new Option<bool>("--no-color")
+        {
+            Description = "Remove the color on the console",
+        };
+        FormatOpt = new Option<string>("--format")
+        {
+            Description = "Change the result format (one of TABLE (default) or JSON)",
+        };
+        FormatOpt.AcceptOnlyFromAmong("TABLE", "JSON");
+        HumanReadableOpt = new Option<bool>("-h", "--human-readable")
+        {
+            Description = "Print sizes in human readable format (e.g. 1K, 234M, etc.)",
+        };
 
         ConnectionConfiguration = connectionConfiguration;
     }
@@ -57,15 +58,21 @@ public static class GlobalOptionsExtension
 {
     public static Command AddGlobalOptions(this Command cmd, GlobalOptions options)
     {
-        cmd.AddGlobalOption(options.TokenOpt);
-        cmd.AddGlobalOption(options.UnsafeSslOpt);
-        cmd.AddGlobalOption(options.CustomSslCertificateOpt);
-        cmd.AddGlobalOption(options.VerboseOpt);
-        cmd.AddGlobalOption(options.QuietOpt);
-        cmd.AddGlobalOption(options.NoColorOpt);
-        cmd.AddGlobalOption(options.FormatOpt);
-        cmd.AddGlobalOption(options.HumanReadableOpt);
+        AddAsGlobal(cmd, options.TokenOpt);
+        AddAsGlobal(cmd, options.UnsafeSslOpt);
+        AddAsGlobal(cmd, options.CustomSslCertificateOpt);
+        AddAsGlobal(cmd, options.VerboseOpt);
+        AddAsGlobal(cmd, options.QuietOpt);
+        AddAsGlobal(cmd, options.NoColorOpt);
+        AddAsGlobal(cmd, options.FormatOpt);
+        AddAsGlobal(cmd, options.HumanReadableOpt);
 
         return cmd;
+    }
+
+    private static void AddAsGlobal(Command cmd, Option option)
+    {
+        option.Recursive = true;
+        cmd.Add(option);
     }
 }

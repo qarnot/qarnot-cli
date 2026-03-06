@@ -16,7 +16,7 @@ pushd ..  # go back to repo toplevel
 
 pushd QarnotCLI
 mkdir -p ubuntu/debug
-dotnet publish -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o ./bin/ubuntu/debug --use-current-runtime --self-contained;
+dotnet publish -c Debug -r linux-x64 /p:PublishSingleFile=true -o ./bin/ubuntu/debug --use-current-runtime --self-contained;
 popd  # back to toplevel
 
 pushd QarnotCLI_Doc

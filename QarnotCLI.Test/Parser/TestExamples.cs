@@ -1,6 +1,5 @@
 using NUnit.Framework;
 using System.CommandLine;
-using System.CommandLine.Parsing;
 
 namespace QarnotCLI.Test;
 
@@ -11,7 +10,7 @@ public class TestExamples
     public async Task RunExamples()
     {
         var mock = new MockParser();
-        var rootCommand = mock.Parser.Configuration.RootCommand;
+        var rootCommand = mock.Parser.RootCommand;
 
         await RunAllExamples(rootCommand, mock);
     }

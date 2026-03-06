@@ -1,12 +1,64 @@
 using Moq;
-using System.CommandLine.Parsing;
-using System.CommandLine.Builder;
+using System.CommandLine;
 
 namespace QarnotCLI.Test;
 
+/// <summary>
+/// Wraps a <see cref="CommandLineSetup"/> to provide a test-friendly
+/// Parse + Invoke workflow equivalent to the old Parser type.
+/// </summary>
+public class TestParser
+{
+    private readonly CommandLineSetup Setup;
+
+    public TestParser(CommandLineSetup setup)
+    {
+        Setup = setup;
+
+        // Override exception handling: swallow exceptions and return exit code 1
+        // to reduce noise when testing inputs that intentionally fail parsing.
+        Setup = setup with
+        {
+            InvocationConfig = new InvocationConfiguration
+            {
+                ProcessTerminationTimeout = setup.InvocationConfig.ProcessTerminationTimeout,
+                EnableDefaultExceptionHandler = false,
+            },
+        };
+    }
+
+    public RootCommand RootCommand => (RootCommand)Setup.RootCommand;
+
+    public async Task<int> InvokeAsync(string[] args)
+    {
+        var parseResult = Setup.RootCommand.Parse(args, Setup.ParserConfig);
+        try
+        {
+            return await parseResult.InvokeAsync(Setup.InvocationConfig, CancellationToken.None);
+        }
+        catch
+        {
+            return 1;
+        }
+    }
+
+    public async Task<int> InvokeAsync(string commandLine)
+    {
+        var parseResult = Setup.RootCommand.Parse(commandLine, Setup.ParserConfig);
+        try
+        {
+            return await parseResult.InvokeAsync(Setup.InvocationConfig, CancellationToken.None);
+        }
+        catch
+        {
+            return 1;
+        }
+    }
+}
+
 public class MockParser
 {
-    public Parser Parser { get; }
+    public TestParser Parser { get; }
 
     public Mock<IAllUseCases> AllUseCases { get; }
     public Mock<IAccountUseCases> AccountUseCases { get; }
@@ -22,7 +74,6 @@ public class MockParser
     {
         var globalOptions = new GlobalOptions(new());
         var releasesService = new ReleasesService();
-        var assemblyDetails = releasesService.GetAssemblyDetails();
 
         AllUseCases = new Mock<IAllUseCases>();
         AccountUseCases = new Mock<IAccountUseCases>();
@@ -34,7 +85,7 @@ public class MockParser
         JobUseCases = new Mock<IJobUseCases>();
         SecretsUseCases = new Mock<ISecretsUseCases>();
 
-        Parser = new CommandLineBuilderFactory(
+        var setup = new CommandLineBuilderFactory(
             _ => TaskUseCases.Object,
             _ => PoolUseCases.Object,
             _ => HardwareConstraintsUseCase.Object,
@@ -46,9 +97,8 @@ public class MockParser
             _ => AccountUseCases.Object
         ).Create(
             new(), releasesService, new Logger()
-        ).UseExceptionHandler((exc, ctx) => {
-            // Limit noise for when testing inputs failing parsing (on purpose).
-            ctx.ExitCode = 1;
-        }).Build();
+        );
+
+        Parser = new TestParser(setup);
     }
 }

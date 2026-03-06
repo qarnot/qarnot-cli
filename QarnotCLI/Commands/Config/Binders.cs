@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 
 namespace QarnotCLI;
 
@@ -36,42 +35,42 @@ public class SetConfigBinder : GlobalBinder<SetConfigModel>
         StorageUnsafeSslOpt = storageUnsafeSslOpt;
     }
 
-    protected override SetConfigModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override SetConfigModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(LocalOpt),
-            bindingContext.ParseResult.GetValueForOption(ShowOpt)
+            parseResult.GetValue(LocalOpt),
+            parseResult.GetValue(ShowOpt)
         );
 
-    protected override SetConfigModel GetBoundValue(BindingContext bindingContext)
+    public override SetConfigModel GetBoundValue(ParseResult parseResult)
     {
-        var model = base.GetBoundValue(bindingContext);
+        var model = base.GetBoundValue(parseResult);
 
-        if (bindingContext.ParseResult.GetValueForOption(ApiUriOpt) is string apiUri)
+        if (parseResult.GetValue(ApiUriOpt) is string apiUri)
         {
             model.ApiUri = apiUri;
         }
 
-        if (bindingContext.ParseResult.GetValueForOption(StorageUriOpt) is string storageUri)
+        if (parseResult.GetValue(StorageUriOpt) is string storageUri)
         {
             model.StorageUri = storageUri;
         }
 
-        if (bindingContext.ParseResult.GetValueForOption(AccountEmailOpt) is string accountEmail)
+        if (parseResult.GetValue(AccountEmailOpt) is string accountEmail)
         {
             model.AccountEmail = accountEmail;
         }
 
-        if (bindingContext.ParseResult.GetValueForOption(ForceStoragePathStyleOpt) is bool forcePathStyle)
+        if (parseResult.GetValue(ForceStoragePathStyleOpt) is bool forcePathStyle)
         {
             model.ForcePathStyle = forcePathStyle;
         }
 
-        if (bindingContext.ParseResult.GetValueForOption(NoSanitizeBucketPathOpt) is bool noSanitizeBucketPath)
+        if (parseResult.GetValue(NoSanitizeBucketPathOpt) is bool noSanitizeBucketPath)
         {
             model.DisableBucketPathsSanitization = noSanitizeBucketPath;
         }
 
-        if (bindingContext.ParseResult.GetValueForOption(StorageUnsafeSslOpt) is bool storageUnsafeSsl)
+        if (parseResult.GetValue(StorageUnsafeSslOpt) is bool storageUnsafeSsl)
         {
             model.StorageUnsafeSsl = storageUnsafeSsl;
         }
@@ -95,9 +94,9 @@ public class ShowConfigBinder : GlobalBinder<ShowConfigModel>
         WithoutEnvOpt = withoutEnvOpt;
     }
 
-    protected override ShowConfigModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override ShowConfigModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForOption(ShowGlobalConfigOpt),
-            bindingContext.ParseResult.GetValueForOption(WithoutEnvOpt)
+            parseResult.GetValue(ShowGlobalConfigOpt),
+            parseResult.GetValue(WithoutEnvOpt)
         );
 }

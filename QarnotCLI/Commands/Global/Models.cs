@@ -16,6 +16,7 @@ public record GlobalModel
     public bool HumanReadable { get; private set; }
     public bool ForcePathStyle { get; set; }
     public bool DisableBucketPathsSanitization { get; set; }
+    public bool NoPersistedNextPageToken { get; private set; }
     public string ConfigurationFile { get; set; } = "";
 
     public GlobalModel()
@@ -38,6 +39,7 @@ public record GlobalModel
         bool humanReadable,
         bool forcePathStyle,
         bool disableBucketPathsSanitization,
+        bool noPersistedNextPageToken,
         string configurationFile
     )
     {
@@ -60,6 +62,7 @@ public record GlobalModel
         HumanReadable = humanReadable;
         ForcePathStyle = forcePathStyle;
         DisableBucketPathsSanitization = disableBucketPathsSanitization;
+        NoPersistedNextPageToken = noPersistedNextPageToken;
         ConfigurationFile = configurationFile;
 
         return this;

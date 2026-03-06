@@ -16,7 +16,7 @@
 ```bash
 git clone https://github.com/qarnot/qarnot-cli.git qarnot-cli
 cd qarnot-cli
-dotnet publish -c Release -r ubuntu-x64 /p:PublishSingleFile=true -o ./your/dest/folder/bin
+dotnet publish -c Release -r linux-x64 /p:PublishSingleFile=true -o ./your/dest/folder/bin
 ```
 __use the correct runtime identifier depending on your platform [runtime identifiers](https://docs.microsoft.com/fr-fr/dotnet/core/rid-catalog)__
 

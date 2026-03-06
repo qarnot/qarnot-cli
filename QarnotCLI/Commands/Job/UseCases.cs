@@ -53,7 +53,7 @@ public class JobUseCases : IJobUseCases
             pool = await QarnotAPI.RetrievePoolByUuidAsync(model.Pool);
         }
 
-        var job = QarnotAPI.CreateJob(model.Name, pool, model.Shortname, model.IsDependent);
+        var job = QarnotAPI.CreateJob(model.Name, pool, model.Shortname, model.UseDependencies);
 
         if (model.MaxWallTime is TimeSpan maxWallTime)
         {

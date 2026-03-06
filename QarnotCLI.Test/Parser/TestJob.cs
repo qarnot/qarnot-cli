@@ -1,6 +1,5 @@
 using Moq;
 using NUnit.Framework;
-using System.CommandLine.Parsing;
 
 namespace QarnotCLI.Test;
 
@@ -159,7 +158,7 @@ public class TestJobCommand
             model.Name == name &&
             model.Shortname == shortname &&
             model.Pool == poolUuid &&
-            !model.IsDependent &&
+            !model.UseDependencies &&
             model.MaxWallTime == null
         )), Times.Once);
     }

@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 
 namespace QarnotCLI;
 
@@ -15,21 +14,21 @@ public class GetPoolsOrTasksBinder : GlobalBinder<GetPoolsOrTasksModel>
         GetPoolsOrTasksOptions = getPoolsOrTasksOptions;
     }
 
-    protected override GetPoolsOrTasksModel GetBoundValueImpl(BindingContext bindingContext)
+    protected override GetPoolsOrTasksModel GetBoundValueImpl(ParseResult parseResult)
     {
         var model = new GetPoolsOrTasksModel(
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NameOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.ShortnameOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.IdOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.TagsOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.ExclusiveTagsOpt) ?? new(),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NoPaginateOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NextPageTokenOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NextPageOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.MaxPageSizeOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.CreatedBeforeOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.CreatedAfterOpt),
-            bindingContext.ParseResult.GetValueForOption(GetPoolsOrTasksOptions.NamePrefixOpt)
+            parseResult.GetValue(GetPoolsOrTasksOptions.NameOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.ShortnameOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.IdOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.TagsOpt) ?? new(),
+            parseResult.GetValue(GetPoolsOrTasksOptions.ExclusiveTagsOpt) ?? new(),
+            parseResult.GetValue(GetPoolsOrTasksOptions.NoPaginateOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.NextPageTokenOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.NextPageOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.MaxPageSizeOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.CreatedBeforeOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.CreatedAfterOpt),
+            parseResult.GetValue(GetPoolsOrTasksOptions.NamePrefixOpt)
         );
 
         if (model.Tags.Any() && model.ExclusiveTags.Any())
@@ -59,11 +58,11 @@ public class UpdatePoolsOrTasksConstantBinder : GlobalBinder<UpdatePoolsOrTasksC
         GetTasksOptions = getTasksOptions;
     }
 
-    protected override UpdatePoolsOrTasksConstantModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override UpdatePoolsOrTasksConstantModel GetBoundValueImpl(ParseResult parseResult) =>
         new UpdatePoolsOrTasksConstantModel(
-            bindingContext.ParseResult.GetValueForOption(ConstantNameOpt)!,
-            bindingContext.ParseResult.GetValueForOption(ConstantValueOpt)
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+            parseResult.GetValue(ConstantNameOpt)!,
+            parseResult.GetValue(ConstantValueOpt)
+        ).BindGetPoolsOrTasksOptions(parseResult, GetTasksOptions);
 }
 
 public class GetPoolOrTaskCarbonFactsBinder : GlobalBinder<GetCarbonFactsModel>
@@ -72,7 +71,7 @@ public class GetPoolOrTaskCarbonFactsBinder : GlobalBinder<GetCarbonFactsModel>
     private readonly GetPoolsOrTasksOptions GetTasksOptions;
 
     public GetPoolOrTaskCarbonFactsBinder(
-        Option<string> datacenterName,
+        Option<string?> datacenterName,
         GetPoolsOrTasksOptions getTasksOptions,
         GlobalOptions globalOptions
     ) : base(globalOptions)
@@ -81,31 +80,31 @@ public class GetPoolOrTaskCarbonFactsBinder : GlobalBinder<GetCarbonFactsModel>
         GetTasksOptions = getTasksOptions;
     }
 
-    protected override GetCarbonFactsModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override GetCarbonFactsModel GetBoundValueImpl(ParseResult parseResult) =>
         new GetCarbonFactsModel(
-            bindingContext.ParseResult.GetValueForOption(ComparisonDatacenterName)
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+            parseResult.GetValue(ComparisonDatacenterName)
+        ).BindGetPoolsOrTasksOptions(parseResult, GetTasksOptions);
 }
 
 
 public static class GetTasksModelExtension
 {
-    public static T BindGetPoolsOrTasksOptions<T>(this T model, BindingContext bindingContext, GetPoolsOrTasksOptions opts)
+    public static T BindGetPoolsOrTasksOptions<T>(this T model, ParseResult parseResult, GetPoolsOrTasksOptions opts)
         where T: GetPoolsOrTasksModel
         {
             model.Initialize(
-                bindingContext.ParseResult.GetValueForOption(opts.NameOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.ShortnameOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.IdOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.TagsOpt) ?? new(),
-                bindingContext.ParseResult.GetValueForOption(opts.ExclusiveTagsOpt) ?? new(),
-                bindingContext.ParseResult.GetValueForOption(opts.NoPaginateOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.NextPageTokenOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.NextPageOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.MaxPageSizeOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.CreatedBeforeOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.CreatedAfterOpt),
-                bindingContext.ParseResult.GetValueForOption(opts.NamePrefixOpt)
+                parseResult.GetValue(opts.NameOpt),
+                parseResult.GetValue(opts.ShortnameOpt),
+                parseResult.GetValue(opts.IdOpt),
+                parseResult.GetValue(opts.TagsOpt) ?? new(),
+                parseResult.GetValue(opts.ExclusiveTagsOpt) ?? new(),
+                parseResult.GetValue(opts.NoPaginateOpt),
+                parseResult.GetValue(opts.NextPageTokenOpt),
+                parseResult.GetValue(opts.NextPageOpt),
+                parseResult.GetValue(opts.MaxPageSizeOpt),
+                parseResult.GetValue(opts.CreatedBeforeOpt),
+                parseResult.GetValue(opts.CreatedAfterOpt),
+                parseResult.GetValue(opts.NamePrefixOpt)
             );
 
             if (model.Tags.Any() && model.ExclusiveTags.Any())

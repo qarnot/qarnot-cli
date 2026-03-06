@@ -12,7 +12,7 @@ public class HardwareConstraintsCommand : Command
         GlobalOptions = options;
         Factory = factory;
 
-        AddCommand(BuildListCommand());
+        Add(BuildListCommand());
     }
 
     private CommandWithExamples BuildListCommand()
@@ -29,7 +29,7 @@ public class HardwareConstraintsCommand : Command
         var cmd = new CommandWithExamples("list", "List available hardware constraints");
         cmd.AddExamples(examples);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).List(model),
             new GlobalBinder(GlobalOptions)
         );

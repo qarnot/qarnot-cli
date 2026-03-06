@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 
 namespace QarnotCLI;
 
@@ -15,9 +14,9 @@ public class GetSecretBinder : GlobalBinder<GetSecretModel>
         KeyArg = keyArg;
     }
 
-    protected override GetSecretModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override GetSecretModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForArgument(KeyArg)
+            parseResult.GetValue(KeyArg)!
         );
 }
 
@@ -36,10 +35,10 @@ public class WriteSecretBinder: GlobalBinder<WriteSecretModel>
         ValueArg = valueArg;
     }
 
-    protected override WriteSecretModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override WriteSecretModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForArgument(KeyArg),
-            bindingContext.ParseResult.GetValueForArgument(ValueArg)
+            parseResult.GetValue(KeyArg)!,
+            parseResult.GetValue(ValueArg)!
         );
 }
 
@@ -58,9 +57,9 @@ public class ListSecretBinder: GlobalBinder<ListSecretsModel>
         RecursiveOpt = recursiveOpt;
     }
 
-    protected override ListSecretsModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override ListSecretsModel GetBoundValueImpl(ParseResult parseResult) =>
         new(
-            bindingContext.ParseResult.GetValueForArgument(PrefixArg),
-            bindingContext.ParseResult.GetValueForOption(RecursiveOpt)
+            parseResult.GetValue(PrefixArg)!,
+            parseResult.GetValue(RecursiveOpt)
         );
 }

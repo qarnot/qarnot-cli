@@ -29,14 +29,7 @@ cat CreatePool.json
   "InstanceCount": 0,
   "Tags": [],
   "Constants": [],
-  "Ressources": [],
-  "IsElastic": false,
-  "ElasticMinimumTotalNodes": 0,
-  "ElasticMaximumTotalNodes": 0,
-  "ElasticMinimumIdlingNodes": 0,
-  "ElasticResizePeriod": 0,
-  "ElasticResizeFactor": 0.0,
-  "ElasticMinimumIdlingTime": 0
+  "Ressources": []
 }
 ```
 

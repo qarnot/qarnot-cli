@@ -10,8 +10,8 @@ public record CreateJobModel(
     string? Shortname,
     [property: JsonProperty("PoolUuidOrShortname")]
     string? Pool,
-    [property: JsonProperty("IsDependent")]
-    bool IsDependent,
+    [property: JsonProperty("UseDependencies")]
+    bool UseDependencies,
     [property: JsonProperty("MaximumWallTime")]
     string? MaxWallTimeStr,
     TimeSpan? MaxWallTime

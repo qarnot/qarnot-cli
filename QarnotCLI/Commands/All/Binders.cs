@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 
 namespace QarnotCLI;
 
@@ -21,12 +20,12 @@ public class AllBinder : GlobalBinder<AllModel>
         AbortOpt = abortOpt;
     }
 
-    protected override AllModel GetBoundValueImpl(BindingContext bindingContext)
+    protected override AllModel GetBoundValueImpl(ParseResult parseResult)
     {
         var model = new AllModel(
-            Delete: bindingContext.ParseResult.GetValueForOption(DeleteOpt),
-            List: bindingContext.ParseResult.GetValueForOption(ListOpt),
-            Abort: bindingContext.ParseResult.GetValueForOption(AbortOpt)
+            Delete: parseResult.GetValue(DeleteOpt),
+            List: parseResult.GetValue(ListOpt),
+            Abort: parseResult.GetValue(AbortOpt)
         );
 
         if ((model.Delete && (model.List || model.Abort))

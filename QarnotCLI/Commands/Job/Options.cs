@@ -10,20 +10,20 @@ public class GetJobOptions
 
     public GetJobOptions()
     {
-        NameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the job"
-        );
+        NameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the job",
+        };
 
-        IdOpt = new Option<string>(
-            aliases: new[] { "--id", "-i" },
-            description: "Shortname or UUID of the job"
-        );
+        IdOpt = new Option<string>("--id", "-i")
+        {
+            Description = "Shortname or UUID of the job",
+        };
 
-        AllOpt = new Option<bool>(
-            aliases: new[] { "--all", "-a" },
-            description: "All the jobs"
-        );
+        AllOpt = new Option<bool>("--all", "-a")
+        {
+            Description = "All the jobs",
+        };
     }
 }
 
@@ -32,9 +32,9 @@ public static class GetJobOptionsExtension
     public static T AddGetJobOptions<T>(this T cmd, GetJobOptions options)
         where T: Command
     {
-        cmd.AddOption(options.IdOpt);
-        cmd.AddOption(options.NameOpt);
-        cmd.AddOption(options.AllOpt);
+        cmd.Add(options.IdOpt);
+        cmd.Add(options.NameOpt);
+        cmd.Add(options.AllOpt);
 
         return cmd;
     }

@@ -13,11 +13,11 @@ public class SecretsCommands : Command
         Factory = factory;
         GlobalOptions = globalOptions;
 
-        AddCommand(BuildGetCommand());
-        AddCommand(BuildCreateCommand());
-        AddCommand(BuildUpdateCommand());
-        AddCommand(BuildDeleteCommand());
-        AddCommand(BuildListCommand());
+        Add(BuildGetCommand());
+        Add(BuildCreateCommand());
+        Add(BuildUpdateCommand());
+        Add(BuildDeleteCommand());
+        Add(BuildListCommand());
     }
 
     private Command BuildGetCommand()
@@ -29,10 +29,10 @@ public class SecretsCommands : Command
             }
         );
 
-        var keyArg = new Argument<string>(
-            name: "key",
-            description: "Key of the secret to retrieve"
-        );
+        var keyArg = new Argument<string>("key")
+        {
+            Description = "Key of the secret to retrieve",
+        };
 
         var cmd = new CommandWithExamples("get", "Get the value of a secret")
         {
@@ -40,7 +40,7 @@ public class SecretsCommands : Command
             keyArg,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Get(model),
             new GetSecretBinder(
                 keyArg,
@@ -60,15 +60,15 @@ public class SecretsCommands : Command
             }
         );
 
-        var keyArg = new Argument<string>(
-            name: "key",
-            description: "Key of the secret to create"
-        );
+        var keyArg = new Argument<string>("key")
+        {
+            Description = "Key of the secret to create",
+        };
 
-        var valueArg = new Argument<string>(
-            name: "value",
-            description: "Value of the secret to create"
-        );
+        var valueArg = new Argument<string>("value")
+        {
+            Description = "Value of the secret to create",
+        };
 
         var cmd = new CommandWithExamples("create", "Create a new secret")
         {
@@ -77,7 +77,7 @@ public class SecretsCommands : Command
             valueArg,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Create(model),
             new WriteSecretBinder(
                 keyArg,
@@ -98,15 +98,15 @@ public class SecretsCommands : Command
             }
         );
 
-        var keyArg = new Argument<string>(
-            name: "key",
-            description: "Key of the secret to update"
-        );
+        var keyArg = new Argument<string>("key")
+        {
+            Description = "Key of the secret to update",
+        };
 
-        var newValueArg = new Argument<string>(
-            name: "newValue",
-            description: "New value for the secret to update"
-        );
+        var newValueArg = new Argument<string>("newValue")
+        {
+            Description = "New value for the secret to update",
+        };
 
         var cmd = new CommandWithExamples("update", "Update an existing secret")
         {
@@ -115,7 +115,7 @@ public class SecretsCommands : Command
             newValueArg,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Update(model),
             new WriteSecretBinder(
                 keyArg,
@@ -137,10 +137,10 @@ public class SecretsCommands : Command
             }
         );
 
-        var keyArg = new Argument<string>(
-            name: "key",
-            description: "Key of the secret to delete"
-        );
+        var keyArg = new Argument<string>("key")
+        {
+            Description = "Key of the secret to delete",
+        };
 
         var cmd = new CommandWithExamples("delete", "Delete an existing secret")
         {
@@ -148,7 +148,7 @@ public class SecretsCommands : Command
             keyArg,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Delete(model),
             new GetSecretBinder(
                 keyArg,
@@ -177,16 +177,16 @@ public class SecretsCommands : Command
             )
         };
 
-        var prefixArg = new Argument<string>(
-            name: "prefix",
-            description: "Prefix of the secret to update",
-            getDefaultValue: () => ""
-        );
+        var prefixArg = new Argument<string>("prefix")
+        {
+            Description = "Prefix of the secret to update",
+            DefaultValueFactory = _ => "",
+        };
 
-        var recursiveOpt = new Option<bool>(
-            aliases: new[] { "--recursive", "-r" },
-            description: "Perform a recursive listing. When performing a non-recursive listing, only entries right below `prefix` will be returned: `prefix/a` but not `prefix/a/b`. Subsequent prefixes can be identified by their trailing `/`."
-        );
+        var recursiveOpt = new Option<bool>("--recursive", "-r")
+        {
+            Description = "Perform a recursive listing. When performing a non-recursive listing, only entries right below `prefix` will be returned: `prefix/a` but not `prefix/a/b`. Subsequent prefixes can be identified by their trailing `/`.",
+        };
 
         var cmd = new CommandWithExamples("list", "Delete an existing secret")
         {
@@ -195,7 +195,7 @@ public class SecretsCommands : Command
             recursiveOpt,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).List(model),
             new ListSecretBinder(
                 prefixArg,

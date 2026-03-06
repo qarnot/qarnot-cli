@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 using Newtonsoft.Json;
 
 namespace QarnotCLI;
@@ -20,12 +19,12 @@ public class GetJobBinder : GlobalBinder<GetJobModel>
         GetJobOptions = getJobOptions;
     }
 
-    protected override GetJobModel GetBoundValueImpl(BindingContext bindingContext)
+    protected override GetJobModel GetBoundValueImpl(ParseResult parseResult)
     {
         var model = new GetJobModel(
-            All: bindingContext.ParseResult.GetValueForOption(GetJobOptions.AllOpt),
-            Id: bindingContext.ParseResult.GetValueForOption(GetJobOptions.IdOpt),
-            Name: bindingContext.ParseResult.GetValueForOption(GetJobOptions.NameOpt)
+            All: parseResult.GetValue(GetJobOptions.AllOpt),
+            Id: parseResult.GetValue(GetJobOptions.IdOpt),
+            Name: parseResult.GetValue(GetJobOptions.NameOpt)
         );
 
         if (Strict)
@@ -53,7 +52,7 @@ public class CreateJobBinder : GlobalBinder<CreateJobModel>
     private readonly Option<string> ShortnameOpt;
     private readonly Option<string> PoolOpt;
     private readonly Option<string> FileOpt;
-    private readonly Option<bool?> IsDependentOpt;
+    private readonly Option<bool?> UseDependenciesOpt;
     private readonly Option<string> MaxWallTimeOpt;
 
     public CreateJobBinder(
@@ -61,7 +60,7 @@ public class CreateJobBinder : GlobalBinder<CreateJobModel>
         Option<string> shortnameOpt,
         Option<string> poolOpt,
         Option<string> fileOpt,
-        Option<bool?> isDependentOpt,
+        Option<bool?> useDependenciesOpt,
         Option<string> maxWallTimeOpt,
         GlobalOptions globalOptions
     ) : base(globalOptions)
@@ -70,19 +69,19 @@ public class CreateJobBinder : GlobalBinder<CreateJobModel>
         ShortnameOpt = shortnameOpt;
         PoolOpt = poolOpt;
         FileOpt = fileOpt;
-        IsDependentOpt = isDependentOpt;
+        UseDependenciesOpt = useDependenciesOpt;
         MaxWallTimeOpt = maxWallTimeOpt;
     }
 
-    protected override CreateJobModel GetBoundValueImpl(BindingContext bindingContext)
+    protected override CreateJobModel GetBoundValueImpl(ParseResult parseResult)
     {
-        var file = bindingContext.ParseResult.GetValueForOption(FileOpt);
+        var file = parseResult.GetValue(FileOpt);
         var model = !string.IsNullOrWhiteSpace(file)
             ? JsonConvert.DeserializeObject<CreateJobModel>(File.ReadAllText(file))!
             : new CreateJobModel();
 
         TimeSpan? maxWallTime = null;
-        var maxWallTimeStr = bindingContext.ParseResult.GetValueForOption(MaxWallTimeOpt) ?? model.MaxWallTimeStr;
+        var maxWallTimeStr = parseResult.GetValue(MaxWallTimeOpt) ?? model.MaxWallTimeStr;
         if (!string.IsNullOrEmpty(maxWallTimeStr))
         {
             try
@@ -96,10 +95,10 @@ public class CreateJobBinder : GlobalBinder<CreateJobModel>
         }
 
         model = new CreateJobModel(
-            Name: bindingContext.ParseResult.GetValueForOption(NameOpt) ?? model.Name,
-            Shortname: bindingContext.ParseResult.GetValueForOption(ShortnameOpt) ?? model.Shortname,
-            Pool: bindingContext.ParseResult.GetValueForOption(PoolOpt) ?? model.Pool,
-            IsDependent: bindingContext.ParseResult.GetValueForOption(IsDependentOpt) ?? model.IsDependent,
+            Name: parseResult.GetValue(NameOpt) ?? model.Name,
+            Shortname: parseResult.GetValue(ShortnameOpt) ?? model.Shortname,
+            Pool: parseResult.GetValue(PoolOpt) ?? model.Pool,
+            UseDependencies: parseResult.GetValue(UseDependenciesOpt) ?? model.UseDependencies,
             MaxWallTimeStr: maxWallTimeStr,
             MaxWallTime: maxWallTime
         );

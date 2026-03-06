@@ -7,6 +7,6 @@ public class VersionCommand : Command
     public VersionCommand(AssemblyDetails details, ILogger logger)
         : base("version", "Display version information")
     {
-        this.SetHandler(() => logger.Result(details.ToString()));
+        this.SetAction(parseResult => logger.Result(details.ToString()));
     }
 }

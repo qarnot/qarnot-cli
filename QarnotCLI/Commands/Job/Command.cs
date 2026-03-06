@@ -13,11 +13,11 @@ public class JobCommand : Command
         Factory = factory;
         GlobalOptions = options;
 
-        AddCommand(BuildCreateCommand());
-        AddCommand(BuildListCommand());
-        AddCommand(BuildInfoCommand());
-        AddCommand(BuildAbortCommand());
-        AddCommand(BuildDeleteCommand());
+        Add(BuildCreateCommand());
+        Add(BuildListCommand());
+        Add(BuildInfoCommand());
+        Add(BuildAbortCommand());
+        Add(BuildDeleteCommand());
     }
 
     private Command BuildDeleteCommand()
@@ -27,7 +27,7 @@ public class JobCommand : Command
             .AddGetJobOptions(getJobOptions)
             .AddGetJobExamples("delete", "Delete");
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Delete(model),
             new GetJobBinder(
                 getJobOptions,
@@ -45,7 +45,7 @@ public class JobCommand : Command
             .AddGetJobOptions(getJobOptions)
             .AddGetJobExamples("abort", "Abort");
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Abort(model),
             new GetJobBinder(
                 getJobOptions,
@@ -63,7 +63,7 @@ public class JobCommand : Command
             .AddGetJobOptions(getJobOptions)
             .AddGetJobExamples("list", "List");
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).List(model),
             new GetJobBinder(
                 getJobOptions,
@@ -82,7 +82,7 @@ public class JobCommand : Command
                 .AddGetJobOptions(getJobOptions)
                 .AddGetJobExamples("info", "Get detailed info on");
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Info(model),
             new GetJobBinder(
                 getJobOptions,
@@ -118,35 +118,35 @@ public class JobCommand : Command
             )
         };
 
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the job"
-        );
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the job",
+        };
 
-        var shortnameOpt = new Option<string>(
-            aliases: new[] { "--shortname", "-s" },
-            description: "Short name of the job"
-        );
+        var shortnameOpt = new Option<string>("--shortname", "-s")
+        {
+            Description = "Short name of the job",
+        };
 
-        var fileOpt = new Option<string>(
-            aliases: new[] { "--file", "-f" },
-            description: "File with a json configuration of the job. (example : echo '{\"IsDependents\":true, \"Shortname\": \"SN\",\"Name\": \"JobName\" }' > CreateJob.json)"
-        );
+        var fileOpt = new Option<string>("--file", "-f")
+        {
+            Description = "File with a json configuration of the job. (example : echo '{\"UseDependencies\":true, \"Shortname\": \"SN\",\"Name\": \"JobName\" }' > CreateJob.json)",
+        };
 
-        var isDependentOpt = new Option<bool?>(
-            aliases: new[] { "--is-dependant", "-d" },
-            description: "Job can have jobs depending on other ones to run"
-        );
+        var useDependenciesOpt = new Option<bool?>("--use-dependencies", "-d")
+        {
+            Description = "Job can have jobs depending on other ones to run",
+        };
 
-        var maxWallTimeOpt = new Option<string>(
-            name: "--max-wall-time",
-            description: "Wall time limit for the job execution. Once this time duration exceeded, the whole job will terminate. The wall time format can be a date in the 'yyyy/MM/dd HH:mm:ss', 'yyyy/MM/dd' date format or a TimeStamp format 'd', 'd.hh', 'd.hh:mm', 'd.hh:mm:ss', 'hh:mm', 'hh:mm:ss'"
-        );
+        var maxWallTimeOpt = new Option<string>("--max-wall-time")
+        {
+            Description = "Wall time limit for the job execution. Once this time duration exceeded, the whole job will terminate. The wall time format can be a date in the 'yyyy/MM/dd HH:mm:ss', 'yyyy/MM/dd' date format or a TimeStamp format 'd', 'd.hh', 'd.hh:mm', 'd.hh:mm:ss', 'hh:mm', 'hh:mm:ss'",
+        };
 
-        var poolOpt = new Option<string>(
-            name: "--pool",
-            description: "UUID or shortname of the pool to attach the job to"
-        );
+        var poolOpt = new Option<string>("--pool")
+        {
+            Description = "UUID or shortname of the pool to attach the job to",
+        };
 
         var cmd = new CommandWithExamples("create", "Create and launch a new job")
         {
@@ -154,19 +154,19 @@ public class JobCommand : Command
             nameOpt,
             shortnameOpt,
             poolOpt,
-            isDependentOpt,
+            useDependenciesOpt,
             maxWallTimeOpt,
             fileOpt
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Create(model),
             new CreateJobBinder(
                 nameOpt,
                 shortnameOpt,
                 poolOpt,
                 fileOpt,
-                isDependentOpt,
+                useDependenciesOpt,
                 maxWallTimeOpt,
                 GlobalOptions
             )

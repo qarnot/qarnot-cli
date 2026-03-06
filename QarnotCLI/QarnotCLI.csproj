@@ -1,16 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <AssemblyName>qarnot</AssemblyName>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <Authors>Qarnot computing</Authors>
     <Description>Qarnot platform CLI.</Description>
     <AddSyntheticProjectReferencesForSolutionDependencies>false</AddSyntheticProjectReferencesForSolutionDependencies>
 
-    <NoWarn>CS1591</NoWarn>
+    <NoWarn>CS1591</NoWarn> <!-- undocumented public member. Useless for internal classes -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <!-- Deprecated fields. For BC we sometimes have to keep referencing them, so we can't afford to refuse to build -->
+    <WarningsNotAsErrors>CS0618</WarningsNotAsErrors>
+
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+
+    <!-- default to false if not specified -->
+    <UseLocalDevelopmentQarnotSDK Condition="'$(UseLocalDevelopmentQarnotSDK)' == ''">false</UseLocalDevelopmentQarnotSDK>
+
   </PropertyGroup>
 
   <ItemGroup>
@@ -21,8 +29,17 @@
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json" Version="[13.0.3]" />
     <PackageReference Include="Octokit" Version="[9.0.0]" />
-    <PackageReference Include="QarnotSDK" Version="[5.16.0]" />
-    <PackageReference Include="System.CommandLine" Version="[2.0.0-beta4.22272.1]" />
+    <PackageReference Include="System.CommandLine" Version="[2.0.3]" />
+  </ItemGroup>
+
+    <!-- Depending on UseLocalDevelopmentQarnotSDK, use either the Nuget package or the local csproj
+         To use the local one, build with -p:UseLocalDevelopmentQarnotSDK=true -->
+  <ItemGroup Condition="'$(UseLocalDevelopmentQarnotSDK)' != 'true'">
+    <PackageReference Include="QarnotSDK" Version="[6.0.0]" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(UseLocalDevelopmentQarnotSDK)' == 'true'">
+    <ProjectReference Include="../../csharp/QarnotSDK/QarnotSDK.csproj" />
   </ItemGroup>
 
 </Project>

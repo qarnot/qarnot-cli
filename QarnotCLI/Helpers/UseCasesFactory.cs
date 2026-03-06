@@ -45,7 +45,7 @@ public class UseCasesFactory
             new object?[] {
                 APIFactory.Create(options),
                 FormatterFactory.Create(options.Format),
-                StateManagerFactory.Create(logger),
+                StateManagerFactory.Create(logger, options.NoPersistedNextPageToken),
                 logger
             }
         );

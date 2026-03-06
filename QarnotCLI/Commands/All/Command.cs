@@ -31,28 +31,29 @@ public class AllCommand : CommandWithExamples
             )
         };
 
-        var deleteOpt = new Option<bool>(
-            aliases: new[] { "--delete", "-d" },
-            description: "Delete all the tasks, pools, jobs and buckets"
-        );
+        var deleteOpt = new Option<bool>("--delete", "-d")
+        {
+            Description = "Delete all the tasks, pools, jobs and buckets",
+        };
 
-        var abortOpt = new Option<bool>(
-            aliases: new[] { "--abort", "-a" },
-            description: "Abort all the tasks and jobs"
-        );
+        var abortOpt = new Option<bool>("--abort", "-a")
+        {
+            Description = "Abort all the tasks and jobs",
+        };
 
-        var listOpt = new Option<bool>(
-            aliases: new[] { "--list", "-l" },
-            description: "List all the tasks, pools, jobs and buckets"
-        );
+        var listOpt = new Option<bool>("--list", "-l")
+        {
+            Description = "List all the tasks, pools, jobs and buckets",
+        };
 
         AddExamples(examples);
-        AddOption(deleteOpt);
-        AddOption(abortOpt);
-        AddOption(listOpt);
+        Add(deleteOpt);
+        Add(abortOpt);
+        Add(listOpt);
 
-        this.SetHandler(
-            async model => {
+        this.SetModelAction(
+            async model =>
+            {
                 var useCases = factory(model);
                 if (model.Delete)
                 {

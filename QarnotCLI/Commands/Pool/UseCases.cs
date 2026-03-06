@@ -10,7 +10,6 @@ public interface IPoolUseCases
     Task List(GetPoolsOrTasksModel model);
     Task Info(GetPoolsOrTasksModel model);
     Task Delete(GetPoolsOrTasksModel model);
-    Task UpdateElasticSettings(UpdatePoolElasticSettingsModel model);
     Task UpdateScaling(UpdatePoolScalingModel model);
     Task UpdateResources(GetPoolsOrTasksModel model);
     Task UpdateConstant(UpdatePoolsOrTasksConstantModel model);
@@ -87,13 +86,6 @@ public class PoolUseCases : IPoolUseCases
             }
         }
 
-        pool.IsElastic = model.IsElastic;
-        pool.ElasticMinimumTotalSlots = model.ElasticMinSlots ?? pool.ElasticMinimumTotalSlots;
-        pool.ElasticMaximumTotalSlots = model.ElasticMaxSlots ?? pool.ElasticMaximumTotalSlots;
-        pool.ElasticMinimumIdlingSlots = model.ElasticMinIdlingSlots ?? pool.ElasticMinimumIdlingSlots;
-        pool.ElasticResizePeriod = model.ElasticResizePeriod ?? pool.ElasticResizePeriod;
-        pool.ElasticResizeFactor = model.ElasticResizeFactor ?? pool.ElasticResizeFactor;
-        pool.ElasticMinimumIdlingTime = model.ElasticMinIdlingTime ?? pool.ElasticMinimumIdlingTime;
         pool.Scaling = model.Scaling ?? pool.Scaling;
         pool.HardwareConstraints = model.HardwareConstraints ?? pool.HardwareConstraints;
         pool.MaxTimeQueueSeconds = model.MaxTimeQueueSeconds;
@@ -158,7 +150,7 @@ public class PoolUseCases : IPoolUseCases
 
         if(model.IsTargetingSingleResource())
         {
-            QPool pool = null;
+            QPool? pool = null;
             if (!string.IsNullOrEmpty(model.Shortname))
             {
                 Logger.Debug($"Retrieving pool by shortname: {model.Shortname}");
@@ -229,27 +221,6 @@ public class PoolUseCases : IPoolUseCases
     {
         Logger.Debug("Listing pools");
         Logger.Result(Formatter.FormatCollection(await GetPools(model)));
-    }
-
-    public async Task UpdateElasticSettings(UpdatePoolElasticSettingsModel model)
-    {
-        Logger.Debug("Updating pools elastic settings");
-        var pools = await GetPools(model);
-        var updates = await Task.WhenAll(pools.Select(async p => {
-            p.ElasticMinimumTotalSlots = model.MinSlots ?? p.ElasticMinimumTotalSlots;
-            p.ElasticMaximumTotalSlots = model.MaxSlots ?? p.ElasticMaximumTotalSlots;
-            p.ElasticMinimumIdlingSlots = model.MinIdlingSlots ?? p.ElasticMinimumIdlingSlots;
-            p.ElasticResizePeriod = model.ResizePeriod ?? p.ElasticResizePeriod;
-            p.ElasticResizeFactor = model.ResizeFactor ?? p.ElasticResizeFactor;
-            p.ElasticMinimumIdlingTime = model.MinIdlingTime ?? p.ElasticMinimumIdlingTime;
-            await p.CommitAsync();
-            return p.Uuid;
-        }));
-
-        Logger.Result(Formatter.FormatCollection(updates.Select(p => new {
-            Pool = p,
-            State = "Updated elastic settings"
-        }).ToList()));
     }
 
     public async Task UpdateScaling(UpdatePoolScalingModel model)
@@ -362,8 +333,8 @@ public class PoolUseCases : IPoolUseCases
         string? namePrefix,
         int? maxPageSize = null,
         string? nextPageToken = null,
-        List<string> exclusiveTags = default,
-        List<string> tags = default)
+        List<string>? exclusiveTags = null,
+        List<string>? tags = null)
     {
         var filters = new List<QFilter<QPool>>();
         if (!string.IsNullOrWhiteSpace(name))

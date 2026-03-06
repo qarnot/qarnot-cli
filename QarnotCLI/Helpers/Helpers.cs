@@ -175,4 +175,55 @@ public static class Helpers
 
     public static List<T> CoalesceEmpty<T>(List<T>? lhs, List<T> rhs) =>
         lhs is null || !lhs.Any() ? rhs : lhs;
+
+    // Parses a raw CLI token of the form "UUID" or "UUID:Condition[,Condition]*"
+    // into an AdvancedDependencyModel. Throws a descriptive Exception on invalid input.
+    public static AdvancedDependencyModel ParseAdvancedDependency(string token)
+    {
+        var parts = token.Split(':', 2);
+        var rawUuid = parts[0];
+
+        if (!Guid.TryParse(rawUuid, out var taskUuid))
+        {
+            throw new Exception(
+                $"'{rawUuid}' is not a valid task UUID. " +
+                $"Expected format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.");
+        }
+
+        if (parts.Length == 1)
+        {
+            return new AdvancedDependencyModel(taskUuid, null);
+        }
+
+        var validValues = string.Join(", ", Enum.GetNames<TaskFinalState>());
+        var conditions = new List<TaskFinalState>();
+
+        foreach (var rawCondition in parts[1].Split(','))
+        {
+            var trimmed = rawCondition.Trim();
+
+            if (!Enum.TryParse<TaskFinalState>(trimmed, ignoreCase: true, out var condition))
+            {
+                throw new Exception(
+                    $"'{trimmed}' is not a valid dependency condition. " +
+                    $"Accepted values: {validValues}.");
+            }
+
+            conditions.Add(condition);
+        }
+
+        return new AdvancedDependencyModel(taskUuid, conditions);
+    }
+
+    // Converts a list of raw CLI tokens into AdvancedDependency instances.
+    // Returns an empty list when tokens is null or empty.
+    public static List<AdvancedDependencyModel> ParseAdvancedDependencies(List<string>? tokens)
+    {
+        if (tokens is null || tokens.Count == 0)
+        {
+            return new List<AdvancedDependencyModel>();
+        }
+
+        return tokens.Select(ParseAdvancedDependency).ToList();
+    }
 }

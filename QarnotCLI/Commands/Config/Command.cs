@@ -12,8 +12,8 @@ public class ConfigCommand : CommandWithExamples
         Factory = factory;
         GlobalOptions = globalOptions;
 
-        AddCommand(BuildSetConfigCommand());
-        AddCommand(BuildShowConfigCommand());
+        Add(BuildSetConfigCommand());
+        Add(BuildShowConfigCommand());
     }
 
     private Command BuildSetConfigCommand()
@@ -41,63 +41,63 @@ public class ConfigCommand : CommandWithExamples
 
         // It's not possible to add `-t` as an alias for all the commands because it's also
         // used for tags when searching for tasks and pools. We add it here.
-        GlobalOptions.TokenOpt.AddAlias("-t");
+        GlobalOptions.TokenOpt.Aliases.Add("-t");
 
-        var localOpt = new Option<bool>(
-            aliases: new[] { "--local", "-l" },
-            description: "Set the configuration file in the local folder ($PWD/.Qarnot/) to use it when inside the current folder."
-        );
+        var localOpt = new Option<bool>("--local", "-l")
+        {
+            Description = "Set the configuration file in the local folder ($PWD/.Qarnot/) to use it when inside the current folder.",
+        };
 
-        var showOpt = new Option<bool>(
-            aliases: new[] { "--show", "-w" },
-            description: "Display the connection information that will be used in the connection (check also the environment variables)."
-        );
+        var showOpt = new Option<bool>("--show", "-w")
+        {
+            Description = "Display the connection information that will be used in the connection (check also the environment variables).",
+        };
 
-        var apiUriOpt = new Option<string>(
-            aliases: new[] { "--api-uri", "-u" },
-            description: "The API URI to use"
-        );
+        var apiUriOpt = new Option<string>("--api-uri", "-u")
+        {
+            Description = "The API URI to use",
+        };
 
-        var storageUriOpt = new Option<string>(
-            aliases: new[] { "--storage-uri", "-s" },
-            description: "The bucket API URI to use"
-        );
+        var storageUriOpt = new Option<string>("--storage-uri", "-s")
+        {
+            Description = "The bucket API URI to use",
+        };
 
-        var accountEmailOpt = new Option<string>(
-            aliases: new[] { "--account-email", "-e" },
-            description: "The use account email address"
-        );
+        var accountEmailOpt = new Option<string>("--account-email", "-e")
+        {
+            Description = "The use account email address",
+        };
 
-        var forceStoragePathStyleOpt = new Option<bool?>(
-            aliases: new[] { "--force-storage-path-style", "-f" },
-            description: "Force storage path style"
-        );
+        var forceStoragePathStyleOpt = new Option<bool?>("--force-storage-path-style", "-f")
+        {
+            Description = "Force storage path style",
+        };
 
-        var noSanitizeBucketPathOpt = new Option<bool?>(
-            name: "--no-sanitize-bucket-path",
-            description: "Disable automatic sanitization of bucket paths"
-        );
+        var noSanitizeBucketPathOpt = new Option<bool?>("--no-sanitize-bucket-path")
+        {
+            Description = "Disable automatic sanitization of bucket paths",
+        };
 
-        var storageUnsafeSslOpt = new Option<bool?>(
-            name: "--storage-unsafe--url",
-            description: "Bypass SSL check for storage connection"
-        );
+        var storageUnsafeSslOpt = new Option<bool?>("--storage-unsafe--url")
+        {
+            Description = "Bypass SSL check for storage connection",
+        };
 
         var cmd = new CommandWithExamples("set", "Set configuration options")
         {
             examples
         };
 
-        cmd.AddOption(localOpt);
-        cmd.AddOption(showOpt);
-        cmd.AddOption(apiUriOpt);
-        cmd.AddOption(storageUriOpt);
-        cmd.AddOption(accountEmailOpt);
-        cmd.AddOption(forceStoragePathStyleOpt);
-        cmd.AddOption(noSanitizeBucketPathOpt);
-        cmd.AddOption(storageUnsafeSslOpt);
+        cmd.Add(localOpt);
+        cmd.Add(showOpt);
+        cmd.Add(apiUriOpt);
+        cmd.Add(storageUriOpt);
+        cmd.Add(accountEmailOpt);
+        cmd.Add(forceStoragePathStyleOpt);
+        cmd.Add(noSanitizeBucketPathOpt);
+        cmd.Add(storageUnsafeSslOpt);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).SetConfig(model),
             new SetConfigBinder(
                 localOpt,
@@ -132,24 +132,24 @@ public class ConfigCommand : CommandWithExamples
             )
         };
 
-        var showGlobalOpt = new Option<bool>(
-            aliases: new[] { "--global", "-g" },
-            description: "Show global configuration file"
-        );
+        var showGlobalOpt = new Option<bool>("--global", "-g")
+        {
+            Description = "Show global configuration file",
+        };
 
-        var withoutEnvOpt = new Option<bool>(
-            aliases: new[] { "--without-env" },
-            description: "Show the raw configuration file without options passed down by environment variables"
-        );
+        var withoutEnvOpt = new Option<bool>("--without-env")
+        {
+            Description = "Show the raw configuration file without options passed down by environment variables",
+        };
 
         var cmd = new CommandWithExamples("show", "Show configuration file")
         {
             examples
         };
-        cmd.AddOption(showGlobalOpt);
-        cmd.AddOption(withoutEnvOpt);
+        cmd.Add(showGlobalOpt);
+        cmd.Add(withoutEnvOpt);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).ShowConfig(model),
             new ShowConfigBinder(
                 showGlobalOpt,

@@ -1,5 +1,3 @@
-using System.CommandLine;
-
 namespace QarnotCLI;
 
 public class AccountCommand : CommandWithExamples
@@ -12,7 +10,7 @@ public class AccountCommand : CommandWithExamples
             CommandLines: new[] { "qarnot account" }
         ));
 
-        this.SetHandler(
+        this.SetModelAction(
             model => factory(model).Get(model),
             new GlobalBinder(options)
         );

@@ -13,13 +13,13 @@ public class BucketCommand : Command
         Factory = factory;
         GlobalOptions = globalOptions;
 
-        AddCommand(BuildCreateCommand());
-        AddCommand(BuildListCommand());
-        AddCommand(BuildGetCommand());
-        AddCommand(BuildPutCommand());
-        AddCommand(BuildSyncFromCommand());
-        AddCommand(BuildSyncToCommand());
-        AddCommand(BuildDeleteCommand());
+        Add(BuildCreateCommand());
+        Add(BuildListCommand());
+        Add(BuildGetCommand());
+        Add(BuildPutCommand());
+        Add(BuildSyncFromCommand());
+        Add(BuildSyncToCommand());
+        Add(BuildDeleteCommand());
     }
 
     private Command BuildCreateCommand()
@@ -48,20 +48,20 @@ public class BucketCommand : Command
             ),
         };
 
-        var filesOpt = new Option<List<string>>(
-            name: "--files",
-            description: "Files to send to the bucket."
-        ) { AllowMultipleArgumentsPerToken = true };
+        var filesOpt = new Option<List<string>>("--files")
+        {
+            Description = "Files to send to the bucket.", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var folderOpt = new Option<List<string>>(
-            name: "--folder",
-            description: "Folders to send to the bucket."
-        ) { AllowMultipleArgumentsPerToken = true };
+        var folderOpt = new Option<List<string>>("--folder")
+        {
+            Description = "Folders to send to the bucket.", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the bucket to create"
-        ) { IsRequired = true };
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the bucket to create", Required = true,
+        };
 
         var cmd = new CommandWithExamples("create", "Create a new bucket")
         {
@@ -71,7 +71,7 @@ public class BucketCommand : Command
             folderOpt,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Create(model),
             new CreateBucketBinder(
                 nameOpt,
@@ -108,15 +108,15 @@ public class BucketCommand : Command
             )
         };
 
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the bucket to list"
-        );
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the bucket to list",
+        };
 
-        var folderOpt = new Option<string>(
-            aliases: new[] { "-f", "--folder" },
-            description: "The folder to list"
-        );
+        var folderOpt = new Option<string>("-f", "--folder")
+        {
+            Description = "The folder to list",
+        };
 
         var cmd = new CommandWithExamples("list", "List all your buckets, see your buckets info and files")
         {
@@ -125,7 +125,7 @@ public class BucketCommand : Command
             folderOpt,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).List(model),
             new ListBucketBinder(
                 nameOpt,
@@ -168,30 +168,30 @@ public class BucketCommand : Command
             ),
         };
 
-        var localPathOpt = new Option<string>(
-            aliases: new[] { "--local-path", "-l" },
-            description: "Local Path folder to send the uploaded files. (default : current path)"
-        );
+        var localPathOpt = new Option<string>("--local-path", "-l")
+        {
+            Description = "Local Path folder to send the uploaded files. (default : current path)",
+        };
 
-        var bucketFolderOpt = new Option<List<string>>(
-            aliases: new[] { "--bucket-folder", "-b" },
-            description: "Bucket list of folders to get"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var bucketFolderOpt = new Option<List<string>>("--bucket-folder", "-b")
+        {
+            Description = "Bucket list of folders to get", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var bucketFileOpt = new Option<List<string>>(
-            aliases: new[] { "--bucket-file", "-f" },
-            description: "Bucket list of files to get"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var bucketFileOpt = new Option<List<string>>("--bucket-file", "-f")
+        {
+            Description = "Bucket list of files to get", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var stringOpt = new Option<string>(
-            aliases: new[] { "--string", "-s" },
-            description: "Path of the bucket file to get and print to the terminal"
-        );
+        var stringOpt = new Option<string>("--string", "-s")
+        {
+            Description = "Path of the bucket file to get and print to the terminal",
+        };
 
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the bucket to download from"
-        ) { IsRequired = true };
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the bucket to download from", Required = true,
+        };
 
         var cmd = new CommandWithExamples("get", "Download a file, folder or string from a bucket")
         {
@@ -203,7 +203,7 @@ public class BucketCommand : Command
             stringOpt,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Get(model),
             new GetBucketBinder(
                 nameOpt,
@@ -248,30 +248,30 @@ public class BucketCommand : Command
             ),
         };
 
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the bucket to upload to"
-        ) { IsRequired = true };
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the bucket to upload to", Required = true,
+        };
 
-        var localFolderOpt = new Option<List<string>>(
-            aliases: new[] { "--local-folder", "-l" },
-            description: "List of folders to send"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var localFolderOpt = new Option<List<string>>("--local-folder", "-l")
+        {
+            Description = "List of folders to send", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var localFileOpt = new Option<List<string>>(
-            aliases: new[] { "--local-file", "-f" },
-            description: "List of files to send"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var localFileOpt = new Option<List<string>>("--local-file", "-f")
+        {
+            Description = "List of files to send", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var bucketPathOpt = new Option<string>(
-            aliases: new[] { "--bucket-path", "-b" },
-            description: "Bucket path must be set for a string.(default:root path)(need to be a file if string set, else, need to be a folder)"
-        );
+        var bucketPathOpt = new Option<string>("--bucket-path", "-b")
+        {
+            Description = "Bucket path must be set for a string.(default:root path)(need to be a file if string set, else, need to be a folder)",
+        };
 
-        var stringOpt = new Option<string>(
-            aliases: new[] { "--string", "-s" },
-            description: "String to send to a bucket"
-        );
+        var stringOpt = new Option<string>("--string", "-s")
+        {
+            Description = "String to send to a bucket",
+        };
 
         var cmd = new CommandWithExamples("put", "Upload a new file, folder or string to a bucket")
         {
@@ -283,7 +283,7 @@ public class BucketCommand : Command
             stringOpt
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Put(model),
             new PutBucketBinder(
                 nameOpt,
@@ -300,25 +300,25 @@ public class BucketCommand : Command
 
     private Command BuildSyncFromCommand()
     {
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the bucket to synchronize from"
-        ) { IsRequired = true };
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the bucket to synchronize from", Required = true,
+        };
 
-        var localPathOpt = new Option<string>(
-            aliases: new[] { "--local-path", "-l" },
-            description: "Local path folder to send the uploaded files"
-        ) { IsRequired = true };
+        var localPathOpt = new Option<string>("--local-path", "-l")
+        {
+            Description = "Local path folder to send the uploaded files", Required = true,
+        };
 
-        var bucketFolderOpt = new Option<string>(
-            aliases: new[] { "--bucket-folder", "-b" },
-            description: "Bucket folder to get"
-        );
+        var bucketFolderOpt = new Option<string>("--bucket-folder", "-b")
+        {
+            Description = "Bucket folder to get",
+        };
 
-        var noDeleteOpt = new Option<bool>(
-            name: "--no-delete",
-            description: "Don't delete local entries not present in remote folder"
-        );
+        var noDeleteOpt = new Option<bool>("--no-delete")
+        {
+            Description = "Don't delete local entries not present in remote folder",
+        };
 
         var cmd = new CommandWithExamples("sync-from", "Synchronize your local bucket path from the API")
         {
@@ -328,7 +328,7 @@ public class BucketCommand : Command
             noDeleteOpt,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).SyncFrom(model),
             new SyncBucketBinder(
                 nameOpt,
@@ -344,25 +344,25 @@ public class BucketCommand : Command
 
     private Command BuildSyncToCommand()
     {
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the bucket to synchronize to"
-        ) { IsRequired = true };
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the bucket to synchronize to", Required = true,
+        };
 
-        var localPathOpt = new Option<string>(
-            aliases: new[] { "--local-path", "-l" },
-            description: "Local path folder of files to upload"
-        ) { IsRequired = true };
+        var localPathOpt = new Option<string>("--local-path", "-l")
+        {
+            Description = "Local path folder of files to upload", Required = true,
+        };
 
-        var bucketFolderOpt = new Option<string>(
-            aliases: new[] { "--bucket-folder", "-b" },
-            description: "Bucket folder to upload to"
-        );
+        var bucketFolderOpt = new Option<string>("--bucket-folder", "-b")
+        {
+            Description = "Bucket folder to upload to",
+        };
 
-        var noDeleteOpt = new Option<bool>(
-            name: "--no-delete",
-            description: "Don't delete remote entries not present in local folder"
-        );
+        var noDeleteOpt = new Option<bool>("--no-delete")
+        {
+            Description = "Don't delete remote entries not present in local folder",
+        };
 
         var cmd = new CommandWithExamples("sync-to", "Synchronize the API bucket from your local folder")
         {
@@ -372,7 +372,7 @@ public class BucketCommand : Command
             noDeleteOpt,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).SyncTo(model),
             new SyncBucketBinder(
                 nameOpt,
@@ -388,15 +388,15 @@ public class BucketCommand : Command
 
     private Command BuildDeleteCommand()
     {
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the bucket to delete in"
-        ) { IsRequired = true };
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the bucket to delete in", Required = true,
+        };
 
-        var bucketPathsArg = new Argument<List<string>>(
-            name: "paths",
-            description: "Bucket list of files and folders to delete"
-        );
+        var bucketPathsArg = new Argument<List<string>>("paths")
+        {
+            Description = "Bucket list of files and folders to delete",
+        };
 
         var cmd = new CommandWithExamples("delete", "Delete the selected bucket")
         {
@@ -404,7 +404,7 @@ public class BucketCommand : Command
             bucketPathsArg,
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Delete(model),
             new DeleteBucketBinder(
                 nameOpt,

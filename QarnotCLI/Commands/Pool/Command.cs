@@ -13,15 +13,14 @@ public class PoolCommand : Command
         Factory = factory;
         GlobalOptions = globalOptions;
 
-        AddCommand(BuildCreateCommand());
-        AddCommand(BuildListCommand());
-        AddCommand(BuildInfoCommand());
-        AddCommand(BuildSetElasticSettingsCommand());
-        AddCommand(BuildSetScalingCommand());
-        AddCommand(BuildDeleteCommand());
-        AddCommand(BuildUpdateResourcesCommand());
-        AddCommand(BuildUpdateConstantCommand());
-        AddCommand(BuildCarbonFactsCommand());
+        Add(BuildCreateCommand());
+        Add(BuildListCommand());
+        Add(BuildInfoCommand());
+        Add(BuildSetScalingCommand());
+        Add(BuildDeleteCommand());
+        Add(BuildUpdateResourcesCommand());
+        Add(BuildUpdateConstantCommand());
+        Add(BuildCarbonFactsCommand());
     }
 
     private Command BuildCreateCommand()
@@ -57,205 +56,170 @@ public class PoolCommand : Command
             )
         };
 
-        var nameOpt = new Option<string>(
-            aliases: new[] { "--name", "-n" },
-            description: "Name of the pool"
-        ) { IsRequired = true };
+        var nameOpt = new Option<string>("--name", "-n")
+        {
+            Description = "Name of the pool", Required = true,
+        };
 
-        var shortnameOpt = new Option<string>(
-            aliases: new[] { "--shortname", "-s" },
-            description: "Short name of the pool"
-        );
+        var shortnameOpt = new Option<string>("--shortname", "-s")
+        {
+            Description = "Short name of the pool",
+        };
 
-        var profileOpt = new Option<string>(
-            aliases: new[] { "--profile", "-p" },
-            description: "Name of the profile used for the pool"
-        ) { IsRequired = true };
+        var profileOpt = new Option<string>("--profile", "-p")
+        {
+            Description = "Name of the profile used for the pool", Required = true,
+        };
 
-        var instanceCountOpt = new Option<uint?>(
-            aliases: new[] { "--instanceNodes", "-i" },
-            description: "(Required if not elastic) instance count of the pool"
-        );
+        var instanceCountOpt = new Option<uint?>("--instanceNodes", "-i")
+        {
+            Description = "Instance count of the pool (required if no scaling policy is provided)",
+        };
 
-        var isElasticOpt = new Option<bool?>(
-            aliases: new[] { "--pool-is-elastic", "-e" },
-            description: "Make the pool elastic"
-        );
+        var fileOpt = new Option<string>("--file", "-f")
+        {
+            Description = "File with a json configuration of the pool. (example : echo '{\"Shortname\": \"SN\",\"Name\": \"PoolName\",\"Profile\": \"docker-batch\",\"InstanceCount\": 1}' > CreatePool.json)",
+        };
 
-        var fileOpt = new Option<string>(
-            aliases: new[] { "--file", "-f" },
-            description: "File with a json configuration of the pool. (example : echo '{\"Shortname\": \"SN\",\"Name\": \"PoolName\",\"Profile\": \"docker-batch\",\"InstanceCount\": 1}' > CreatePool.json)"
-        );
+        var tagsOpt = new Option<List<string>>("--tags", "-t")
+        {
+            Description = "Tags of the pool", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var tagsOpt = new Option<List<string>>(
-            aliases: new[] { "--tags", "-t" },
-            description: "Tags of the pool"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var constantsOpt = new Option<List<string>>("--constants", "-c")
+        {
+            Description = "Constants of the pool", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var constantsOpt = new Option<List<string>>(
-            aliases: new[] { "--constants", "-c" },
-            description: "Constants of the pool"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var constraintsOpt = new Option<List<string>>("--constraints")
+        {
+            Description = "Constraints of the pool", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var constraintsOpt = new Option<List<string>>(
-            name: "--constraints",
-            description: "Constraints of the pool"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var labelsOpt = new Option<List<string>>("--labels")
+        {
+            Description = "Labels of the pool", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var labelsOpt = new Option<List<string>>(
-            name: "--labels",
-            description: "Labels of the pool"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var resourcesOpt = new Option<List<string>>("--resources", "-r")
+        {
+            Description = "Name of the buckets of the task", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var resourcesOpt = new Option<List<string>>(
-            aliases: new[] { "--resources", "-r" },
-            description: "Name of the buckets of the task"
-        ) { AllowMultipleArgumentsPerToken = true };
+        var tasksWaitForSynchronizationOpt = new Option<bool?>("--tasks-wait-for-synchronization")
+        {
+            Description = "Have all the pool's tasks wait for the resources to be synchronized before running if the pool resources are updated before the task submission. (set to true or false, default: false)",
+        };
 
-        var elasticMinSlotsOpt = new Option<uint?>(
-            name: "--min-slot",
-            description: "Minimum slot number for the pool in elastic mode"
-        );
+        var ttlOpt = new Option<uint?>("--ttl")
+        {
+            Description = "Default TTL for the pool resources cache (in seconds)",
+        };
 
-        var elasticMaxSlotsOpt = new Option<uint?>(
-            name: "--max-slot",
-            description: "Maximum slot number for the pool in elastic mode"
-        );
+        var maxTotalRetriesOpt = new Option<uint?>("--max-total-retries")
+        {
+            Description = "Total number of times the pool can have its instances retried in case of failure",
+        };
 
-        var elasticMinIdlingSlotsOpt = new Option<uint?>(
-            name: "--min-idling-slot",
-            description: "Minimum idling slot number"
-        );
+        var maxRetriesPerInstanceOpt = new Option<uint?>("--max-retries-per-instance")
+        {
+            Description = "Total number of times each pool instance will be allowed to retry in case of failure",
+        };
 
-        var elasticResizePeriodOpt = new Option<uint?>(
-            name: "--resize-period",
-            description: "Elastic resize period"
-        );
+        var maxTimeQueueSecondsOpt = new Option<uint?>("--max-time-queue")
+        {
+            Description = "Max time to wait before time out when there is not any place to execute the pool (in seconds)",
+        };
 
-        var elasticResizeFactorOpt = new Option<float?>(
-            name: "--resize-factor",
-            description: "Elastic resize factor"
-        );
+        var scalingOpt = new Option<string>("--scaling")
+        {
+            Description = "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'",
+        };
 
-        var elasticMinIdlingTimeOpt = new Option<uint?>(
-            name: "--min-idling-time",
-            description: "Minimum idling time"
-        );
+        var hardwareConstraintMinimumCoreCountOpt = new Option<uint?>("--min-core-count")
+        {
+            Description = "Minimum number of cores that tasks in the pool will have access to",
+        };
 
-        var tasksWaitForSynchronizationOpt = new Option<bool?>(
-            name: "--tasks-wait-for-synchronization",
-            description: "Have all the pool's tasks wait for the resources to be synchronized before running if the pool resources are updated before the task submission. (set to true or false, default: false)"
-        );
+        var hardwareConstraintMaximumCoreCountOpt = new Option<uint?>("--max-core-count")
+        {
+            Description = "Maximum number of cores that tasks in the pool will have access to",
+        };
 
-        var ttlOpt = new Option<uint?>(
-            name: "--ttl",
-            description: "Default TTL for the pool resources cache (in seconds)"
-        );
+        var hardwareConstraintMinimumRamCoreRatioOpt = new Option<decimal?>("--min-ram-core-ratio")
+        {
+            Description = "Minimum ratio of RAM per number of cores that tasks in the pool will have access to",
+        };
 
-        var maxTotalRetriesOpt = new Option<uint?>(
-            name: "--max-total-retries",
-            description: "Total number of times the pool can have its instances retried in case of failure"
-        );
+        var hardwareConstraintMaximumRamCoreRatioOpt = new Option<decimal?>("--max-ram-core-ratio")
+        {
+            Description = "Maximum ratio of RAM per number of cores that tasks in the pool will have access to",
+        };
 
-        var maxRetriesPerInstanceOpt = new Option<uint?>(
-            name: "--max-retries-per-instance",
-            description: "Total number of times each pool instance will be allowed to retry in case of failure"
-        );
+        var hardwareConstraintSpecificHardwareOpt = new Option<List<string>?>("--specific-hardware-constraints")
+        {
+            Description = "List of constraints for specific hardware, described by specification keys. Specification keys are to be separated by spaces. Make sure to quote specification keys if they contain spaces (example : qarnot pool create --name thename --profile theprofile --specific-hardware-constraints \"Amd Ryzen 7\" \"Another hardware constraint\") ", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var maxTimeQueueSecondsOpt = new Option<uint?>(
-            name: "--max-time-queue",
-            description: "Max time to wait before time out when there is not any place to execute the pool (in seconds)"
-        );
+        var hardwareConstraintGpuHardwareOpt = new Option<bool?>("--gpu-hardware")
+        {
+            Description = "Force the tasks in the pool to run on GPU powered machines",
+        };
 
-        var scalingOpt = new Option<string>(
-            name: "--scaling",
-            description: "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'"
-        );
+        var hardwareConstraintSsdOpt = new Option<bool?>("--ssd-hardware")
+        {
+            Description = "Force the tasks in the pool to run on machines that have SSDs", Arity = ArgumentArity.ZeroOrOne,
+        };
 
-        var hardwareConstraintMinimumCoreCountOpt = new Option<uint?>(
-            name: "--min-core-count",
-            description: "Minimum number of cores that tasks in the pool will have access to"
-        );
+        var hardwareConstraintNoSsdOpt = new Option<bool?>("--no-ssd-hardware")
+        {
+            Description = "Force the tasks in the pool to run on machines that don't have SSDs", Arity = ArgumentArity.ZeroOrOne,
+        };
 
-        var hardwareConstraintMaximumCoreCountOpt = new Option<uint?>(
-            name: "--max-core-count",
-            description: "Maximum number of cores that tasks in the pool will have access to"
-        );
+        var hardwareConstraintMinimumRamOpt = new Option<decimal?>("--min-ram")
+        {
+            Description = "Minimum amount of RAM (in MB) that tasks in the pool will have access to",
+        };
 
-        var hardwareConstraintMinimumRamCoreRatioOpt = new Option<decimal?>(
-            name: "--min-ram-core-ratio",
-            description: "Minimum ratio of RAM per number of cores that tasks in the pool will have access to"
-        );
+        var hardwareConstraintMaximumRamOpt = new Option<decimal?>("--max-ram")
+        {
+            Description = "Maximum amount of RAM (in MB) that tasks in the pool will have access to",
+        };
 
-        var hardwareConstraintMaximumRamCoreRatioOpt = new Option<decimal?>(
-            name: "--max-ram-core-ratio",
-            description: "Maximum ratio of RAM per number of cores that tasks in the pool will have access to"
-        );
+        var hardwareConstraintCpuModelHardwareOpt = new Option<string?>("--cpu-model")
+        {
+            Description = "Target a specific CPU model to use when running the tasks in the pool",
+        };
 
-        var hardwareConstraintSpecificHardwareOpt = new Option<List<string>?>(
-            name: "--specific-hardware-constraints",
-            description: "List of constraints for specific hardware, described by specification keys. Specification keys are to be separated by spaces. Make sure to quote specification keys if they contain spaces (example : qarnot pool create --name thename --profile theprofile --specific-hardware-constraints \"Amd Ryzen 7\" \"Another hardware constraint\") "
-        ) { AllowMultipleArgumentsPerToken = true };
+        var secretsAccessRightsByKeyOpt = new Option<List<string>>("--secrets-access-rights-by-key")
+        {
+            Description = "Give the pool access to secrets described by their keys", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var hardwareConstraintGpuHardwareOpt = new Option<bool?>(
-            name: "--gpu-hardware",
-            description: "Force the tasks in the pool to run on GPU powered machines" 
-        );
+        var secretsAccessRightsByPrefixOpt = new Option<List<string>>("--secrets-access-rights-by-prefix")
+        {
+            Description = "Give the pool access to secrets described by their prefixs", AllowMultipleArgumentsPerToken = true,
+        };
 
-        var hardwareConstraintSsdOpt = new Option<bool?>(
-            name: "--ssd-hardware",
-            description: "Force the tasks in the pool to run on machines that have SSDs" 
-        ){Arity = ArgumentArity.ZeroOrOne};
+        var schedulingTypeOpt = new Option<string>("--scheduling-type")
+        {
+            Description = "Specify the type of scheduling used for the pool",
+        };
 
-        var hardwareConstraintNoSsdOpt = new Option<bool?>(
-            name: "--no-ssd-hardware",
-            description: "Force the tasks in the pool to run on machines that don't have SSDs" 
-        ){Arity = ArgumentArity.ZeroOrOne};
+        var machineTargetOpt = new Option<string>("--machine-target")
+        {
+            Description = "Available only for 'Reserved' scheduling. Specify the reserved machine on which the pool should run",
+        };
 
-        var hardwareConstraintMinimumRamOpt = new Option<decimal?>(
-            name: "--min-ram",
-            description: "Minimum amount of RAM (in MB) that tasks in the pool will have access to"
-        );
+        var exportCredentialsToEnvOpt = new Option<bool?>("--export-credentials-to-env")
+        {
+            Description = "Activate the exportation of the api and storage credentials to the pool environment (default is false)",
+        };
 
-        var hardwareConstraintMaximumRamOpt = new Option<decimal?>(
-            name: "--max-ram",
-            description: "Maximum amount of RAM (in MB) that tasks in the pool will have access to"
-        );
-
-        var hardwareConstraintCpuModelHardwareOpt = new Option<string?>(
-            name: "--cpu-model",
-            description: "Target a specific CPU model to use when running the tasks in the pool"
-        );
-
-        var secretsAccessRightsByKeyOpt = new Option<List<string>>(
-            name: "--secrets-access-rights-by-key",
-            description: "Give the pool access to secrets described by their keys"
-        ) { AllowMultipleArgumentsPerToken = true };
-
-        var secretsAccessRightsByPrefixOpt = new Option<List<string>>(
-            name: "--secrets-access-rights-by-prefix",
-            description: "Give the pool access to secrets described by their prefixs"
-        ) { AllowMultipleArgumentsPerToken = true };
-
-        var schedulingTypeOpt = new Option<string>(
-            name: "--scheduling-type",
-            description: "Specify the type of scheduling used for the pool"
-        );
-
-        var machineTargetOpt = new Option<string>(
-            name: "--machine-target",
-            description: "Available only for 'Reserved' scheduling. Specify the reserved machine on which the pool should run"
-        );
-
-        var exportCredentialsToEnvOpt = new Option<bool?>(
-            name: "--export-credentials-to-env",
-            description: "Activate the exportation of the api and storage credentials to the pool environment (default is false)"
-        );
-
-        var slotsPerNodeOpt = new Option<uint?>(
-            name: "--slots-per-node",
-            description: "Number of slots per node (Multi slots settings)"
-        );
+        var slotsPerNodeOpt = new Option<uint?>("--slots-per-node")
+        {
+            Description = "Number of slots per node (Multi slots settings)",
+        };
 
         var cmd = new CommandWithExamples("create", "Create and launch a new pool")
         {
@@ -264,19 +228,12 @@ public class PoolCommand : Command
             shortnameOpt,
             profileOpt,
             instanceCountOpt,
-            isElasticOpt,
             fileOpt,
             tagsOpt,
             constantsOpt,
             constraintsOpt,
             labelsOpt,
             resourcesOpt,
-            elasticMinSlotsOpt,
-            elasticMaxSlotsOpt,
-            elasticMinIdlingSlotsOpt,
-            elasticResizePeriodOpt,
-            elasticResizeFactorOpt,
-            elasticMinIdlingTimeOpt,
             tasksWaitForSynchronizationOpt,
             ttlOpt,
             maxTotalRetriesOpt,
@@ -302,26 +259,19 @@ public class PoolCommand : Command
             slotsPerNodeOpt
         };
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Create(model),
             new CreatePoolBinder(
                 nameOpt,
                 shortnameOpt,
                 profileOpt,
                 instanceCountOpt,
-                isElasticOpt,
                 fileOpt,
                 tagsOpt,
                 constantsOpt,
                 constraintsOpt,
                 labelsOpt,
                 resourcesOpt,
-                elasticMinSlotsOpt,
-                elasticMaxSlotsOpt,
-                elasticMinIdlingSlotsOpt,
-                elasticResizePeriodOpt,
-                elasticResizeFactorOpt,
-                elasticMinIdlingTimeOpt,
                 tasksWaitForSynchronizationOpt,
                 ttlOpt,
                 maxTotalRetriesOpt,
@@ -349,11 +299,11 @@ public class PoolCommand : Command
             )
         );
 
-        cmd.AddValidator(result =>
+        cmd.Validators.Add(result =>
         {
-            if (result.Children.Count(s => s.Symbol == hardwareConstraintSsdOpt || s.Symbol == hardwareConstraintNoSsdOpt) >= 2)
+            if (result.GetResult(hardwareConstraintSsdOpt) is not null && result.GetResult(hardwareConstraintNoSsdOpt) is not null)
             {
-                result.ErrorMessage = $"--{hardwareConstraintSsdOpt.Name} and --{hardwareConstraintNoSsdOpt.Name} are mutually exclusive.";
+                result.AddError($"{hardwareConstraintSsdOpt.Name} and {hardwareConstraintNoSsdOpt.Name} are mutually exclusive.");
             }
         });
 
@@ -375,7 +325,7 @@ public class PoolCommand : Command
             example,
         }.AddGetPoolsOrTasksOptions(getPoolsOptions);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).List(model),
             new GetPoolsOrTasksBinder(
                 getPoolsOptions,
@@ -401,78 +351,9 @@ public class PoolCommand : Command
             example,
         }.AddGetPoolsOrTasksOptions(getPoolsOptions);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Info(model),
             new GetPoolsOrTasksBinder(
-                getPoolsOptions,
-                GlobalOptions
-            )
-        );
-
-        return cmd;
-    }
-
-    private Command BuildSetElasticSettingsCommand()
-    {
-        var example = new Example(
-            Title: "Regular usage",
-            CommandLines: new[] {
-                "qarnot pool set-elastic-settings --id PoolID --min-slot 2 --max-slot 10"
-            }
-        );
-
-        var getPoolsOptions = new GetPoolsOrTasksOptions(PoolOrTask.Pool);
-
-        var elasticMinSlotsOpt = new Option<uint?>(
-            name: "--min-slot",
-            description: "Minimum slot number for the pool in elastic mode"
-        );
-
-        var elasticMaxSlotsOpt = new Option<uint?>(
-            name: "--max-slot",
-            description: "Maximum slot number for the pool in elastic mode"
-        );
-
-        var elasticMinIdlingSlotsOpt = new Option<uint?>(
-            name: "--min-idling-slot",
-            description: "Minimum idling slot number"
-        );
-
-        var elasticResizePeriodOpt = new Option<uint?>(
-            name: "--resize-period",
-            description: "Elastic resize period"
-        );
-
-        var elasticResizeFactorOpt = new Option<float?>(
-            name: "--resize-factor",
-            description: "Elastic resize factor"
-        );
-
-        var elasticMinIdlingTimeOpt = new Option<uint?>(
-            name: "--min-idling-time",
-            description: "Minimum idling time"
-        );
-
-        var cmd = new CommandWithExamples("set-elastic-settings", "Set the pool's elastic options")
-        {
-            example,
-            elasticMinSlotsOpt,
-            elasticMaxSlotsOpt,
-            elasticMinIdlingSlotsOpt,
-            elasticResizePeriodOpt,
-            elasticResizeFactorOpt,
-            elasticMinIdlingTimeOpt
-        }.AddGetPoolsOrTasksOptions(getPoolsOptions);
-
-        cmd.SetHandler(
-            model => Factory(model).UpdateElasticSettings(model),
-            new UpdatePoolElasticSettingsBinder(
-                elasticMinSlotsOpt,
-                elasticMaxSlotsOpt,
-                elasticMinIdlingSlotsOpt,
-                elasticResizePeriodOpt,
-                elasticResizeFactorOpt,
-                elasticMinIdlingTimeOpt,
                 getPoolsOptions,
                 GlobalOptions
             )
@@ -493,10 +374,10 @@ public class PoolCommand : Command
 
         var getPoolsOptions = new GetPoolsOrTasksOptions(PoolOrTask.Pool);
 
-        var scalingOpt = new Option<string>(
-            name: "--scaling",
-            description: "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'"
-        ) { IsRequired = true };
+        var scalingOpt = new Option<string>("--scaling")
+        {
+            Description = "Scaling policies of the pool. Use either direct json format or a file path prefixed by '@'", Required = true,
+        };
 
         var cmd = new CommandWithExamples("set-scaling", "Update the pool's scaling options")
         {
@@ -504,7 +385,7 @@ public class PoolCommand : Command
             scalingOpt,
         }.AddGetPoolsOrTasksOptions(getPoolsOptions);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).UpdateScaling(model),
             new UpdatePoolsScalingBinder(
                 scalingOpt,
@@ -531,7 +412,7 @@ public class PoolCommand : Command
             example
         }.AddGetPoolsOrTasksOptions(getPoolsOptions);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).Delete(model),
             new GetPoolsOrTasksBinder(
                 getPoolsOptions,
@@ -557,7 +438,7 @@ public class PoolCommand : Command
             example
         }.AddGetPoolsOrTasksOptions(getPoolsOptions);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).UpdateResources(model),
             new GetPoolsOrTasksBinder(
                 getPoolsOptions,
@@ -579,15 +460,15 @@ public class PoolCommand : Command
 
         var getPoolsOptions = new GetPoolsOrTasksOptions(PoolOrTask.Pool);
 
-        var constantNameOpt = new Option<string>(
-            name: "--constant-name",
-            description: "Name of the constant to update"
-        ) { IsRequired = true };
+        var constantNameOpt = new Option<string>("--constant-name")
+        {
+            Description = "Name of the constant to update", Required = true,
+        };
 
-        var constantValueOpt = new Option<string>(
-            name: "--constant-value",
-            description: "New value for the constant to update"
-        );
+        var constantValueOpt = new Option<string>("--constant-value")
+        {
+            Description = "New value for the constant to update",
+        };
 
         var cmd = new CommandWithExamples("update-constant", "Update constant of a running pool")
         {
@@ -596,7 +477,7 @@ public class PoolCommand : Command
             constantValueOpt,
         }.AddGetPoolsOrTasksOptions(getPoolsOptions);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).UpdateConstant(model),
             new UpdatePoolsOrTasksConstantBinder(
                 constantNameOpt,
@@ -622,10 +503,10 @@ public class PoolCommand : Command
 
         var getPoolsOptions = new GetPoolsOrTasksOptions(PoolOrTask.Pool);
 
-        var comparisonDatacenterOpt = new Option<string>(
-            aliases: new[] { "--datacenter", "-d" },
-            description: "Compare the carbon facts to a specific datacenter. By default use generic european datacenter 'european_dc'."
-        );
+        var comparisonDatacenterOpt = new Option<string?>("--datacenter", "-d")
+        {
+            Description = "Compare the carbon facts to a specific datacenter. By default use generic european datacenter 'european_dc'.",
+        };
 
         var cmd = new CommandWithExamples("carbon-facts", "Get the carbon facts of a pool")
         {
@@ -633,7 +514,7 @@ public class PoolCommand : Command
             comparisonDatacenterOpt,
         }.AddGetPoolsOrTasksOptions(getPoolsOptions);
 
-        cmd.SetHandler(
+        cmd.SetModelAction(
             model => Factory(model).CarbonFacts(model),
             new GetPoolOrTaskCarbonFactsBinder(
                 comparisonDatacenterOpt,

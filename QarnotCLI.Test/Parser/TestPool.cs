@@ -1,7 +1,6 @@
 using Moq;
 using NUnit.Framework;
 using QarnotSDK;
-using System.CommandLine.Parsing;
 
 namespace QarnotCLI.Test;
 
@@ -197,33 +196,10 @@ public class TestPoolCommand
             Assert.That(res, Is.EqualTo(1), "parsing should fail");
             Assert.That(sw.ToString(), Does.Contain("--ssd-hardware and --no-ssd-hardware are mutually exclusive."));
         }
-        finally 
+        finally
         {
             Console.SetError(new StreamWriter(Console.OpenStandardError()));
         }
-    }
-
-    [Test]
-    public async Task CreatePoolWithElasticSettingsAndNoInstanceNodes()
-    {
-        var mock = new MockParser();
-
-        var name = "NAME";
-        var shortname = "SHORT";
-        var minimumElasticSlots = 2;
-        var profile = "PROFILE";
-
-        await mock.Parser.InvokeAsync(new[] {
-            "pool", "create", "--name", name, "--shortname", shortname, "--profile", profile, "--pool-is-elastic", "--min-slot", minimumElasticSlots.ToString()
-        });
-
-        mock.PoolUseCases.Verify(useCases => useCases.Create(It.Is<CreatePoolModel>(model =>
-            model.Name == name &&
-            model.Shortname == shortname &&
-            model.ElasticMinSlots == minimumElasticSlots &&
-            model.Profile == profile &&
-            model.SlotsPerNode == default
-        )), Times.Once);
     }
 
     [Test]
@@ -233,17 +209,15 @@ public class TestPoolCommand
 
         var name = "NAME";
         var shortname = "SHORT";
-        var minimumElasticSlots = 2;
         var profile = "PROFILE";
 
         await mock.Parser.InvokeAsync(new[] {
-            "pool", "create", "--name", name, "--shortname", shortname, "--profile", profile, "--pool-is-elastic", "--min-slot", minimumElasticSlots.ToString(), "--slots-per-node", "12"
+            "pool", "create", "--name", name, "--shortname", shortname, "--profile", profile, "--instanceNodes", "1", "--slots-per-node", "12"
         });
 
         mock.PoolUseCases.Verify(useCases => useCases.Create(It.Is<CreatePoolModel>(model =>
             model.Name == name &&
             model.Shortname == shortname &&
-            model.ElasticMinSlots == minimumElasticSlots &&
             model.Profile == profile &&
             model.SlotsPerNode == 12
         )), Times.Once);
@@ -466,7 +440,6 @@ public class TestPoolCommand
     [TestCase("list")]
     [TestCase("info")]
     [TestCase("update-resources")]
-    [TestCase("set-elastic-settings")]
     [TestCase("delete")]
     public async Task CantHaveTagsAndExclusiveTags(string subcommand)
     {
@@ -517,34 +490,6 @@ public class TestPoolCommand
             model.Name == name &&
             model.Id == uuid &&
             model.Tags.Zip(tags).All(pair => pair.First == pair.Second)
-        )), Times.Once);
-    }
-
-    [Test]
-    public async Task SetPoolElasticSettingsCheckTestParsArg()
-    {
-        var mock = new MockParser();
-
-        var name = "NAME";
-        var uuid = Guid.NewGuid().ToString();
-
-        await mock.Parser.InvokeAsync(
-            new[] {
-                "pool", "set-elastic-settings", "--name", name, "--id", uuid, "--min-slot", "1",
-                "--max-slot", "2", "--min-idling-slot", "3", "--resize-period", "4",
-                "--resize-factor", "5", "--min-idling-time", "6"
-            }
-        );
-
-        mock.PoolUseCases.Verify(useCases => useCases.UpdateElasticSettings(It.Is<UpdatePoolElasticSettingsModel>(model =>
-            model.Name == name &&
-            model.Id == uuid &&
-            model.MinSlots == 1 &&
-            model.MaxSlots == 2 &&
-            model.MinIdlingSlots == 3 &&
-            model.ResizePeriod == 4 &&
-            model.ResizeFactor == 5 &&
-            model.MinIdlingTime == 6
         )), Times.Once);
     }
 

@@ -1,6 +1,5 @@
 using Moq;
 using NUnit.Framework;
-using System.CommandLine.Parsing;
 
 namespace QarnotCLI.Test;
 

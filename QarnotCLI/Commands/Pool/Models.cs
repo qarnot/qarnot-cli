@@ -12,8 +12,6 @@ public record CreatePoolModel(
     string Profile,
     [property: JsonProperty("InstanceCount")]
     uint InstanceCount,
-    [property: JsonProperty("IsElastic")]
-    bool IsElastic,
     [property: JsonProperty("Tags")]
     List<string> Tags,
     [property: JsonProperty("Constants")]
@@ -24,18 +22,6 @@ public record CreatePoolModel(
     List<string> Labels,
     [property: JsonProperty("Resources")]
     List<string> Resources,
-    [property: JsonProperty("ElasticMinimumTotalSlots")]
-    uint? ElasticMinSlots,
-    [property: JsonProperty("ElasticMaximumTotalSlots")]
-    uint? ElasticMaxSlots,
-    [property: JsonProperty("ElasticMinimumIdlingSlots")]
-    uint? ElasticMinIdlingSlots,
-    [property: JsonProperty("ElasticResizePeriod")]
-    uint? ElasticResizePeriod,
-    [property: JsonProperty("ElasticResizeFactor")]
-    float? ElasticResizeFactor,
-    [property: JsonProperty("ElasticMinimumIdlingTime")]
-    uint? ElasticMinIdlingTime,
     [property: JsonProperty("TaskDefaultWaitForPoolResourcesSynchronization")]
     bool TasksWaitForSynchronization,
     [property: JsonProperty("DefaultResourcesCacheTTLSec")]
@@ -70,18 +56,11 @@ public record CreatePoolModel(
             Shortname: null,
             Profile: "",
             InstanceCount: 0,
-            IsElastic: false,
             Tags: new(),
             Constants: new(),
             Constraints: new(),
             Labels: new(),
             Resources: new(),
-            ElasticMinSlots: null,
-            ElasticMaxSlots: null,
-            ElasticMinIdlingSlots: null,
-            ElasticResizePeriod: null,
-            ElasticResizeFactor: null,
-            ElasticMinIdlingTime: null,
             TasksWaitForSynchronization: false,
             Ttl: null,
             MaxTotalRetries: null,
@@ -99,15 +78,6 @@ public record CreatePoolModel(
     {
     }
 }
-
-public record UpdatePoolElasticSettingsModel(
-    uint? MinSlots,
-    uint? MaxSlots,
-    uint? MinIdlingSlots,
-    uint? ResizePeriod,
-    float? ResizeFactor,
-    uint? MinIdlingTime
-): GetPoolsOrTasksModel;
 
 
 public record UpdatePoolScalingModel(

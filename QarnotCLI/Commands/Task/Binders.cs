@@ -1,5 +1,4 @@
 using System.CommandLine;
-using System.CommandLine.Binding;
 using Newtonsoft.Json;
 
 namespace QarnotCLI;
@@ -24,7 +23,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
     private readonly Option<uint?> MaxTotalRetriesOpt;
     private readonly Option<uint?> MaxRetriesPerInstanceOpt;
     private readonly Option<uint?> MaxTimeQueueSecondsOpt;
-    private readonly Option<List<string>> DependentsOpt;
+    private readonly Option<List<string>> DependsOnOpt;
     private readonly Option<uint?> TtlOpt;
     private readonly Option<uint?> ResultTtlOpt;
     private readonly Option<uint?> HardwareConstraintMinimumCoreCountOpt;
@@ -67,7 +66,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         Option<uint?> maxTotalRetriesOpt,
         Option<uint?> maxRetriesPerInstanceOpt,
         Option<uint?> maxTimeQueueSecondsOpt,
-        Option<List<string>> dependentsOpt,
+        Option<List<string>> dependsOnOpt,
         Option<uint?> ttlOpt,
         Option<uint?> resultTtlOpt,
         Option<uint?> hardwareConstraintMinimumCoreCount,
@@ -111,7 +110,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         MaxTotalRetriesOpt = maxTotalRetriesOpt;
         MaxRetriesPerInstanceOpt = maxRetriesPerInstanceOpt;
         MaxTimeQueueSecondsOpt = maxTimeQueueSecondsOpt;
-        DependentsOpt = dependentsOpt;
+        DependsOnOpt = dependsOnOpt;
         TtlOpt = ttlOpt;
         ResultTtlOpt = resultTtlOpt;
         HardwareConstraintMinimumCoreCountOpt = hardwareConstraintMinimumCoreCount;
@@ -136,58 +135,60 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         ExportCredentialsToEnvOpt = exportCredentialsToEnv;
     }
 
-    protected override CreateTaskModel GetBoundValueImpl(BindingContext bindingContext)
+    protected override CreateTaskModel GetBoundValueImpl(ParseResult parseResult)
     {
-        var file = bindingContext.ParseResult.GetValueForOption(FileOpt);
+        var file = parseResult.GetValue(FileOpt);
         var model = file is not null
-            ? JsonConvert.DeserializeObject<CreateTaskModel>(File.ReadAllText(file))!
+            ? DeserializeTaskModelFromFile(file)
             : new CreateTaskModel();
 
         QarnotSDK.HardwareConstraints? hardwareConstraints = Helpers.BuildHardwareConstraints(
-            minimumCoreCount: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumCoreCountOpt),
-            maximumCoreCount: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumCoreCountOpt),
-            minimumRamCoreRatio: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumRamCoreRatioOpt),
-            maximumRamCoreRatio: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumRamCoreRatioOpt),
-            specificHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintSpecificHardware),
-            gpuHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintGpuHardware),
-            ssdHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintSsdHardware),
-            noSsdHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintNoSsdHardware),
-            minimumRamHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMinimumRamHardware),
-            maximumRamHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintMaximumRamHardware),
-            cpuModelHardware: bindingContext.ParseResult.GetValueForOption(HardwareConstraintCpuModelHardware)
+            minimumCoreCount: parseResult.GetValue(HardwareConstraintMinimumCoreCountOpt),
+            maximumCoreCount: parseResult.GetValue(HardwareConstraintMaximumCoreCountOpt),
+            minimumRamCoreRatio: parseResult.GetValue(HardwareConstraintMinimumRamCoreRatioOpt),
+            maximumRamCoreRatio: parseResult.GetValue(HardwareConstraintMaximumRamCoreRatioOpt),
+            specificHardware: parseResult.GetValue(HardwareConstraintSpecificHardware),
+            gpuHardware: parseResult.GetValue(HardwareConstraintGpuHardware),
+            ssdHardware: parseResult.GetValue(HardwareConstraintSsdHardware),
+            noSsdHardware: parseResult.GetValue(HardwareConstraintNoSsdHardware),
+            minimumRamHardware: parseResult.GetValue(HardwareConstraintMinimumRamHardware),
+            maximumRamHardware: parseResult.GetValue(HardwareConstraintMaximumRamHardware),
+            cpuModelHardware: parseResult.GetValue(HardwareConstraintCpuModelHardware)
         );
 
         model = new(
-            Job: bindingContext.ParseResult.GetValueForOption(JobOpt) ?? model.Job,
-            Pool: bindingContext.ParseResult.GetValueForOption(PoolOpt) ?? model.Pool,
-            Name: bindingContext.ParseResult.GetValueForOption(NameOpt) ?? model.Name,
-            ShortName: bindingContext.ParseResult.GetValueForOption(ShortNameOpt) ?? model.ShortName,
-            Profile: bindingContext.ParseResult.GetValueForOption(ProfileOpt) ?? model.Profile,
-            Range: bindingContext.ParseResult.GetValueForOption(RangeOpt) ?? model.Range,
-            Instance: bindingContext.ParseResult.GetValueForOption(InstanceOpt) ?? model.Instance,
-            Tags: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(TagsOpt), model.Tags),
-            Constants: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(ConstantsOpt), model.Constants),
-            Constraints: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(ConstraintsOpt), model.Constraints),
-            Labels: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(LabelsOpt), model.Labels),
-            Resources: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(ResourcesOpt), model.Resources),
-            Result: bindingContext.ParseResult.GetValueForOption(ResultOpt) ?? model.Result,
-            WaitForResourcesSynchronization: bindingContext.ParseResult.GetValueForOption(WaitForResourcesSynchronizationOpt) ?? model.WaitForResourcesSynchronization,
-            MaxTotalRetries: bindingContext.ParseResult.GetValueForOption(MaxTotalRetriesOpt) ?? model.MaxTotalRetries,
-            MaxRetriesPerInstance: bindingContext.ParseResult.GetValueForOption(MaxRetriesPerInstanceOpt) ?? model.MaxRetriesPerInstance,
-            MaxTimeQueueSeconds: bindingContext.ParseResult.GetValueForOption(MaxTimeQueueSecondsOpt) ?? model.MaxTimeQueueSeconds,
-            Dependents: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(DependentsOpt), model.Dependents),
-            Ttl: bindingContext.ParseResult.GetValueForOption(TtlOpt) ?? model.Ttl,
-            ResultTtl : bindingContext.ParseResult.GetValueForOption(ResultTtlOpt) ?? model.ResultTtl,
+            Job: parseResult.GetValue(JobOpt) ?? model.Job,
+            Pool: parseResult.GetValue(PoolOpt) ?? model.Pool,
+            Name: parseResult.GetValue(NameOpt) ?? model.Name,
+            ShortName: parseResult.GetValue(ShortNameOpt) ?? model.ShortName,
+            Profile: parseResult.GetValue(ProfileOpt) ?? model.Profile,
+            Range: parseResult.GetValue(RangeOpt) ?? model.Range,
+            Instance: parseResult.GetValue(InstanceOpt) ?? model.Instance,
+            Tags: Helpers.CoalesceEmpty(parseResult.GetValue(TagsOpt), model.Tags),
+            Constants: Helpers.CoalesceEmpty(parseResult.GetValue(ConstantsOpt), model.Constants),
+            Constraints: Helpers.CoalesceEmpty(parseResult.GetValue(ConstraintsOpt), model.Constraints),
+            Labels: Helpers.CoalesceEmpty(parseResult.GetValue(LabelsOpt), model.Labels),
+            Resources: Helpers.CoalesceEmpty(parseResult.GetValue(ResourcesOpt), model.Resources),
+            Result: parseResult.GetValue(ResultOpt) ?? model.Result,
+            WaitForResourcesSynchronization: parseResult.GetValue(WaitForResourcesSynchronizationOpt) ?? model.WaitForResourcesSynchronization,
+            MaxTotalRetries: parseResult.GetValue(MaxTotalRetriesOpt) ?? model.MaxTotalRetries,
+            MaxRetriesPerInstance: parseResult.GetValue(MaxRetriesPerInstanceOpt) ?? model.MaxRetriesPerInstance,
+            MaxTimeQueueSeconds: parseResult.GetValue(MaxTimeQueueSecondsOpt) ?? model.MaxTimeQueueSeconds,
+            DependsOn: Helpers.CoalesceEmpty(
+                Helpers.ParseAdvancedDependencies(parseResult.GetValue(DependsOnOpt)),
+                model.DependsOn),
+            Ttl: parseResult.GetValue(TtlOpt) ?? model.Ttl,
+            ResultTtl : parseResult.GetValue(ResultTtlOpt) ?? model.ResultTtl,
             HardwareConstraints: hardwareConstraints ?? model.HardwareConstraints,
-            SecretsAccessRightsByKey: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByKeyOpt), model.SecretsAccessRightsByKey),
-            SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(bindingContext.ParseResult.GetValueForOption(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),
-            SchedulingType: bindingContext.ParseResult.GetValueForOption(SchedulingTypeOpt) ?? model.SchedulingType,
-            MachineTarget: bindingContext.ParseResult.GetValueForOption(MachineTargetOpt) ?? model.MachineTarget,
-            ReservationTarget: bindingContext.ParseResult.GetValueForOption(ReservationTargetOpt) ?? model.ReservationTarget,
-            Periodic: bindingContext.ParseResult.GetValueForOption(PeriodicOpt) ?? model.Periodic,
-            Whitelist: bindingContext.ParseResult.GetValueForOption(WhitelistOpt) ?? model.Whitelist,
-            Blacklist: bindingContext.ParseResult.GetValueForOption(BlacklistOpt) ?? model.Blacklist,
-            ExportCredentialsToEnv: bindingContext.ParseResult.GetValueForOption(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv
+            SecretsAccessRightsByKey: Helpers.CoalesceEmpty(parseResult.GetValue(SecretsAccessRightsByKeyOpt), model.SecretsAccessRightsByKey),
+            SecretsAccessRightsByPrefix: Helpers.CoalesceEmpty(parseResult.GetValue(SecretsAccessRightsByPrefixOpt), model.SecretsAccessRightsByPrefix),
+            SchedulingType: parseResult.GetValue(SchedulingTypeOpt) ?? model.SchedulingType,
+            MachineTarget: parseResult.GetValue(MachineTargetOpt) ?? model.MachineTarget,
+            ReservationTarget: parseResult.GetValue(ReservationTargetOpt) ?? model.ReservationTarget,
+            Periodic: parseResult.GetValue(PeriodicOpt) ?? model.Periodic,
+            Whitelist: parseResult.GetValue(WhitelistOpt) ?? model.Whitelist,
+            Blacklist: parseResult.GetValue(BlacklistOpt) ?? model.Blacklist,
+            ExportCredentialsToEnv: parseResult.GetValue(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv
         );
 
         if (string.IsNullOrWhiteSpace(model.Name))
@@ -212,6 +213,19 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
 
         return model;
     }
+
+    private static CreateTaskModel DeserializeTaskModelFromFile(string file)
+    {
+        try
+        {
+            return JsonConvert.DeserializeObject<CreateTaskModel>(File.ReadAllText(file))!;
+        }
+        catch (Newtonsoft.Json.JsonException ex)
+        {
+            throw new Exception(
+                $"Invalid task configuration in file '{Path.GetFileName(file)}': {ex.Message}");
+        }
+    }
 }
 
 public class WaitTasksBinder : GlobalBinder<WaitTasksModel>
@@ -232,11 +246,11 @@ public class WaitTasksBinder : GlobalBinder<WaitTasksModel>
         GetTasksOptions = getTasksOptions;
     }
 
-    protected override WaitTasksModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override WaitTasksModel GetBoundValueImpl(ParseResult parseResult) =>
         new WaitTasksModel(
-            bindingContext.ParseResult.GetValueForOption(StdoutOpt),
-            bindingContext.ParseResult.GetValueForOption(StderrOpt)
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+            parseResult.GetValue(StdoutOpt),
+            parseResult.GetValue(StderrOpt)
+        ).BindGetPoolsOrTasksOptions(parseResult, GetTasksOptions);
 }
 
 public class SnapshotTaskBinder : GlobalBinder<SnapshotTasksModel>
@@ -263,13 +277,13 @@ public class SnapshotTaskBinder : GlobalBinder<SnapshotTasksModel>
         GetTasksOptions = getTasksOptions;
     }
 
-    protected override SnapshotTasksModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override SnapshotTasksModel GetBoundValueImpl(ParseResult parseResult) =>
         new SnapshotTasksModel(
-            bindingContext.ParseResult.GetValueForOption(PeriodicOpt),
-            bindingContext.ParseResult.GetValueForOption(WhitelistOpt),
-            bindingContext.ParseResult.GetValueForOption(BlacklistOpt),
-            bindingContext.ParseResult.GetValueForOption(BucketOpt)
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+            parseResult.GetValue(PeriodicOpt),
+            parseResult.GetValue(WhitelistOpt),
+            parseResult.GetValue(BlacklistOpt),
+            parseResult.GetValue(BucketOpt)
+        ).BindGetPoolsOrTasksOptions(parseResult, GetTasksOptions);
 }
 
 public class GetTasksOutputBinder : GlobalBinder<GetTasksOutputModel>
@@ -290,11 +304,11 @@ public class GetTasksOutputBinder : GlobalBinder<GetTasksOutputModel>
         GetTasksOptions = getTasksOptions;
     }
 
-    protected override GetTasksOutputModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override GetTasksOutputModel GetBoundValueImpl(ParseResult parseResult) =>
         new GetTasksOutputModel(
-            bindingContext.ParseResult.GetValueForOption(InstanceIdOpt),
-            bindingContext.ParseResult.GetValueForOption(FreshOpt)
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+            parseResult.GetValue(InstanceIdOpt),
+            parseResult.GetValue(FreshOpt)
+        ).BindGetPoolsOrTasksOptions(parseResult, GetTasksOptions);
 }
 
 public class GetSnapshotStatusBinder : GlobalBinder<GetSnapshotStatusModel>
@@ -312,10 +326,10 @@ public class GetSnapshotStatusBinder : GlobalBinder<GetSnapshotStatusModel>
         GetTasksOptions = getTasksOptions;
     }
 
-    protected override GetSnapshotStatusModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override GetSnapshotStatusModel GetBoundValueImpl(ParseResult parseResult) =>
         new GetSnapshotStatusModel(
-            bindingContext.ParseResult.GetValueForOption(SnapshotIdOpt)! // Option is marked IsRequired in Command.cs
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+            parseResult.GetValue(SnapshotIdOpt)! // Option is marked Required in Command.cs
+        ).BindGetPoolsOrTasksOptions(parseResult, GetTasksOptions);
 }
 
 public class WaitSnapshotBinder : GlobalBinder<WaitSnapshotModel>
@@ -339,10 +353,10 @@ public class WaitSnapshotBinder : GlobalBinder<WaitSnapshotModel>
         GetTasksOptions = getTasksOptions;
     }
 
-    protected override WaitSnapshotModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override WaitSnapshotModel GetBoundValueImpl(ParseResult parseResult) =>
         new WaitSnapshotModel(
-            bindingContext.ParseResult.GetValueForOption(SnapshotIdOpt)!, // Option is marked IsRequired in Command.cs
-            bindingContext.ParseResult.GetValueForOption(TimeoutOpt),
-            bindingContext.ParseResult.GetValueForOption(UpdateIntervalOpt)
-        ).BindGetPoolsOrTasksOptions(bindingContext, GetTasksOptions);
+            parseResult.GetValue(SnapshotIdOpt)!, // Option is marked Required in Command.cs
+            parseResult.GetValue(TimeoutOpt),
+            parseResult.GetValue(UpdateIntervalOpt)
+        ).BindGetPoolsOrTasksOptions(parseResult, GetTasksOptions);
 }

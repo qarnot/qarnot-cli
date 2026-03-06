@@ -1,6 +1,5 @@
 using QarnotCLI;
 using System.CommandLine;
-using System.CommandLine.Parsing;
 using QarnotSDK;
 
 var topLevelLogger = new Logger();
@@ -19,13 +18,13 @@ if (!DeprecationDisclaimer.ShouldIgnoreDeprecation)
 }
 
 var connectionConfiguration = new ConnectionConfigurationParser(topLevelLogger).Parse();
-var parser = new CommandLineBuilderFactory(useCasesFactory)
-    .Create(connectionConfiguration, releasesService, topLevelLogger)
-    .Build();
+var setup = new CommandLineBuilderFactory(useCasesFactory)
+    .Create(connectionConfiguration, releasesService, topLevelLogger);
 
 try
 {
-    var exitCode = await parser.InvokeAsync(args);
+    var parseResult = setup.RootCommand.Parse(args, setup.ParserConfig);
+    var exitCode = await parseResult.InvokeAsync(setup.InvocationConfig);
     Environment.Exit(exitCode);
 }
 catch (QarnotApiException e)

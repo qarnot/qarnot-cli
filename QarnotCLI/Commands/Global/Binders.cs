@@ -1,8 +1,13 @@
-using System.CommandLine.Binding;
+using System.CommandLine;
 
 namespace QarnotCLI;
 
-public abstract class GlobalBinder<T> : BinderBase<T>
+public abstract class ModelBinder<T>
+{
+    public abstract T GetBoundValue(ParseResult parseResult);
+}
+
+public abstract class GlobalBinder<T> : ModelBinder<T>
     where T: GlobalModel
 {
     private readonly GlobalOptions GlobalOptions;
@@ -12,26 +17,27 @@ public abstract class GlobalBinder<T> : BinderBase<T>
         GlobalOptions = options;
     }
 
-    protected abstract T GetBoundValueImpl(BindingContext bindingContext);
+    protected abstract T GetBoundValueImpl(ParseResult parseResult);
 
-    protected override T GetBoundValue(BindingContext bindingContext)
+    public override T GetBoundValue(ParseResult parseResult)
     {
-        var value = GetBoundValueImpl(bindingContext);
+        var value = GetBoundValueImpl(parseResult);
         value.Initialize(
-            token: bindingContext.ParseResult.GetValueForOption(GlobalOptions.TokenOpt) ?? GlobalOptions.ConnectionConfiguration.Token,
+            token: parseResult.GetValue(GlobalOptions.TokenOpt) ?? GlobalOptions.ConnectionConfiguration.Token,
             apiUri: GlobalOptions.ConnectionConfiguration.ApiUri,
             storageUri: GlobalOptions.ConnectionConfiguration.StorageUri,
             accountEmail: GlobalOptions.ConnectionConfiguration.AccountEmail,
-            unsafeSsl: bindingContext.ParseResult.GetValueForOption(GlobalOptions.UnsafeSslOpt) ?? GlobalOptions.ConnectionConfiguration.UnsafeSsl,
+            unsafeSsl: parseResult.GetValue(GlobalOptions.UnsafeSslOpt) ?? GlobalOptions.ConnectionConfiguration.UnsafeSsl,
             storageUnsafeSsl: GlobalOptions.ConnectionConfiguration.StorageUnsafeSsl,
-            customSslCertificat: bindingContext.ParseResult.GetValueForOption(GlobalOptions.CustomSslCertificateOpt) ?? "",
-            verbose: bindingContext.ParseResult.GetValueForOption(GlobalOptions.VerboseOpt),
-            quiet: bindingContext.ParseResult.GetValueForOption(GlobalOptions.QuietOpt),
-            noColor: bindingContext.ParseResult.GetValueForOption(GlobalOptions.NoColorOpt),
-            format: bindingContext.ParseResult.GetValueForOption(GlobalOptions.FormatOpt),
-            humanReadable: bindingContext.ParseResult.GetValueForOption(GlobalOptions.HumanReadableOpt),
+            customSslCertificat: parseResult.GetValue(GlobalOptions.CustomSslCertificateOpt) ?? "",
+            verbose: parseResult.GetValue(GlobalOptions.VerboseOpt),
+            quiet: parseResult.GetValue(GlobalOptions.QuietOpt),
+            noColor: parseResult.GetValue(GlobalOptions.NoColorOpt),
+            format: parseResult.GetValue(GlobalOptions.FormatOpt),
+            humanReadable: parseResult.GetValue(GlobalOptions.HumanReadableOpt),
             forcePathStyle: GlobalOptions.ConnectionConfiguration.ForcePathStyle,
             disableBucketPathsSanitization: GlobalOptions.ConnectionConfiguration.DisableBucketPathsSanitization,
+            noPersistedNextPageToken: GlobalOptions.ConnectionConfiguration.NoPersistedNextPageToken,
             configurationFile: GlobalOptions.ConnectionConfiguration.ConfigurationFile
         );
         return value;
@@ -45,6 +51,6 @@ public class GlobalBinder : GlobalBinder<GlobalModel>
     {
     }
 
-    protected override GlobalModel GetBoundValueImpl(BindingContext bindingContext) =>
+    protected override GlobalModel GetBoundValueImpl(ParseResult parseResult) =>
         new GlobalModel();
 }

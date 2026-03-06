@@ -2,6 +2,15 @@ using Newtonsoft.Json;
 
 namespace QarnotCLI;
 
+// CLI-local representation of an advanced task dependency.
+// Equivalent to QarnotSDK.AdvancedDependency for consistency.
+public record AdvancedDependencyModel(
+    [property: JsonProperty("TaskUuid")]
+    Guid TaskUuid,
+    [property: JsonProperty("TaskFinalStateCondition")]
+    List<QarnotSDK.TaskFinalState>? TaskFinalStateCondition
+);
+
 [JsonObject(MemberSerialization.OptIn)]
 public record CreateTaskModel(
     [property: JsonProperty("JobUuidOrShortname")]
@@ -38,8 +47,8 @@ public record CreateTaskModel(
     uint? MaxTimeQueueSeconds,
     [property: JsonProperty("MaxRetriesPerInstance")]
     uint? MaxRetriesPerInstance,
-    [property: JsonProperty("Dependents")]
-    List<string> Dependents,
+    [property: JsonProperty("DependsOn")]
+    List<AdvancedDependencyModel> DependsOn,
     [property: JsonProperty("DefaultResourcesCacheTTLSec")]
     uint? Ttl,
     [property: JsonProperty("ResultsCacheTTLSec")]
@@ -85,7 +94,7 @@ public record CreateTaskModel(
             MaxTotalRetries: null,
             MaxTimeQueueSeconds: null,
             MaxRetriesPerInstance: null,
-            Dependents: new(),
+            DependsOn: new(),
             Ttl: null,
             ResultTtl: null,
             HardwareConstraints: null,

@@ -1,5 +1,5 @@
 image:
-  mcr.microsoft.com/dotnet/sdk:6.0
+  mcr.microsoft.com/dotnet/sdk:10.0
 
 stages:
   - build
@@ -11,7 +11,7 @@ stages:
 
 variables:
   MAKEFILE_PATH: $CI_PROJECT_DIR/build/Makefile
-  AVAILABLE_RUNTIME_IDENTIFIERS: "ubuntu-x64;win-x64;osx-x64"
+  AVAILABLE_RUNTIME_IDENTIFIERS: "linux-x64;win-x64;osx-x64"
   CLI_BIN_DIR: $CI_PROJECT_DIR/QarnotCLI/bin/ubuntu/debug
   CLI_BIN_PATH: $CLI_BIN_DIR/qarnot
   GEN_DOC_BIN_DIR: $CI_PROJECT_DIR/QarnotCLI_Doc/CreateDoc/ubuntu/debug
@@ -76,8 +76,8 @@ prepare_doc_env:
     - mkdir -p $CLI_BIN_DIR
     - mkdir -p $GEN_DOC_BIN_DIR
   script:
-    - dotnet publish QarnotCLI -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o $CLI_BIN_DIR --use-current-runtime --self-contained
-    - dotnet publish QarnotCLI_Doc/CreateDoc -c Debug -r ubuntu-x64 /p:PublishSingleFile=true -o $GEN_DOC_BIN_DIR --use-current-runtime --self-contained
+    - dotnet publish QarnotCLI -c Debug -r linux-x64 /p:PublishSingleFile=true -o $CLI_BIN_DIR --use-current-runtime --self-contained
+    - dotnet publish QarnotCLI_Doc/CreateDoc -c Debug -r linux-x64 /p:PublishSingleFile=true -o $GEN_DOC_BIN_DIR --use-current-runtime --self-contained
   artifacts:
     paths:
       - $CLI_BIN_DIR
@@ -198,7 +198,7 @@ publish_master_linux:
   variables:
     BINARY_FOLDER: cli_master_binary
   script:
-    - dotnet publish QarnotCLI -c Release -r ubuntu-x64 /p:PublishSingleFile=true -o ./$BINARY_FOLDER --use-current-runtime --self-contained
+    - dotnet publish QarnotCLI -c Release -r linux-x64 /p:PublishSingleFile=true -o ./$BINARY_FOLDER --use-current-runtime --self-contained
   artifacts:
     paths:
       - $BINARY_FOLDER/qarnot
