@@ -151,6 +151,11 @@ public class TaskUseCases : ITaskUseCases
 
         task.TargetedReservedMachineKey = model.MachineTarget;
         task.TargetedReservationName = model.ReservationTarget;
+
+        if (model.ProjectUuid.HasValue)
+        {
+            task.ProjectUuid = model.ProjectUuid.Value;
+        }
     }
 
     private async Task<QTask> CreateTask(CreateTaskModel model)
@@ -226,7 +231,8 @@ public class TaskUseCases : ITaskUseCases
                         Uuid: task.Uuid.ToString(),
                         Shortname: task.Shortname,
                         Profile: task.Profile,
-                        InstanceCount: task.InstanceCount)});
+                        InstanceCount: task.InstanceCount,
+                        ProjectUuid: task.ProjectUuid == Guid.Empty ? null : task.ProjectUuid)});
         }
         else if (model.NoPaginate)
         {
@@ -240,7 +246,8 @@ public class TaskUseCases : ITaskUseCases
                             Uuid: t.Uuid.ToString(),
                             Shortname: t.Shortname,
                             Profile: t.Profile,
-                            InstanceCount: t.InstanceCount))
+                            InstanceCount: t.InstanceCount,
+                            ProjectUuid: t.ProjectUuid == Guid.Empty ? null : t.ProjectUuid))
                     .ToList());
         }
         else
@@ -256,7 +263,8 @@ public class TaskUseCases : ITaskUseCases
                             Uuid: t.Uuid.ToString(),
                             Shortname: t.Shortname,
                             Profile: t.Profile,
-                            InstanceCount: t.InstanceCount))
+                            InstanceCount: t.InstanceCount,
+                            ProjectUuid: t.ProjectUuid == Guid.Empty ? null : t.ProjectUuid))
                     .ToList(),
                 MaxPageSize: model.MaxPageSize,
                 NextPageToken: tasksPage.IsTruncated ? tasksPage.NextToken : string.Empty);

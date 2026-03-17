@@ -72,7 +72,9 @@ public record CreateTaskModel(
     [property: JsonProperty("Blacklist")]
     string? Blacklist,
     [property: JsonProperty("ExportApiAndStorageCredentialsInEnvironment")]
-    bool? ExportCredentialsToEnv
+    bool? ExportCredentialsToEnv,
+    [property: JsonProperty("ProjectUuid")]
+    Guid? ProjectUuid
 ): GlobalModel
 {
     public CreateTaskModel()
@@ -106,7 +108,8 @@ public record CreateTaskModel(
             Periodic: null,
             Whitelist: null,
             Blacklist: null,
-            ExportCredentialsToEnv: null
+            ExportCredentialsToEnv: null,
+            ProjectUuid: null
         )
     {
     }
@@ -150,6 +153,7 @@ public record TaskSummary(
     string Uuid,
     string Shortname,
     string Profile,
-    uint InstanceCount
+    uint InstanceCount,
+    Guid? ProjectUuid
 );
 

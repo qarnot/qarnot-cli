@@ -67,11 +67,11 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
     private readonly Option<string> ProfileOpt;
     private readonly Option<uint?> InstanceCountOpt;
     private readonly Option<string> FileOpt;
-    private readonly Option<List<string>> TagsOpt;
-    private readonly Option<List<string>> ConstantsOpt;
-    private readonly Option<List<string>> ConstraintsOpt;
-    private readonly Option<List<string>> LabelsOpt;
-    private readonly Option<List<string>> ResourcesOpt;
+    private readonly Option<List<string>?> TagsOpt;
+    private readonly Option<List<string>?> ConstantsOpt;
+    private readonly Option<List<string>?> ConstraintsOpt;
+    private readonly Option<List<string>?> LabelsOpt;
+    private readonly Option<List<string>?> ResourcesOpt;
     private readonly Option<bool?> TasksWaitForSynchronizationOpt;
     private readonly Option<uint?> TtlOpt;
     private readonly Option<uint?> MaxTotalRetriesOpt;
@@ -89,12 +89,13 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
     private readonly Option<decimal?> HardwareConstraintMinimumRamHardware;
     private readonly Option<decimal?> HardwareConstraintMaximumRamHardware;
     private readonly Option<string?> HardwareConstraintCpuModelHardware;
-    private readonly Option<List<string>> SecretsAccessRightsByKeyOpt;
-    private readonly Option<List<string>> SecretsAccessRightsByPrefixOpt;
+    private readonly Option<List<string>?> SecretsAccessRightsByKeyOpt;
+    private readonly Option<List<string>?> SecretsAccessRightsByPrefixOpt;
     private readonly Option<string> SchedulingTypeOpt;
     private readonly Option<string> MachineTargetOpt;
     private readonly Option<bool?> ExportCredentialsToEnvOpt;
     private readonly Option<uint?> SlotsPerNodeOpt;
+    private readonly Option<Guid?> ProjectUuidOpt;
 
     public CreatePoolBinder(
         Option<string> nameOpt,
@@ -102,11 +103,11 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         Option<string> profileOpt,
         Option<uint?> instanceCountOpt,
         Option<string> fileOpt,
-        Option<List<string>> tagsOpt,
-        Option<List<string>> constantsOpt,
-        Option<List<string>> constraintsOpt,
-        Option<List<string>> labelsOpt,
-        Option<List<string>> resourcesOpt,
+        Option<List<string>?> tagsOpt,
+        Option<List<string>?> constantsOpt,
+        Option<List<string>?> constraintsOpt,
+        Option<List<string>?> labelsOpt,
+        Option<List<string>?> resourcesOpt,
         Option<bool?> tasksWaitForSynchronizationOpt,
         Option<uint?> ttlOpt,
         Option<uint?> maxTotalRetriesOpt,
@@ -124,12 +125,13 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         Option<decimal?> hardwareConstraintMinimumRamHardware,
         Option<decimal?> hardwareConstraintMaximumRamHardware,
         Option<string?> hardwareConstraintCpuModelHardware,
-        Option<List<string>> secretsAccessRightsByKeyOpt,
-        Option<List<string>> secretsAccessRightsByPrefixOpt,
+        Option<List<string>?> secretsAccessRightsByKeyOpt,
+        Option<List<string>?> secretsAccessRightsByPrefixOpt,
         Option<string> schedulingTypeOpt,
         Option<string> machineTargetOpt,
         Option<bool?> exportCredentialsToEnvOpt,
         Option<uint?> slotsPerNodeOpt,
+        Option<Guid?> projectUuidOpt,
         GlobalOptions globalOptions
     ) : base(globalOptions)
     {
@@ -166,6 +168,7 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
         MachineTargetOpt = machineTargetOpt;
         ExportCredentialsToEnvOpt = exportCredentialsToEnvOpt;
         SlotsPerNodeOpt = slotsPerNodeOpt;
+        ProjectUuidOpt = projectUuidOpt;
     }
 
     protected override CreatePoolModel GetBoundValueImpl(ParseResult parseResult)
@@ -218,7 +221,8 @@ public class CreatePoolBinder : GlobalBinder<CreatePoolModel>
             SchedulingType: parseResult.GetValue(SchedulingTypeOpt) ?? model.SchedulingType,
             MachineTarget: parseResult.GetValue(MachineTargetOpt) ?? model.MachineTarget,
             ExportCredentialsToEnv: parseResult.GetValue(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv,
-            SlotsPerNode: parseResult.GetValue(SlotsPerNodeOpt) ?? model.SlotsPerNode
+            SlotsPerNode: parseResult.GetValue(SlotsPerNodeOpt) ?? model.SlotsPerNode,
+            ProjectUuid: parseResult.GetValue(ProjectUuidOpt) ?? model.ProjectUuid
         );
 
         if (string.IsNullOrWhiteSpace(model.Name))

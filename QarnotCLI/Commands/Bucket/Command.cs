@@ -48,15 +48,15 @@ public class BucketCommand : Command
             ),
         };
 
-        var filesOpt = new Option<List<string>>("--files")
+        var filesOpt = new Option<List<string>?>("--files")
         {
-            Description = "Files to send to the bucket.", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Files to send to the bucket.",
+        }.WithMultipleArgs();
 
-        var folderOpt = new Option<List<string>>("--folder")
+        var folderOpt = new Option<List<string>?>("--folder")
         {
-            Description = "Folders to send to the bucket.", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Folders to send to the bucket.",
+        }.WithMultipleArgs();
 
         var nameOpt = new Option<string>("--name", "-n")
         {
@@ -173,15 +173,15 @@ public class BucketCommand : Command
             Description = "Local Path folder to send the uploaded files. (default : current path)",
         };
 
-        var bucketFolderOpt = new Option<List<string>>("--bucket-folder", "-b")
+        var bucketFolderOpt = new Option<List<string>?>("--bucket-folder", "-b")
         {
-            Description = "Bucket list of folders to get", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Bucket list of folders to get",
+        }.WithMultipleArgs();
 
-        var bucketFileOpt = new Option<List<string>>("--bucket-file", "-f")
+        var bucketFileOpt = new Option<List<string>?>("--bucket-file", "-f")
         {
-            Description = "Bucket list of files to get", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Bucket list of files to get",
+        }.WithMultipleArgs();
 
         var stringOpt = new Option<string>("--string", "-s")
         {
@@ -253,15 +253,15 @@ public class BucketCommand : Command
             Description = "Name of the bucket to upload to", Required = true,
         };
 
-        var localFolderOpt = new Option<List<string>>("--local-folder", "-l")
+        var localFolderOpt = new Option<List<string>?>("--local-folder", "-l")
         {
-            Description = "List of folders to send", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "List of folders to send",
+        }.WithMultipleArgs();
 
-        var localFileOpt = new Option<List<string>>("--local-file", "-f")
+        var localFileOpt = new Option<List<string>?>("--local-file", "-f")
         {
-            Description = "List of files to send", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "List of files to send",
+        }.WithMultipleArgs();
 
         var bucketPathOpt = new Option<string>("--bucket-path", "-b")
         {

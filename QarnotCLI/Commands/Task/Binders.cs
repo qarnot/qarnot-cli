@@ -13,17 +13,17 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
     private readonly Option<string> RangeOpt;
     private readonly Option<uint?> InstanceOpt;
     private readonly Option<string> FileOpt;
-    private readonly Option<List<string>> TagsOpt;
-    private readonly Option<List<string>> ConstantsOpt;
-    private readonly Option<List<string>> ConstraintsOpt;
-    private readonly Option<List<string>> LabelsOpt;
-    private readonly Option<List<string>> ResourcesOpt;
+    private readonly Option<List<string>?> TagsOpt;
+    private readonly Option<List<string>?> ConstantsOpt;
+    private readonly Option<List<string>?> ConstraintsOpt;
+    private readonly Option<List<string>?> LabelsOpt;
+    private readonly Option<List<string>?> ResourcesOpt;
     private readonly Option<string> ResultOpt;
     private readonly Option<bool?> WaitForResourcesSynchronizationOpt;
     private readonly Option<uint?> MaxTotalRetriesOpt;
     private readonly Option<uint?> MaxRetriesPerInstanceOpt;
     private readonly Option<uint?> MaxTimeQueueSecondsOpt;
-    private readonly Option<List<string>> DependsOnOpt;
+    private readonly Option<List<string>?> DependsOnOpt;
     private readonly Option<uint?> TtlOpt;
     private readonly Option<uint?> ResultTtlOpt;
     private readonly Option<uint?> HardwareConstraintMinimumCoreCountOpt;
@@ -37,8 +37,8 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
     private readonly Option<decimal?> HardwareConstraintMinimumRamHardware;
     private readonly Option<decimal?> HardwareConstraintMaximumRamHardware;
     private readonly Option<string?> HardwareConstraintCpuModelHardware;
-    private readonly Option<List<string>> SecretsAccessRightsByKeyOpt;
-    private readonly Option<List<string>> SecretsAccessRightsByPrefixOpt;
+    private readonly Option<List<string>?> SecretsAccessRightsByKeyOpt;
+    private readonly Option<List<string>?> SecretsAccessRightsByPrefixOpt;
     private readonly Option<string> SchedulingTypeOpt;
     private readonly Option<string> MachineTargetOpt;
     private readonly Option<string> ReservationTargetOpt;
@@ -46,6 +46,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
     private readonly Option<string> WhitelistOpt;
     private readonly Option<string> BlacklistOpt;
     private readonly Option<bool?> ExportCredentialsToEnvOpt;
+    private readonly Option<Guid?> ProjectUuidOpt;
 
     public CreateTaskBinder(
         Option<string> jobOpt,
@@ -56,17 +57,17 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         Option<string> rangeOpt,
         Option<uint?> instanceOpt,
         Option<string> fileOpt,
-        Option<List<string>> tagsOpt,
-        Option<List<string>> constantsOpt,
-        Option<List<string>> constraintsOpt,
-        Option<List<string>> labelsOpt,
-        Option<List<string>> resourcesOpt,
+        Option<List<string>?> tagsOpt,
+        Option<List<string>?> constantsOpt,
+        Option<List<string>?> constraintsOpt,
+        Option<List<string>?> labelsOpt,
+        Option<List<string>?> resourcesOpt,
         Option<string> resultOpt,
         Option<bool?> waitForResourcesSynchronizationOpt,
         Option<uint?> maxTotalRetriesOpt,
         Option<uint?> maxRetriesPerInstanceOpt,
         Option<uint?> maxTimeQueueSecondsOpt,
-        Option<List<string>> dependsOnOpt,
+        Option<List<string>?> dependsOnOpt,
         Option<uint?> ttlOpt,
         Option<uint?> resultTtlOpt,
         Option<uint?> hardwareConstraintMinimumCoreCount,
@@ -80,8 +81,8 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         Option<decimal?> hardwareConstraintMinimumRamHardware,
         Option<decimal?> hardwareConstraintMaximumRamHardware,
         Option<string?> hardwareConstraintCpuModelHardware,
-        Option<List<string>> secretsAccessRightsByKeyOpt,
-        Option<List<string>> secretsAccessRightsByPrefixOpt,
+        Option<List<string>?> secretsAccessRightsByKeyOpt,
+        Option<List<string>?> secretsAccessRightsByPrefixOpt,
         Option<string> schedulingTypeOpt,
         Option<string> machineTargetOpt,
         Option<string> reservationTargetOpt,
@@ -89,6 +90,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         Option<string> whitelistOpt,
         Option<string> blacklistOpt,
         Option<bool?> exportCredentialsToEnv,
+        Option<Guid?> projectUuidOpt,
         GlobalOptions globalOptions
     ) : base(globalOptions)
     {
@@ -133,6 +135,7 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
         WhitelistOpt = whitelistOpt;
         BlacklistOpt = blacklistOpt;
         ExportCredentialsToEnvOpt = exportCredentialsToEnv;
+        ProjectUuidOpt = projectUuidOpt;
     }
 
     protected override CreateTaskModel GetBoundValueImpl(ParseResult parseResult)
@@ -188,7 +191,8 @@ public class CreateTaskBinder : GlobalBinder<CreateTaskModel>
             Periodic: parseResult.GetValue(PeriodicOpt) ?? model.Periodic,
             Whitelist: parseResult.GetValue(WhitelistOpt) ?? model.Whitelist,
             Blacklist: parseResult.GetValue(BlacklistOpt) ?? model.Blacklist,
-            ExportCredentialsToEnv: parseResult.GetValue(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv
+            ExportCredentialsToEnv: parseResult.GetValue(ExportCredentialsToEnvOpt) ?? model.ExportCredentialsToEnv,
+            ProjectUuid: parseResult.GetValue(ProjectUuidOpt) ?? model.ProjectUuid
         );
 
         if (string.IsNullOrWhiteSpace(model.Name))

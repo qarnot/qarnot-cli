@@ -140,6 +140,11 @@ public class PoolUseCases : IPoolUseCases
             pool.MultiSlotsSettings = new MultiSlotsSettings(slotsPerNode);
         }
 
+        if (model.ProjectUuid.HasValue)
+        {
+            pool.ProjectUuid = model.ProjectUuid.Value;
+        }
+
         return pool;
     }
 
@@ -172,7 +177,8 @@ public class PoolUseCases : IPoolUseCases
                         pool.State,
                         pool.CreationDate,
                         pool.QueuedOrRunningTaskInstancesCount,
-                        pool.TaskDefaultWaitForPoolResourcesSynchronization)});
+                        pool.TaskDefaultWaitForPoolResourcesSynchronization,
+                        pool.ProjectUuid == Guid.Empty ? null : pool.ProjectUuid)});
         }
 
         else if (model.NoPaginate)
@@ -188,7 +194,8 @@ public class PoolUseCases : IPoolUseCases
                             p.State,
                             p.CreationDate,
                             p.QueuedOrRunningTaskInstancesCount,
-                            p.TaskDefaultWaitForPoolResourcesSynchronization))
+                            p.TaskDefaultWaitForPoolResourcesSynchronization,
+                            p.ProjectUuid == Guid.Empty ? null : p.ProjectUuid))
                     .ToList());
         }
         else
@@ -205,7 +212,8 @@ public class PoolUseCases : IPoolUseCases
                             p.State,
                             p.CreationDate,
                             p.QueuedOrRunningTaskInstancesCount,
-                            TaskDefaultWaitForPoolResourcesSynchronization: p.TaskDefaultWaitForPoolResourcesSynchronization))
+                            TaskDefaultWaitForPoolResourcesSynchronization: p.TaskDefaultWaitForPoolResourcesSynchronization,
+                            ProjectUuid: p.ProjectUuid == Guid.Empty ? null : p.ProjectUuid))
                     .ToList(),
                 MaxPageSize: model.MaxPageSize,
                 NextPageToken: tasksPage.IsTruncated ? tasksPage.NextToken : string.Empty);

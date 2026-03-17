@@ -69,6 +69,7 @@ public class MockParser
     public Mock<IHardwareConstraintsUseCases> HardwareConstraintsUseCase { get; }
     public Mock<IJobUseCases> JobUseCases { get; }
     public Mock<ISecretsUseCases> SecretsUseCases { get; }
+    public Mock<IProjectUseCases> ProjectUseCases { get; }
 
     public MockParser()
     {
@@ -84,6 +85,7 @@ public class MockParser
         HardwareConstraintsUseCase = new Mock<IHardwareConstraintsUseCases>();
         JobUseCases = new Mock<IJobUseCases>();
         SecretsUseCases = new Mock<ISecretsUseCases>();
+        ProjectUseCases = new Mock<IProjectUseCases>();
 
         var setup = new CommandLineBuilderFactory(
             _ => TaskUseCases.Object,
@@ -94,7 +96,8 @@ public class MockParser
             _ => AllUseCases.Object,
             _ => SecretsUseCases.Object,
             _ => ConfigUseCases.Object,
-            _ => AccountUseCases.Object
+            _ => AccountUseCases.Object,
+            _ => ProjectUseCases.Object
         ).Create(
             new(), releasesService, new Logger()
         );

@@ -17,6 +17,7 @@ public class TestTaskCommand
         var range = "1-5";
         var instance = 42;
         var profile = "PROFILE";
+        var projectUuid = Guid.NewGuid();
         var tags = new[] { "TAG1", "TAG2", "TAG3" };
         var constants = new[] { "CONSTANT" };
         var constraints = new[] { "CONSTRAINTS" };
@@ -34,7 +35,7 @@ public class TestTaskCommand
         var res = await mock.Parser.InvokeAsync(
             new[] {
                 "task", "create", "--name", name1, "--shortname", shortname, "--instance", instance.ToString(), "--profile", profile,
-                "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
+                "--project-uuid", projectUuid.ToString(), "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
                 "--wait-for-resources-synchronization", "true" , "--periodic", periodic.ToString(), "--whitelist",  whitelist,
                 "--max-time-queue", maxTimeQueueSeconds.ToString(), 
                 "--blacklist", blacklist, "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString()
@@ -47,6 +48,7 @@ public class TestTaskCommand
             model.Name == name1 &&
             model.ShortName == shortname &&
             model.Profile == profile &&
+            model.ProjectUuid == projectUuid &&
             model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
             model.Constants.Zip(constants).All(pair => pair.First == pair.Second) &&
             model.Constraints.Zip(constraints).All(pair => pair.First == pair.Second) &&
@@ -1070,6 +1072,138 @@ public class TestAdvancedDependencyValidation
         finally
         {
             File.Delete(jsonFile);
+        }
+    }
+}
+
+
+// A few tests checking what happens if we give invalid arguments. We want to fail with a human-readable
+// hint as to why.
+[TestFixture]
+public class TestTaskInvalidArguments
+{
+
+    [Test]
+    public async Task CreateTaskListOptionsAcceptMultipleTokens()
+    {
+        var mock = new MockParser();
+
+        var tags = new[] { "TAG1", "TAG2", "TAG3" };
+        var constants = new[] { "KEY1=VAL1", "KEY2=VAL2" };
+        var resources = new[] { "bucket-a", "bucket-b" };
+
+        var res = await mock.Parser.InvokeAsync(
+            new[] {
+                "task", "create",
+                "--name", "MyTask", "--instance", "1", "--profile", "docker-batch",
+                "--tags", tags[0], tags[1], tags[2],
+                "--constants", constants[0], constants[1],
+                "--resources", resources[0], resources[1],
+            }
+        );
+
+        Assert.That(res, Is.EqualTo(0), "multiple tokens per list option should succeed");
+
+        mock.TaskUseCases.Verify(useCases => useCases.Create(It.Is<CreateTaskModel>(model =>
+            model.Tags.SequenceEqual(tags) &&
+            model.Constants.SequenceEqual(constants) &&
+            model.Resources.SequenceEqual(resources)
+        )), Times.Once);
+    }
+
+    [Test]
+    public async Task CreateTaskInvalidArgAfterListOptionIsRejected()
+    {
+        try
+        {
+            using var sw = new StringWriter();
+            Console.SetError(sw);
+
+            var mock = new MockParser();
+
+            // --invalid-arg after a list option (--tags) must be rejected, not silently consumed as a tag value
+            var res = await mock.Parser.InvokeAsync(
+                new[] {
+                    "task", "create",
+                    "--name", "MyTask", "--instance", "1", "--profile", "docker-batch",
+                    "--tags", "TAG1", "--invalid-arg",
+                }
+            );
+
+            Assert.That(res, Is.Not.EqualTo(0), "--invalid-arg after a list option must be rejected");
+            mock.TaskUseCases.Verify(useCases => useCases.Create(It.IsAny<CreateTaskModel>()), Times.Never);
+
+            Assert.That(sw.ToString(), Does.Contain("Unrecognized command or argument '--invalid-arg'"));
+        }
+        finally 
+        {
+            Console.SetError(new StreamWriter(Console.OpenStandardError()));
+        }
+    }
+
+    [Test]
+    public async Task CreateTaskMultipleInvalidArgsAfterListOptionAreAllRejected()
+    {
+        try
+        {
+            using var sw = new StringWriter();
+            Console.SetError(sw);
+
+            var mock = new MockParser();
+
+            // reproduces the exact scenario from the bug report:
+            // task create -n Task -i 1 --profile docker-batch -t tag1 --invalid-argument --invalid-argument-2 invalid-value2 --shortname my-task --invalid-argument-3 invalid-value-3
+            var res = await mock.Parser.InvokeAsync(
+                new[] {
+                    "task", "create",
+                    "-n", "Task", "-i", "1", "--profile", "docker-batch",
+                    "-t", "tag1", "--invalid-argument", "--invalid-argument-2", "invalid-value-2",
+                    "--shortname", "my-task", "--invalid-argument-3", "invalid-value-3",
+                }
+            );
+
+            Assert.That(res, Is.Not.EqualTo(0), "invalid arguments after list option must all be rejected");
+            mock.TaskUseCases.Verify(useCases => useCases.Create(It.IsAny<CreateTaskModel>()), Times.Never);
+
+            Assert.That(sw.ToString(), Does.Contain("Unrecognized command or argument '--invalid-argument'"));
+            Assert.That(sw.ToString(), Does.Contain("Unrecognized command or argument '--invalid-argument-2'"));
+            // 'invalid-value2' doesn't start with '-', so it is silently consumed as a tag value — unavoidable
+            Assert.That(sw.ToString(), Does.Contain("Unrecognized command or argument '--invalid-argument-3'"));
+            Assert.That(sw.ToString(), Does.Contain("Unrecognized command or argument 'invalid-value-3'"));
+            Assert.That(sw.ToString(), Does.Not.Contain("Unrecognized command or argument '--shortname'"));
+        }
+        finally 
+        {
+            Console.SetError(new StreamWriter(Console.OpenStandardError()));
+        }
+    }
+
+    [Test]
+    public async Task CreateTaskFlagLikeValueInListOptionIsRejected() // BREAKING CHANGE
+    {
+        try
+        {
+            using var sw = new StringWriter();
+            Console.SetError(sw);
+
+            var mock = new MockParser();
+
+            // a value that starts with '-' but is not a known option should be rejected, not silently stored as a tag
+            var res = await mock.Parser.InvokeAsync(
+                new[] {
+                    "task", "create",
+                    "--name", "MyTask", "--instance", "1", "--profile", "docker-batch",
+                    "--constants", "-not-a-flag",
+                }
+            );
+
+            Assert.That(res, Is.Not.EqualTo(0), "a value starting with '-' in a list option must be rejected");
+            mock.TaskUseCases.Verify(useCases => useCases.Create(It.IsAny<CreateTaskModel>()), Times.Never);
+            Assert.That(sw.ToString(), Does.Contain("Unrecognized command or argument '-not-a-flag'"));
+        }
+        finally 
+        {
+            Console.SetError(new StreamWriter(Console.OpenStandardError()));
         }
     }
 }

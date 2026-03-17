@@ -20,6 +20,7 @@ public class CommandLineBuilderFactory
     private readonly Func<GlobalModel, ISecretsUseCases> SecretsUseCasesFactory;
     private readonly Func<GlobalModel, IConfigUseCases> ConfigUseCasesFactory;
     private readonly Func<GlobalModel, IAccountUseCases> AccountUseCasesFactory;
+    private readonly Func<GlobalModel, IProjectUseCases> ProjectUseCasesFactory;
 
     public CommandLineBuilderFactory(UseCasesFactory useCasesFactory)
         : this(
@@ -38,7 +39,8 @@ public class CommandLineBuilderFactory
                 ),
             useCasesFactory.Create<SecretsUseCases>,
             options => new ConfigUseCases(useCasesFactory.LoggerFactory.Create(options)),
-            useCasesFactory.Create<AccountUseCases>
+            useCasesFactory.Create<AccountUseCases>,
+            useCasesFactory.Create<ProjectUseCases>
         )
     {
     }
@@ -52,7 +54,8 @@ public class CommandLineBuilderFactory
         Func<GlobalModel, IAllUseCases> allUseCasesFactory,
         Func<GlobalModel, ISecretsUseCases> secretsUseCasesFactory,
         Func<GlobalModel, IConfigUseCases> configUseCasesFactory,
-        Func<GlobalModel, IAccountUseCases> accountUseCasesFactory
+        Func<GlobalModel, IAccountUseCases> accountUseCasesFactory,
+        Func<GlobalModel, IProjectUseCases> projectUseCasesFactory
     )
     {
         TaskUseCasesFactory = taskUseCasesFactory;
@@ -64,6 +67,7 @@ public class CommandLineBuilderFactory
         SecretsUseCasesFactory = secretsUseCasesFactory;
         ConfigUseCasesFactory = configUseCasesFactory;
         AccountUseCasesFactory = accountUseCasesFactory;
+        ProjectUseCasesFactory = projectUseCasesFactory;
     }
 
     public CommandLineSetup Create(
@@ -86,6 +90,7 @@ public class CommandLineBuilderFactory
             new SecretsCommands(globalOptions, SecretsUseCasesFactory),
             new ConfigCommand(globalOptions, ConfigUseCasesFactory),
             new AccountCommand(globalOptions, AccountUseCasesFactory),
+            new ProjectCommand(globalOptions, ProjectUseCasesFactory),
             new VersionCommand(assemblyDetails, logger),
         };
         rootCommand.AddGlobalOptions(globalOptions);

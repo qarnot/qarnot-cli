@@ -5,13 +5,13 @@ namespace QarnotCLI;
 public class CreateBucketBinder : GlobalBinder<CreateBucketModel>
 {
     private readonly Option<string> NameOpt;
-    private readonly Option<List<string>> FilesOpt;
-    private readonly Option<List<string>> FoldersOpt;
+    private readonly Option<List<string>?> FilesOpt;
+    private readonly Option<List<string>?> FoldersOpt;
 
     public CreateBucketBinder(
         Option<string> nameOpt,
-        Option<List<string>> filesOpt,
-        Option<List<string>> foldersOpt,
+        Option<List<string>?> filesOpt,
+        Option<List<string>?> foldersOpt,
         GlobalOptions globalOptions
     ) : base(globalOptions)
     {
@@ -54,15 +54,15 @@ public class GetBucketBinder : GlobalBinder<GetBucketModel>
 {
     private readonly Option<string> NameOpt;
     private readonly Option<string> LocalPathOpt;
-    private readonly Option<List<string>> BucketFoldersOpt;
-    private readonly Option<List<string>> BucketFilesOpt;
+    private readonly Option<List<string>?> BucketFoldersOpt;
+    private readonly Option<List<string>?> BucketFilesOpt;
     private readonly Option<string> StringOpt;
 
     public GetBucketBinder(
         Option<string> nameOpt,
         Option<string> localPathOpt,
-        Option<List<string>> bucketFoldersOpt,
-        Option<List<string>> bucketFilesOpt,
+        Option<List<string>?> bucketFoldersOpt,
+        Option<List<string>?> bucketFilesOpt,
         Option<string> stringOpt,
         GlobalOptions globalOptions
     ) : base(globalOptions)
@@ -87,15 +87,15 @@ public class GetBucketBinder : GlobalBinder<GetBucketModel>
 public class PutBucketBinder : GlobalBinder<PutBucketModel>
 {
     private readonly Option<string> NameOpt;
-    private readonly Option<List<string>> LocalFoldersOpt;
-    private readonly Option<List<string>> LocalFilesOpt;
+    private readonly Option<List<string>?> LocalFoldersOpt;
+    private readonly Option<List<string>?> LocalFilesOpt;
     private readonly Option<string> BucketPathOpt;
     private readonly Option<string> SendOpt;
 
     public PutBucketBinder(
         Option<string> nameOpt,
-        Option<List<string>> localFoldersOpt,
-        Option<List<string>> localFilesOpt,
+        Option<List<string>?> localFoldersOpt,
+        Option<List<string>?> localFilesOpt,
         Option<string> bucketPathOpt,
         Option<string> sendOpt,
         GlobalOptions globalOptions

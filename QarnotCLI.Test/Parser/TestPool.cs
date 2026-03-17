@@ -16,6 +16,7 @@ public class TestPoolCommand
         var shortname = "SHORT";
         var instance = 42;
         var profile = "PROFILE";
+        var projectUuid = Guid.NewGuid();
         var tags = new[] { "TAG1", "TAG2", "TAG3" };
         var constants = new[] { "CONSTANT" };
         var constraints = new[] { "CONSTRAINTS" };
@@ -28,7 +29,7 @@ public class TestPoolCommand
         var res = await mock.Parser.InvokeAsync(
             new[] {
                 "pool", "create", "--name", name1, "--shortname", shortname, "--instanceNodes", instance.ToString(), "--profile", profile,
-                "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
+                "--project-uuid", projectUuid.ToString(), "--tags", tags[0], tags[1], tags[2], "--constants", constants[0], "--constraints", constraints[0],
                 "--tasks-wait-for-synchronization", "true" , "--export-credentials-to-env", "true", "--ttl", defaultTTL.ToString(),
                 "--max-retries-per-instance", maxRetriesPerInstance.ToString(), "--max-total-retries", maxTotalRetries.ToString(),
                 "--max-time-queue", maxTimeQueueSeconds.ToString(),
@@ -42,6 +43,7 @@ public class TestPoolCommand
             model.Name == name1 &&
             model.Shortname == shortname &&
             model.Profile == profile &&
+            model.ProjectUuid == projectUuid &&
             model.Tags.Zip(tags).All(pair => pair.First == pair.Second) &&
             model.Constants.Zip(constants).All(pair => pair.First == pair.Second) &&
             model.Constraints.Zip(constraints).All(pair => pair.First == pair.Second) &&

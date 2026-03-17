@@ -81,30 +81,30 @@ public class PoolCommand : Command
             Description = "File with a json configuration of the pool. (example : echo '{\"Shortname\": \"SN\",\"Name\": \"PoolName\",\"Profile\": \"docker-batch\",\"InstanceCount\": 1}' > CreatePool.json)",
         };
 
-        var tagsOpt = new Option<List<string>>("--tags", "-t")
+        var tagsOpt = new Option<List<string>?>("--tags", "-t")
         {
-            Description = "Tags of the pool", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Tags of the pool",
+        }.WithMultipleArgs();
 
-        var constantsOpt = new Option<List<string>>("--constants", "-c")
+        var constantsOpt = new Option<List<string>?>("--constants", "-c")
         {
-            Description = "Constants of the pool", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Constants of the pool",
+        }.WithMultipleArgs();
 
-        var constraintsOpt = new Option<List<string>>("--constraints")
+        var constraintsOpt = new Option<List<string>?>("--constraints")
         {
-            Description = "Constraints of the pool", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Constraints of the pool",
+        }.WithMultipleArgs();
 
-        var labelsOpt = new Option<List<string>>("--labels")
+        var labelsOpt = new Option<List<string>?>("--labels")
         {
-            Description = "Labels of the pool", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Labels of the pool",
+        }.WithMultipleArgs();
 
-        var resourcesOpt = new Option<List<string>>("--resources", "-r")
+        var resourcesOpt = new Option<List<string>?>("--resources", "-r")
         {
-            Description = "Name of the buckets of the task", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Name of the buckets of the task",
+        }.WithMultipleArgs();
 
         var tasksWaitForSynchronizationOpt = new Option<bool?>("--tasks-wait-for-synchronization")
         {
@@ -158,8 +158,8 @@ public class PoolCommand : Command
 
         var hardwareConstraintSpecificHardwareOpt = new Option<List<string>?>("--specific-hardware-constraints")
         {
-            Description = "List of constraints for specific hardware, described by specification keys. Specification keys are to be separated by spaces. Make sure to quote specification keys if they contain spaces (example : qarnot pool create --name thename --profile theprofile --specific-hardware-constraints \"Amd Ryzen 7\" \"Another hardware constraint\") ", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "List of constraints for specific hardware, described by specification keys. Specification keys are to be separated by spaces. Make sure to quote specification keys if they contain spaces (example : qarnot pool create --name thename --profile theprofile --specific-hardware-constraints \"Amd Ryzen 7\" \"Another hardware constraint\") ",
+        }.WithMultipleArgs();
 
         var hardwareConstraintGpuHardwareOpt = new Option<bool?>("--gpu-hardware")
         {
@@ -191,15 +191,15 @@ public class PoolCommand : Command
             Description = "Target a specific CPU model to use when running the tasks in the pool",
         };
 
-        var secretsAccessRightsByKeyOpt = new Option<List<string>>("--secrets-access-rights-by-key")
+        var secretsAccessRightsByKeyOpt = new Option<List<string>?>("--secrets-access-rights-by-key")
         {
-            Description = "Give the pool access to secrets described by their keys", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Give the pool access to secrets described by their keys",
+        }.WithMultipleArgs();
 
-        var secretsAccessRightsByPrefixOpt = new Option<List<string>>("--secrets-access-rights-by-prefix")
+        var secretsAccessRightsByPrefixOpt = new Option<List<string>?>("--secrets-access-rights-by-prefix")
         {
-            Description = "Give the pool access to secrets described by their prefixs", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Give the pool access to secrets described by their prefixs",
+        }.WithMultipleArgs();
 
         var schedulingTypeOpt = new Option<string>("--scheduling-type")
         {
@@ -219,6 +219,11 @@ public class PoolCommand : Command
         var slotsPerNodeOpt = new Option<uint?>("--slots-per-node")
         {
             Description = "Number of slots per node (Multi slots settings)",
+        };
+
+        var projectUuidOpt = new Option<Guid?>("--project-uuid")
+        {
+            Description = "UUID of the project this pool belongs to",
         };
 
         var cmd = new CommandWithExamples("create", "Create and launch a new pool")
@@ -256,7 +261,8 @@ public class PoolCommand : Command
             schedulingTypeOpt,
             machineTargetOpt,
             exportCredentialsToEnvOpt,
-            slotsPerNodeOpt
+            slotsPerNodeOpt,
+            projectUuidOpt
         };
 
         cmd.SetModelAction(
@@ -295,6 +301,7 @@ public class PoolCommand : Command
                 machineTargetOpt,
                 exportCredentialsToEnvOpt,
                 slotsPerNodeOpt,
+                projectUuidOpt,
                 GlobalOptions
             )
         );

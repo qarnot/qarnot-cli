@@ -47,7 +47,9 @@ public record CreatePoolModel(
     [property: JsonProperty("ExportApiAndStorageCredentialsInEnvironment")]
     bool? ExportCredentialsToEnv,
     [property: JsonProperty("SlotsPerNode")]
-    uint? SlotsPerNode
+    uint? SlotsPerNode,
+    [property: JsonProperty("ProjectUuid")]
+    Guid? ProjectUuid
 ): GlobalModel
 {
     public CreatePoolModel()
@@ -73,7 +75,8 @@ public record CreatePoolModel(
             SchedulingType: null,
             MachineTarget: null,
             ExportCredentialsToEnv: null,
-            SlotsPerNode: null
+            SlotsPerNode: null,
+            ProjectUuid: null
         )
     {
     }
@@ -92,5 +95,6 @@ public record PoolSummary(
     string State,
     DateTime CreationDate,
     int QueuedOrRunningTaskInstancesCount,
-    bool? TaskDefaultWaitForPoolResourcesSynchronization
+    bool? TaskDefaultWaitForPoolResourcesSynchronization,
+    Guid? ProjectUuid
 );

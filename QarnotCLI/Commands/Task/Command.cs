@@ -162,30 +162,30 @@ public class TaskCommand : Command
             Description = "File with a json configuration of the task. (example : echo '{\"Shortname\": \"SN\",\"Name\": \"TaskName\",\"Profile\": \"docker-batch\",\"Constants\": [ \"DOCKER_CMD=echo hello world\", ],\"InstanceCount\": 1}' > CreateTask.json)",
         };
 
-        var tagsOpt = new Option<List<string>>("--tags", "-t")
+        var tagsOpt = new Option<List<string>?>("--tags", "-t")
         {
-            Description = "Tags of the task", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Tags of the task",
+        }.WithMultipleArgs();
 
-        var constantsOpt = new Option<List<string>>("--constants", "-c")
+        var constantsOpt = new Option<List<string>?>("--constants", "-c")
         {
-            Description = "Constants of the task", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Constants of the task",
+        }.WithMultipleArgs();
 
-        var constraintsOpt = new Option<List<string>>("--constraints")
+        var constraintsOpt = new Option<List<string>?>("--constraints")
         {
-            Description = "Constraints of the task", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Constraints of the task",
+        }.WithMultipleArgs();
 
-        var labelsOpt = new Option<List<string>>("--labels")
+        var labelsOpt = new Option<List<string>?>("--labels")
         {
-            Description = "Labels of the task", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Labels of the task",
+        }.WithMultipleArgs();
 
-        var resourcesOpt = new Option<List<string>>("--resources", "-r")
+        var resourcesOpt = new Option<List<string>?>("--resources", "-r")
         {
-            Description = "Name of the buckets of the task", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Name of the buckets of the task",
+        }.WithMultipleArgs();
 
         var resultOpt = new Option<string>("--result")
         {
@@ -212,11 +212,10 @@ public class TaskCommand : Command
             Description = "Max time to wait before time out when there is not any place to execute the task (in seconds)",
         };
 
-        var dependsOnOpt = new Option<List<string>>("--depends-on", "-d")
+        var dependsOnOpt = new Option<List<string>?>("--depends-on", "-d")
         {
             Description = "List of task UUIDs and optional final states that this task must wait for before starting. (Must be used with a job with 'use-dependencies' set.)",
-            AllowMultipleArgumentsPerToken = true,
-        };
+        }.WithMultipleArgs();
 
         var ttlOpt = new Option<uint?>("--ttl")
         {
@@ -250,8 +249,8 @@ public class TaskCommand : Command
 
         var hardwareConstraintSpecificHardwareOpt = new Option<List<string>?>("--specific-hardware-constraints")
         {
-            Description = "List of constraints for specific hardware, described by specification keys. Specification keys are to be separated by spaces. Make sure to quote specification keys if they contain spaces (example : qarnot pool create --name thename --profile theprofile --specific-hardware-constraints \"Amd Ryzen 7\" \"Another hardware constraint\") ", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "List of constraints for specific hardware, described by specification keys. Specification keys are to be separated by spaces. Make sure to quote specification keys if they contain spaces (example : qarnot pool create --name thename --profile theprofile --specific-hardware-constraints \"Amd Ryzen 7\" \"Another hardware constraint\") ",
+        }.WithMultipleArgs();
 
         var hardwareConstraintGpuHardwareOpt = new Option<bool?>("--gpu-hardware")
         {
@@ -283,15 +282,15 @@ public class TaskCommand : Command
             Description = "Target a specific CPU model to use when running the task",
         };
 
-        var secretsAccessRightsByKeyOpt = new Option<List<string>>("--secrets-access-rights-by-key")
+        var secretsAccessRightsByKeyOpt = new Option<List<string>?>("--secrets-access-rights-by-key")
         {
-            Description = "Give the task access to secrets described by their keys. Only available to standalone task, use `--secrets-access-rights-by-key` on the pool for tasks running within a pool", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Give the task access to secrets described by their keys. Only available to standalone task, use `--secrets-access-rights-by-key` on the pool for tasks running within a pool",
+        }.WithMultipleArgs();
 
-        var secretsAccessRightsByPrefixOpt = new Option<List<string>>("--secrets-access-rights-by-prefix")
+        var secretsAccessRightsByPrefixOpt = new Option<List<string>?>("--secrets-access-rights-by-prefix")
         {
-            Description = "Give the task access to secrets described by their prefixs. Only available to standalone task, use `--secrets-access-rights-by-prefix` on the pool for tasks running within a pool", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = "Give the task access to secrets described by their prefixs. Only available to standalone task, use `--secrets-access-rights-by-prefix` on the pool for tasks running within a pool",
+        }.WithMultipleArgs();
 ;
 
         var schedulingTypeOpt = new Option<string>("--scheduling-type")
@@ -327,6 +326,11 @@ public class TaskCommand : Command
         var exportCredentialsToEnvOpt = new Option<bool?>("--export-credentials-to-env")
         {
             Description = "Activate the exportation of the api and storage credentials to the task environment (default is false)",
+        };
+
+        var projectUuidOpt = new Option<Guid?>("--project-uuid")
+        {
+            Description = "UUID of the project this task belongs to",
         };
 
         var cmd = new CommandWithExamples("create", "Create and launch new task")
@@ -375,6 +379,7 @@ public class TaskCommand : Command
             whitelistOpt,
             blacklistOpt,
             exportCredentialsToEnvOpt,
+            projectUuidOpt,
         };
 
         cmd.SetModelAction(
@@ -421,6 +426,7 @@ public class TaskCommand : Command
                 whitelistOpt,
                 blacklistOpt,
                 exportCredentialsToEnvOpt,
+                projectUuidOpt,
                 GlobalOptions
             )
         );

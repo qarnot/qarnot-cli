@@ -1,6 +1,33 @@
 using System.CommandLine;
+using System.CommandLine.Parsing;
 
 namespace QarnotCLI;
+
+public static class OptionExtensions
+{
+    /// <summary>
+    /// Sets AllowMultipleArgumentsPerToken = true so the option accepts
+    /// multiple space-separated values and adds a validator that rejects
+    /// flag-like tokens (starting with '-') that would otherwise be
+    /// silently consumed as values.
+    /// </summary>
+    public static Option<List<string>?> WithMultipleArgs(this Option<List<string>?> option)
+    {
+        option.AllowMultipleArgumentsPerToken = true;
+        option.Validators.Add(result =>
+        {
+            var values = result.GetValueOrDefault<List<string>>();
+            var flagLike = values?.Where(v => v.StartsWith("-")).ToList();
+            if (flagLike?.Count > 0)
+                result.AddError(string.Join(
+                    Environment.NewLine,
+                    flagLike.Select(f => $"Unrecognized command or argument '{f}'."))
+                );
+        });
+        return option;
+    }
+
+}
 
 public enum PoolOrTask
 {
@@ -37,8 +64,8 @@ public class GetPoolsOrTasksOptions
     public Option<string> CreatedBeforeOpt { get; }
     public Option<string> CreatedAfterOpt { get; }
     public Option<string> NamePrefixOpt { get; }
-    public Option<List<string>> TagsOpt { get; }
-    public Option<List<string>> ExclusiveTagsOpt { get; }
+    public Option<List<string>?> TagsOpt { get; }
+    public Option<List<string>?> ExclusiveTagsOpt { get; }
 
     public GetPoolsOrTasksOptions(PoolOrTask poolOrTask)
     {
@@ -95,15 +122,15 @@ public class GetPoolsOrTasksOptions
             Description = $"Filter {poolOrTask.Plural()} by name prefix. Retrieve {poolOrTask.Plural()} with name starting with the given prefix",
         };
 
-        TagsOpt = new Option<List<string>>("--tags", "-t")
+        TagsOpt = new Option<List<string>?>("--tags", "-t")
         {
-            Description = $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with any of the given tags", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with any of the given tags",
+        }.WithMultipleArgs();
 
-        ExclusiveTagsOpt = new Option<List<string>>("--exclusive-tags")
+        ExclusiveTagsOpt = new Option<List<string>?>("--exclusive-tags")
         {
-            Description = $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with all of the given tags", AllowMultipleArgumentsPerToken = true,
-        };
+            Description = $"Filter {poolOrTask.Plural()} by tags. Retrieve {poolOrTask.Plural()} with all of the given tags",
+        }.WithMultipleArgs();
     }
 }
 
