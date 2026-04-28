@@ -194,8 +194,6 @@ public class BucketUseCases : IBucketUseCases
         Logger.Result(Formatter.Format(
             new BucketSummary(
                 Shortname: bucket.Shortname,
-                TotalFileCount: (uint)bucket.FileCount,
-                TotalBytes: bytesFormatter.Format(bucket.UsedSpaceBytes),
                 Entries: entries.Select(e =>
                     string.Format("{0,7} - {1}", bytesFormatter.Format(e.Size), e.Name)
                 ).ToList()
@@ -210,8 +208,6 @@ public class BucketUseCases : IBucketUseCases
         Logger.Result(Formatter.FormatCollection(
             buckets.Select(b =>new {
                 Shortname = b.Shortname,
-                TotalFileCount= (uint)b.FileCount,
-                TotalBytes= bytesFormatter.Format(b.UsedSpaceBytes),
             }).ToList()
         ));
     }

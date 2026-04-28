@@ -44,7 +44,7 @@ public class GlobalOptions
         {
             Description = "Change the result format (one of TABLE (default) or JSON)",
         };
-        FormatOpt.AcceptOnlyFromAmong("TABLE", "JSON");
+        FormatOpt.AcceptOnlyFromAmong("TABLE", "table", "Table", "JSON", "json", "Json");
         HumanReadableOpt = new Option<bool>("-h", "--human-readable")
         {
             Description = "Print sizes in human readable format (e.g. 1K, 234M, etc.)",

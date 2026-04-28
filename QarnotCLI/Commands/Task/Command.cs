@@ -691,7 +691,7 @@ public class TaskCommand : Command
 
         var cmd = new CommandWithExamples(
             "snapshot",
-            "Commands to manage task snapshots.\n" +
+            "Commands to manage task snapshots." +
             "[deprecated] trigger a snasphot: prefer the use of subcommand 'create' to trigger snapshot: 'qarnot task snapshot create'"
         )
         {

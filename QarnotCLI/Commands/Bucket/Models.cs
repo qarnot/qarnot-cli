@@ -41,7 +41,5 @@ public record DeleteBucketModel(
 
 public record BucketSummary(
     string Shortname,
-    uint TotalFileCount,
-    string TotalBytes,
     List<string> Entries
 );

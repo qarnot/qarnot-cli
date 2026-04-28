@@ -21,9 +21,9 @@ public interface IFormatterFactory
 public class FormatterFactory : IFormatterFactory
 {
     public IFormatter Create(string format) =>
-        format switch {
-            "TABLE" => new TableFormatter(),
-            "JSON" => new JsonFormatter(),
+        format?.ToLower() switch {
+            "table" => new TableFormatter(),
+            "json" => new JsonFormatter(),
             _ => throw new MissingMethodException(format),
         };
 
