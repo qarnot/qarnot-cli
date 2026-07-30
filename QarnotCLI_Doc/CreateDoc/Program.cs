@@ -16,7 +16,8 @@ var setup = new CommandLineBuilderFactory(
     _ => new Mock<ISecretsUseCases>().Object,
     _ => new Mock<IConfigUseCases>().Object,
     _ => new Mock<IAccountUseCases>().Object,
-    _ => new Mock<IProjectUseCases>().Object
+    _ => new Mock<IProjectUseCases>().Object,
+    _ => new Mock<IQuotaUseCases>().Object
 ).Create(
     new(), releasesService, new Mock<ILogger>().Object
 );

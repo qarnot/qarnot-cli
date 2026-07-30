@@ -70,6 +70,7 @@ public class MockParser
     public Mock<IJobUseCases> JobUseCases { get; }
     public Mock<ISecretsUseCases> SecretsUseCases { get; }
     public Mock<IProjectUseCases> ProjectUseCases { get; }
+    public Mock<IQuotaUseCases> QuotaUseCases { get; }
 
     public MockParser()
     {
@@ -86,6 +87,7 @@ public class MockParser
         JobUseCases = new Mock<IJobUseCases>();
         SecretsUseCases = new Mock<ISecretsUseCases>();
         ProjectUseCases = new Mock<IProjectUseCases>();
+        QuotaUseCases = new Mock<IQuotaUseCases>();
 
         var setup = new CommandLineBuilderFactory(
             _ => TaskUseCases.Object,
@@ -97,7 +99,8 @@ public class MockParser
             _ => SecretsUseCases.Object,
             _ => ConfigUseCases.Object,
             _ => AccountUseCases.Object,
-            _ => ProjectUseCases.Object
+            _ => ProjectUseCases.Object,
+            _ => QuotaUseCases.Object
         ).Create(
             new(), releasesService, new Logger()
         );

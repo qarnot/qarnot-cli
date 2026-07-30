@@ -21,6 +21,7 @@ public class CommandLineBuilderFactory
     private readonly Func<GlobalModel, IConfigUseCases> ConfigUseCasesFactory;
     private readonly Func<GlobalModel, IAccountUseCases> AccountUseCasesFactory;
     private readonly Func<GlobalModel, IProjectUseCases> ProjectUseCasesFactory;
+    private readonly Func<GlobalModel, IQuotaUseCases> QuotaUseCasesFactory;
 
     public CommandLineBuilderFactory(UseCasesFactory useCasesFactory)
         : this(
@@ -40,7 +41,8 @@ public class CommandLineBuilderFactory
             useCasesFactory.Create<SecretsUseCases>,
             options => new ConfigUseCases(useCasesFactory.LoggerFactory.Create(options)),
             useCasesFactory.Create<AccountUseCases>,
-            useCasesFactory.Create<ProjectUseCases>
+            useCasesFactory.Create<ProjectUseCases>,
+            useCasesFactory.Create<QuotaUseCases>
         )
     {
     }
@@ -55,7 +57,8 @@ public class CommandLineBuilderFactory
         Func<GlobalModel, ISecretsUseCases> secretsUseCasesFactory,
         Func<GlobalModel, IConfigUseCases> configUseCasesFactory,
         Func<GlobalModel, IAccountUseCases> accountUseCasesFactory,
-        Func<GlobalModel, IProjectUseCases> projectUseCasesFactory
+        Func<GlobalModel, IProjectUseCases> projectUseCasesFactory,
+        Func<GlobalModel, IQuotaUseCases> quotaUseCasesFactory
     )
     {
         TaskUseCasesFactory = taskUseCasesFactory;
@@ -68,6 +71,7 @@ public class CommandLineBuilderFactory
         ConfigUseCasesFactory = configUseCasesFactory;
         AccountUseCasesFactory = accountUseCasesFactory;
         ProjectUseCasesFactory = projectUseCasesFactory;
+        QuotaUseCasesFactory = quotaUseCasesFactory;
     }
 
     public CommandLineSetup Create(
@@ -91,6 +95,7 @@ public class CommandLineBuilderFactory
             new ConfigCommand(globalOptions, ConfigUseCasesFactory),
             new AccountCommand(globalOptions, AccountUseCasesFactory),
             new ProjectCommand(globalOptions, ProjectUseCasesFactory),
+            new QuotaCommand(globalOptions, QuotaUseCasesFactory),
             new VersionCommand(assemblyDetails, logger),
         };
         rootCommand.AddGlobalOptions(globalOptions);
